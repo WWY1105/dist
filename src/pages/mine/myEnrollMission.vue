@@ -1,0 +1,440 @@
+<template>
+<div id="myPostMission">
+    <!-- 我报名的任务 -->
+    <!-- 顶部TAB -->
+    <div class="topTab flexSpace bgW">
+        <div :class="item.active==true?'item active':'item'" v-for="item,index in tabList" @click="chooseTab(index)">{{item.name}}</div>
+    </div>
+    <!-- 任务列表 -->
+    <div class="reacResult" id="resultPeoples">
+        <div :class="'eachPeople bgW '+item.borderColor" v-for="item,index of postList" @click="toSeemyPostMissionDetail(index)">
+            <div class="titleBox flexSpace padding11">
+                <div class="left flexStart">
+                    <img src="../../assets/logo.png" class="userImg" alt>
+                    <div>
+                        <p class="name">{{item.shortClassName}}{{item.shortCategory}}{{item.webUser!=null?item.webUser.type=='author'?"作者":"书商":''}}</p>
+                        <p class="options flexSpace">
+                            <span class="option flexStart">
+                  实名
+                  <i class="iconfont icon-gouxuan"></i>
+                </span>
+                            <span class="option">
+                  实名
+                  <i class="iconfont icon-gouxuan"></i>
+                </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="right flexEnd">
+                    <p class="button searchSS" v-if="item.taskType=='2'?true:false">找书商</p>
+                    <p class="button searchZZ" v-if="item.taskType=='1'?true:false">找作者</p>
+                    <p class="button searchSZ" v-if="item.taskType=='3'?true:false">找作者和书商</p>
+                    <p class="price">￥ {{item.priceMin}} - ￥{{item.priceMax}}</p>
+                </div>
+            </div>
+            <div class="details padding11">
+                <p class="hang flexSpace mainText">
+                    <span class="eachItem">状态：{{item.status}}</span>
+                    <span class="eachItem textAright">截止报名：{{item.deadline.substr(0,10)}}</span>
+                </p>
+                <p class="hang flexSpace">
+                    <span
+              class="eachItem"
+            >{{item.classNo}}/{{item.category}}/{{item.priceType=='1'?'独资出版':'合资出版'}}</span>
+                    <span class="eachItem textAright">已报名：{{item.applicationCount}}</span>
+                    <!-- <span class="eachItem">出版：{{item.taskType}}</span> -->
+                </p>
+                <p class="hang flexStart">
+                    <span class="eachItem">{{item.coordination}}/{{item.area}}</span>
+                    <span class="eachItem add textAright">发布日期：{{item.createTime.substr(0,10)}}</span>
+                </p>
+            </div>
+            <div class="otherMsg flexSpace padding11">
+
+                <p class="hang">
+                    <span>简述：{{item.introduction}}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <!-- 任务列表 end-->
+</div>
+</template>
+
+<script>
+import common from "@/assets/js/common";
+
+export default {
+    data() {
+        return {
+            //任务列表
+            postList: [],
+            postData: {},
+            tabList: [{
+                    name: "全部",
+                    active: true,
+                    id: 0
+                },
+                {
+                    name: "待确认",
+                    active: false,
+                    id: 7
+                },
+                {
+                    name: "执行中",
+                    active: false,
+                    id: 3
+                },
+                {
+                    name: "已结束",
+                    active: false,
+                    id: 4
+                }
+            ]
+        };
+    },
+    mounted() {
+        this.getMIssionlist();
+    },
+    methods: {
+        ...common,
+        // 查看任务详情
+        toSeemyPostMissionDetail(i) {
+            var id = this.postList[i].id;
+            var status = this.postList[i].status;
+            // alert(status);
+            var tabId;
+            for (var i in this.tabList) {
+                if (this.tabList[i].active) {
+                    tabId = this.tabList[i].id;
+                }
+            }
+            // 如果是执行中的任务
+            if (status == "3") {
+                // 我执行的任务，所以我是作者
+                // 作者版正在执行的任务
+                this.$router.push({
+                    path: "/missionInExecutionAuth",
+                    query: {
+                        id: id
+                    }
+                });
+
+            } else if (status == "7") {
+                this.$router.push({
+                    path: "/toConfirmMission",
+                    query: {
+                        taskId: id,
+                        isMyTask: false
+                        // doing: true
+                    }
+                });
+            } else {
+                this.$router.push({
+                    path: "/missionDetail",
+                    query: {
+                        id: id,
+                        isMyTask: false
+                    }
+                });
+            }
+        },
+        // 点击tab
+        chooseTab(index) {
+            for (let i in this.tabList) {
+                this.tabList[i].active = false;
+            }
+            this.tabList[index].active = true;
+            var status = this.tabList[index].id;
+            this.getMIssionlist(status);
+        },
+        // 获取任务列表
+        getMIssionlist(status) {
+            var that = this;
+            that.postData.uid = this.$store.state.uid;
+            // if(that.status){
+            that.postData.status = status;
+            // }
+            console.log(that.postData);
+            that
+                .$http(
+                    "get",
+                    that.$store.state.baseUrl + "api/Task/MyApply/Task",
+                    that.postData
+                )
+                .then(function (res) {
+                    // that.postList = res.data.data;
+                    if (res.data.code == "00") {
+                        var result = res.data.data;
+                       switch  (result.status) {
+                            case 1:
+                                result.status = "发布中";
+                                break;
+                            case 2:
+                                result.status = "已选定服务人";
+                                break;
+                            case 3:
+                                result.status = "执行中";
+                                break;
+                            case 4:
+                                result.status = "已结束";
+                                break;
+                            case 6:
+                                result.status = "已取消";
+                                break;
+                            case 7:
+                                result.status = '已有人报名';
+                                break;
+                            case 99:
+                                result.status = "已失败";
+                                break;
+                        }
+                        for (var i in result) {
+                            var arr = result[i].priceRange.split("-");
+                            result[i].priceMin = arr[0];
+                            result[i].priceMax = arr[1];
+
+                            if (result[i].taskType == 1) {
+                                result[i].borderColor = "zz";
+                            } else if (result[i].taskType == 2) {
+                                result[i].borderColor = "ss";
+                            } else {
+                                result[i].borderColor = "sz";
+                            }
+                            if (result[i].webUser != null) {
+                                let s = that.shortName(
+                                    result[i].webUser.authorInfo.classParent
+                                );
+                                let c = that.shortName(result[i].webUser.authorInfo.subject);
+                                result[i].shortClassName = s;
+                                result[i].shortCategory = c;
+                            }
+                        }
+
+                        that.postList = res.data.data;
+                        console.log("我报名的任务");
+                        console.log(res.data.data);
+                    } else {
+                        // AlertModule.show({
+                        //   title: res.data.msg
+                        // })
+                    }
+                });
+        }
+    }
+};
+</script>
+
+<style scoped>
+#myPostMission {
+    background: #f5f5f5;
+    padding-bottom: 60px;
+}
+
+#myPostMission .topTab {
+    height: 40px;
+    line-height: 40px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-bottom: 10px;
+}
+
+#myPostMission .topTab .item {
+    font-size: 15px;
+    color: #636363;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#myPostMission .topTab .item.active {
+    color: #3375c5;
+    border-bottom: 2px solid #3375c5;
+}
+
+.topBox {
+    height: 40px;
+    line-height: 40px;
+    border-bottom: 1px solid #cecece;
+    background: #fff;
+}
+
+.line {
+    width: 1px;
+    height: 28px;
+    background: #cecece;
+    display: inline-block;
+}
+
+.topBox .eachBtn {
+    display: flex;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.topBox .eachBtn i {
+    padding-left: 6px;
+    color: #3375c5;
+}
+
+.topBox .eachBtn.shortOne {
+    padding-left: 28px;
+    padding-right: 22px;
+}
+
+.topBox .eachBtn.lastItem {
+    background: #3375c5;
+    color: #fff;
+    font-weight: bold;
+    height: 40px;
+}
+
+.topBox .eachBtn.lastItem i {
+    color: #fff;
+}
+
+#resultPeoples {
+    background: #f5f5f5;
+}
+
+.eachPeople {
+    /* padding: 11px; */
+    /*padding-bottom: 0;*/
+    /*margin-top: 10px;*/
+    margin-bottom: 10px;
+}
+
+.eachPeople.ss {
+    border-bottom: 4px solid #2ea200;
+}
+
+.eachPeople.zz {
+    border-bottom: 4px solid #3375c5;
+}
+
+.eachPeople.sz {
+    border-bottom: 4px solid #feab29;
+}
+
+.reacResult .right .button {
+    font-size: 14px;
+    padding: 1px 7px 1px 12px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+}
+
+.reacResult .right .button.searchSS {
+    color: #2ea200;
+    border: 1px solid #2ea200;
+}
+
+.reacResult .right .button.searchZZ {
+    color: #3375c5;
+    border: 1px solid #3375c5;
+}
+
+.reacResult .right .button.searchSZ {
+    color: #feab29;
+    border: 1px solid #feab29;
+}
+
+.eachPeople .otherMsg {
+    padding: 11px 11px 14px 11px;
+    color: #999999;
+    font-size: 12px;
+    background: #f5f5f5;
+}
+
+.padding11 {
+    padding: 11px;
+}
+
+.eachPeople .submitBtn {
+    width: 60px;
+    height: 21px;
+    background: #3375c5;
+    color: #fff;
+    border-radius: 5px;
+    font-weight: bold;
+    border: none;
+}
+
+#resultPeoples.reacResult .details {
+    display: block;
+    color: #707070;
+    background: #fff;
+    padding: 14px 17px;
+}
+
+#resultPeoples.reacResult .titleBox {
+    margin-bottom: 0;
+    border-bottom: 1px solid #cecece;
+}
+
+#resultPeoples.reacResult .hang {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 7px;
+}
+
+#resultPeoples.reacResult span.eachItem {
+    width: 50%;
+    display: inline-block;
+}
+
+#resultPeoples.reacResult span.eachItem.add {
+    width: 66%;
+}
+
+.smalltitle {
+    color: #242424;
+    font-size: 14px;
+    padding: 10px 16px;
+}
+
+.weui-cell {
+    /* padding: 10px 16px; */
+    height: 44px;
+}
+
+.popBtnBox,
+.vux-popup-dialog {
+    background: #fff;
+    z-index: 9999999999999999999999;
+}
+
+.popBtnBox .weui-btn {
+    width: 100% !important;
+    margin-bottom: 13px;
+}
+
+#myPostMission .priceBox {
+    padding: 10px 16px;
+    /*background: #f5f5f5;*/
+    border-bottom: 1px solid #d9d9d9;
+}
+
+#myPostMission .priceBox span.title {
+    font-size: 14px;
+    color: #242424;
+}
+
+#myPostMission .vux-x-textarea.weui-cell {
+    padding: 0 15px;
+    font-size: 14px;
+    color: #242424;
+}
+
+#myPostMission .priceBox input {
+    width: 80px;
+    height: 30px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background: #fff;
+    padding: 5px;
+}
+
+#myPostMission .vux-cell-box.areaBox {
+    padding: 5px 0px;
+    border-bottom: 1px solid #d9d9d9;
+}
+</style>
