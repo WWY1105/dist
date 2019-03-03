@@ -788,7 +788,7 @@ export default {
             var that = this;
             that.postData.order = that.order;
             that.postData.currentPage = that.nowPage;
-             that.postData.loginUid = that.$store.state.uid;
+
             that
                 .$http(
                     "get",

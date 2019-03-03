@@ -143,7 +143,7 @@ export default {
             }
             
            
-            this.postData.order=''
+
            delete this.postData.category;
 
             console.log(this.postData)

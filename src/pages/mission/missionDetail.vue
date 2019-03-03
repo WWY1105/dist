@@ -116,10 +116,11 @@
     </div>
     <!-- 不是我的任务 -->
     <div class="btnBox bgw" v-if="!isMyTask">
-        <button v-if="apply?taskStatus=='2'?true:false:false" class="long_btn" @click="toConfirmTask">发布者已回复，请确认（剩余？？？）</button>
-       
+
+        <button v-if="apply?taskStatus=='3'?true:false:false" class="long_btn" @click="toConfirmTask">发布者已回复，请确认（剩余？？？）</button>
         <button v-if="apply&&taskStatus=='7'?true:false" class="long_btn disable">已报名，请等待发布者确认</button>
         <button v-if="!apply" class="long_btn" @click="toEnroll">参加报名（截至{{showData.deadline}}）</button>
+
     </div>
     <div class="btnBox bgw" v-if="isMyTask">
         <flexbox>

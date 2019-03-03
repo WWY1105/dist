@@ -10,7 +10,7 @@
         <div :class="'eachPeople bgW '+item.borderColor" v-for="item,index of postList" @click="toSeemyPostMissionDetail(index)">
             <div class="titleBox flexSpace padding11">
                 <div class="left flexStart">
-                    <img src="../../assets/logo.png" class="userImg" alt>
+                    <img :src="$store.state.imgUrl+item.webUser.imgurl" class="userImg" alt>
                     <div>
                         <p class="name">{{item.shortClassName}}{{item.shortCategory}}{{item.webUser!=null?item.webUser.type=='author'?"作者":"书商":''}}</p>
                         <p class="options flexSpace">
@@ -166,29 +166,7 @@ export default {
                     // that.postList = res.data.data;
                     if (res.data.code == "00") {
                         var result = res.data.data;
-                       switch  (result.status) {
-                            case 1:
-                                result.status = "发布中";
-                                break;
-                            case 2:
-                                result.status = "已选定服务人";
-                                break;
-                            case 3:
-                                result.status = "执行中";
-                                break;
-                            case 4:
-                                result.status = "已结束";
-                                break;
-                            case 6:
-                                result.status = "已取消";
-                                break;
-                            case 7:
-                                result.status = '已有人报名';
-                                break;
-                            case 99:
-                                result.status = "已失败";
-                                break;
-                        }
+                        
                         for (var i in result) {
                             var arr = result[i].priceRange.split("-");
                             result[i].priceMin = arr[0];
@@ -209,9 +187,32 @@ export default {
                                 result[i].shortClassName = s;
                                 result[i].shortCategory = c;
                             }
+                            switch (result[i].status) {
+                                case 1:
+                                    result[i].status = "发布中";
+                                    break;
+                                case 2:
+                                    result[i].status = "已选定服务人";
+                                    break;
+                                case 3:
+                                    result[i].status = "执行中";
+                                    break;
+                                case 4:
+                                    result[i].status = "已结束";
+                                    break;
+                                case 6:
+                                    result[i].status = "已取消";
+                                    break;
+                                case 7:
+                                    result[i].status = '已有人报名';
+                                    break;
+                                case 99:
+                                    result[i].status = "已失败";
+                                    break;
+                            }
                         }
 
-                        that.postList = res.data.data;
+                        that.postList = result;
                         console.log("我报名的任务");
                         console.log(res.data.data);
                     } else {
@@ -317,7 +318,7 @@ export default {
 
 .reacResult .right .button {
     font-size: 14px;
-    padding: 1px 7px 1px 12px;
+    padding: 1px 7px 1px 7px;
     border-radius: 5px;
     margin-bottom: 8px;
 }

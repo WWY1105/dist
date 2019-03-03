@@ -57,20 +57,15 @@ export default {
         getWebUser(uid) {
             var that = this;
             var baseUrl = this.$store.state.baseUrl;
-            that.$http('get', baseUrl + 'api/UserTag/List?uid=' + that.$store.state.uid).then(function (res) {
-                // 自我标签type=1
-                for(let i in res.data.data){
-                    if(res.data.data[i].type=='1'){
-                        that.userTags.push(res.data.data[i])
-                    }
-                }
-                // that.userTags = res.data.data;
-console.log(that.tags.length+"============" + that.userTags.length)
+            that.$http('get', baseUrl + 'api/WebUser/' + uid, {
+                loginUid: that.$store.state.uid
+            }).then(function (res) {
+                that.userTags = res.data.data.authorInfo.userTags;
+
                 for (var i in that.tags) {
                     for (var j in that.userTags) {
-                        console.log(that.tags[i].tagName+"============" + that.userTags[j].tag)
                         if (that.tags[i].tagName == that.userTags[j].tag) {
-                            
+                            console.log(that.tags[i].tagName+"============" + that.userTags[j].tag)
                              that.tags[i].active = true;
                         }
                     }

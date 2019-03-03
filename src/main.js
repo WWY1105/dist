@@ -3,16 +3,13 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import lrz from 'lrz' 
+// import lrz from 'lrz' 
 // import 'es6-promise/auto'
 // import Vuex from 'vuex'
 import store from './store'
 import wx from  'weixin-js-sdk'
 import '@/assets/css/main.css'
 import '@/assets/css/iconfont.css'
-// 解决移动端点击事件300毫秒延迟
-import  FastClick  from  'fastclick'
-FastClick.attach(document.body);
 
 import '@/assets/js/ydui.flexible'
 

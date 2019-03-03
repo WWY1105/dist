@@ -81,28 +81,27 @@ export default {
       //任务列表
       postList: [],
       postData: {},
-      tabList: [
-        {
-          name: "全部",
-          active: true,
-          id: 1
-        },
-        {
-          name: "待确认",
-          active: false,
-          id: 2
-        },
-        {
-          name: "执行中",
-          active: false,
-          id: 3
-        },
-        {
-          name: "已结束",
-          active: false,
-          id: 4
-        }
-      ]
+      tabList: [{
+                    name: "全部",
+                    active: true,
+                    id: 0
+                },
+                {
+                    name: "待确认",
+                    active: false,
+                    id: 7
+                },
+                {
+                    name: "执行中",
+                    active: false,
+                    id: 3
+                },
+                {
+                    name: "已结束",
+                    active: false,
+                    id: 4
+                }
+            ]
     };
   },
   mounted() {
@@ -254,7 +253,7 @@ export default {
 
 .reacResult .right .button {
   font-size: 14px;
-  padding: 1px 7px 1px 12px;
+  padding: 1px 7px 1px 7px;
   border-radius: 5px;
   margin-bottom: 8px;
 }

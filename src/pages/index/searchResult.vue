@@ -471,7 +471,7 @@ export default {
             // var obj = JSON.parse(that.$route.query.postData);
             // that.postData = that.$route.query.postData;
             that.postData.currentPage = that.page;
-             that.postData.loginUid = that.$store.state.uid;
+
             that.getNameById(that.postData.classNo, that.sliderBigClassArr);
             that
                 .$http(

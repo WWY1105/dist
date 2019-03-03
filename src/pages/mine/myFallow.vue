@@ -1,6 +1,6 @@
 <template>
 <div id="myFallow">
-    <router-link :to="{path:'/writerDetail',query:{'writerId':item.uid}}" v-for="item,index in writerList">
+    <router-link :to="{path:'/writerDetail',query:{'writerId':item.id}}" v-for="item,index in writerList">
         <writers :imgurl="item.imgurl"
         :shortName="item.nickname"></writers>
     </router-link>
@@ -24,17 +24,40 @@ export default {
     },
     methods: {
         //  获取我的关注列表
-        getFellowList() {
+        // getFellowList() {
+        //     var that = this;
+        //     var baseUrl = that.$store.state.baseUrl;
+        //     that
+        //         .$http("get", baseUrl + "api/Circle/MyFollow/Page", {
+        //             uid: that.$store.state.uid,
+        //             currentPage: that.currentPage
+        //         })
+        //         .then(function (res) {
+        //             if (res.data.code == '00') {
+        //                 that.writerList = res.data.data
+        //             } else {
+        //                 AlertModule.show({
+        //                     title: res.data.msg
+        //                 });
+        //             }
+        //         });
+        // }
+         getFellowList() {
             var that = this;
             var baseUrl = that.$store.state.baseUrl;
             that
-                .$http("get", baseUrl + "api/Circle/MyFollow/Page", {
-                    uid: that.$store.state.uid,
-                    currentPage: that.currentPage
+                .$http("get", baseUrl + "api/UserFollowing/List", {
+                    uid: that.$store.state.uid
                 })
                 .then(function (res) {
                     if (res.data.code == '00') {
-                        that.writerList = res.data.data
+                        var result=res.data.data;
+                        var resultArr=[];
+                        for(var i in result){
+                            resultArr.push(result[i].followingUser)
+                        }
+                        console.log(resultArr)
+                        that.writerList = resultArr;
                     } else {
                         AlertModule.show({
                             title: res.data.msg

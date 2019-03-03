@@ -126,7 +126,7 @@
             <span>费用明细与细节</span>
             <span class="mainText" v-if="sendSuccess" @click="reEditInfo">修改</span>
           </div>
-          <div class="content flexStart">
+          <div class="content flexSpace">
             <div class="left">
               <p>
                 总费用：
@@ -148,7 +148,7 @@
                 费用单价：
                 <span
                   class="mainText"
-                >￥{{Math.floor(finalPrice-(serviceRate*finalPrice+finalPrice*adjustmentRate))/(times.join('')*time.join(''))}}/小时</span>
+                >￥{{Math.round(Math.floor(finalPrice-(serviceRate*finalPrice+finalPrice*adjustmentRate))/(times.join('')*time.join(''))*100)/100}}/小时</span>
               </p>
             </div>
 
@@ -819,14 +819,14 @@ body {
 }
 
 #replyDetail .eachBox .content {
-  padding: 21px 18px 0px 18px;
+  padding: 21px 10px 0px 10px;
   line-height: 25px;
   color: #999999;
   font-size: 12px;
 }
 
 #replyDetail .eachBox .content .right {
-  padding-left: 44px;
+  /* padding-left: 44px; */
 }
 
 #replyDetail .eachBox .strongText {

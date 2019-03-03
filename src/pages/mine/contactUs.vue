@@ -2,9 +2,9 @@
 <div id="contactUs" class="flexCenter bgW">
     <div class="pic ">
         <img src="../../assets/img/Telephone@2x.png" class="topPic" alt="">
-        <p> 书商热线：<input class="mainText" placeholder="400 800 2421" type="tel"> </p>
-        <p> 作者热线：<input class="mainText" placeholder="400 800 2422" type="tel"> </p>
-        <p> 投诉热线：<input class="mainText" placeholder="400 800 2423" type="tel"></p>
+        <p> 书商热线：<a  class="mainText"  type="tel">400 800 2421</a> </p>
+        <p> 作者热线：<a  class="mainText"  type="tel">400 800 2422</a> </p>
+        <p> 投诉热线：<a  class="mainText"  type="tel">400 800 2423</a></p>
     </div>
     <div class="pic">
         <img src="../../assets/img/wx@2x.png" class="bottomPic" alt="">

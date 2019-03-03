@@ -7,7 +7,7 @@ export default new Vuex.Store({
     state: {
         imgUrl:"http://nian.im/storage/",
         baseUrl: "http://nian.im/works/",
-        uid:'23',
+        uid:'',
         role:'',
         openid:'', 
         userImg:'',
