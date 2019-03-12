@@ -102,7 +102,8 @@ export default {
         toSeemyPostMissionDetail(i) {
             var id = this.postList[i].id;
             var status = this.postList[i].status;
-            // alert(status);
+            
+            //  alert(status);
             var tabId;
             for (var i in this.tabList) {
                 if (this.tabList[i].active) {
@@ -110,7 +111,7 @@ export default {
                 }
             }
             // 如果是执行中的任务
-            if (status == "3") {
+            if (status == '执行中') {
                 // 我执行的任务，所以我是作者
                 // 作者版正在执行的任务
                 this.$router.push({
@@ -120,7 +121,7 @@ export default {
                     }
                 });
 
-            } else if (status == "7") {
+            } else if (status == "待确认") {
                 this.$router.push({
                     path: "/toConfirmMission",
                     query: {

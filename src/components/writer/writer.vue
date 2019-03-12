@@ -8,6 +8,7 @@
             <div class="right">
                 <div class="titleBox">
                     <span class="title">{{shortName}}</span>
+                    <!-- <input type="text"> -->
                     <p v-if="isMissionDetail">
                         <span class="price" v-if="!isCanChoose">
                         <!-- ￥1000-￥1200 -->

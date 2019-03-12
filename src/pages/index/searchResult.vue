@@ -15,7 +15,7 @@
 
         <!--排序-->
         <div v-transfer-dom id="myPop">
-            <sortPopup :pxIsShow="pxIsShow" :sortOptions="sortOptions" @getPxIsShow="getPxIsShow" @getOrderType="getOrderType"></sortPopup>
+            <sortPopup :pxIsShow="pxIsShow" :sortOptions="sortOptions" @getPxIsShow="getPxIsShow" @getMissionOrderType="getMissionOrderType"></sortPopup>
         </div>
         <!--顶部过滤-->
         <div id="myPop">
@@ -25,9 +25,9 @@
                     <span class="lightText">{{allPeople}}</span>个可供查看
                 </p>
                 <!--年级选择-->
-                <cell title="年级" is-link :value="rightText1" @click.native="gotoMultiPicker('class')"></cell>
+                <!-- <cell title="年级" is-link :value="rightText1" @click.native="gotoMultiPicker('class')"></cell> -->
                 <!--科目选择器-->
-                <cell title="科目" is-link :value="rightText2" @click.native="gotoMultiPicker('category')"></cell>
+                <!-- <cell title="科目" is-link :value="rightText2" @click.native="gotoMultiPicker('category')"></cell> -->
                 <group>
                     <x-switch title="需要身份认证" v-model="stringValue1"></x-switch>
                 </group>
@@ -148,9 +148,15 @@
                             </div>
                         </div>
                     </div>
-                    <router-link :to="{path:'/writerDetail',query:{'writerId':item.id}}" v-for="item,index in writerList">
-                        <writers :imgurl="item.imgurl" :userTags="item.authorInfo.userTags" :realAuth="item.realAuth" :eduAuth="item.eduAuth" :networkCount="item.networkCount" :workAge="item.authorAuthInfo.workAge" :soleCost="item.authorInfo.soleCost" :shortName="item.nickname"></writers>
-                    </router-link>
+                    <!-- 循环 -->
+                    <div v-for="item,index in writerList">
+                        <router-link :to="{path:'/writerDetail',query:{'writerId':item.id}}" v-if="item.flag=='writer'">
+                            <writers :imgurl="item.imgurl" :userTags="item.authorInfo.userTags" :realAuth="item.realAuth" :eduAuth="item.eduAuth" :networkCount="item.networkCount" :workAge="item.authorAuthInfo.workAge" :soleCost="item.authorInfo.soleCost" :shortName="item.nickname"></writers>
+                        </router-link>
+                        <div v-if="item.flag=='ad'">
+                            <a :href="item.url" class="adImgA"><img :src="item.imgurl" alt="" class="adImg"></a>
+                        </div>
+                    </div>
                 </div>
         </scroller>
     </div>
@@ -253,18 +259,21 @@ export default {
     },
     mounted() {
         this.rangValue = 0;
+        // 获取广告
+        this.getAd()
         //  this.$refs.scroller.finishInfinite(true)
         this.getCategory();
         this.getGrade();
         this.postData = JSON.parse(this.$route.query.postData);
+        // this.postData.currentPage=this.page;
+        this.postData.pageSize = 5;
         console.log("搜索参数");
         console.log(this.postData);
         // 胡获取作者列表
-        this.searchResultList(this.page);
+        // this.searchResultList(this.page);
         // 年纪
         this.getBigGrade();
-        // 获取作者总数
-        // this.getTotalWriter();
+
         // 上拉刷新！---------------------------------
         this.$nextTick(() => {
             this.$refs.scrollerBottom.reset({
@@ -347,7 +356,7 @@ export default {
             rangValue: 0,
             // searchGrade:'',
             order: "",
-            postData: this.$route.query.postData,
+            postData: {},
             writerList: [],
             sliderBigClassArr: [],
             noDataText: "没有数据了",
@@ -357,46 +366,77 @@ export default {
             isBottom: false,
             categoryName: "",
             list: [],
+            adList: [], //广告列表
             pullupDefaultConfig: pullupDefaultConfig,
             pulldownDefaultConfig: pulldownDefaultConfig
         };
     },
     watch: {
-        order: {
-            handler(newName, oldName) {
-                // alert(newName)
-                this.postData.order=newName
-                this.page=1;
-                 this.searchResultList(this.page, newName);
-                // this.loadMore()
-            },
-            deep: true,
-            immediate: true
-        }
+        // order: {
+        //     handler(newName, oldName) {
+        //         // alert(newName)
+        //         this.postData.order=newName
+        //         this.page=1;
+        //          this.searchResultList(this.page, newName);
+        //         // this.loadMore()
+        //     },
+        //     deep: true,
+        //     immediate: true
+        // }
     },
     methods: {
         ...common,
+        // 获取广告
+        getAd() {
+            var that = this;
+            that
+                .$http(
+                    "get",
+                    that.$store.state.baseUrl + "api/Ad/List"
+                )
+                .then(function (res) {
+                    if (res.data.code != "00") {
+                        AlertModule.show({
+                            title: res.data.msg
+                        });
+                    } else {
+                        that.adList = res.data.data;
+                        for (var i in that.adList) {
+                            that.adList[i].imgurl = that.$store.state.imgUrl + that.adList[i].imgurl
+                            that.adList[i].flag = 'ad'
+                        }
 
+                        console.log('广告')
+                        console.log(res.data.data);
+
+                    }
+                });
+        },
         // 显示筛选结果
         showSSResult() {
             // 页码，排序，年级，科目，身份，学历，性别，年限
             console.log("筛选条件");
 
             var that = this;
-            that.page = '1'
+            that.page = '1';
+            //  classNo: that.rightText1,
+            // subject: that.rightText2,
             that.postData = {
-                classNo: that.rightText1,
-                subject: that.rightText2,
                 realAuth: that.stringValue1 ? true : '',
                 eduAuth: that.stringValue2 ? true : '',
                 authorAuth: that.stringValue3 ? true : '',
                 gender: that.chooseSex,
                 minWorkAge: that.minWorkAge,
                 maxWorkAge: that.maxWorkAge,
-                currentPage: that.page,
-
+                currentPage: that.page
             };
-
+            // console.log(that.postData)
+            for(var i  in that.postData){
+                // console.log(that.postData[i])
+                if(!that.postData[i]){
+                    delete that.postData[i]
+                }
+            }
             that.sxIsShow = false;
             that
                 .$http(
@@ -436,28 +476,49 @@ export default {
                     }
                 });
         },
+        // 排序
+        getMissionOrderType(val) {
+            var that = this;
+            that.postList = [];
+            that.postData.order = val;
+            that.page = 1;
+            that.postData.currentPage = that.page;
+            that.postData.pageSize = 5;
+            that.loadMore()
 
+        },
         // ========================================
         refresh() {
             var that = this;
-            if (that.page != 0) {
-                that.page--;
-                that.searchResultList(data => {
-                    that.writerList = data;
-                    that.$refs.scrollerBottom.enablePullup();
-                    that.$refs.scrollerBottom.donePulldown();
-                });
-            }
+            // if (that.page != 0) {
+            //     that.page--;
+            //     that.searchResultList(data => {
+            //         that.writerList = data;
+            //         that.$refs.scrollerBottom.enablePullup();
+            //         that.$refs.scrollerBottom.donePulldown();
+            //     });
+            // }
         },
         loadMore() {
             var that = this;
+            console.log('执行了loadmore')
+
             that.searchResultList(data => {
-                if (that.writerList.length >= 10) {
+                if (data.length <= 4) {
                     that.$refs.scrollerBottom.disablePullup();
                 }
                 that.writerList = that.writerList.concat(data);
+                var index;
+                for (var i in that.adList) {
+                    index = that.adList[i].adIndex;
+                    that.writerList.splice(index, 1, that.adList[i])
+                }
+                console.log('000000000000000000000000000000000000000000')
+                console.log(that.writerList)
                 that.$refs.scrollerBottom.donePullup();
+
             });
+            that.postData.currentPage = that.page;
             that.page++;
 
         },
@@ -466,12 +527,6 @@ export default {
         // 页码，排序，年级，科目，身份，学历，资质，性别，年限/orderBy
         searchResultList(fn) {
             var that = this;
-
-            this.loading = false;
-            // var obj = JSON.parse(that.$route.query.postData);
-            // that.postData = that.$route.query.postData;
-            that.postData.currentPage = that.page;
-
             that.getNameById(that.postData.classNo, that.sliderBigClassArr);
             that
                 .$http(
@@ -486,14 +541,18 @@ export default {
                         });
                     } else {
                         var result = res.data.data;
+                        for (var i in result) {
+                            result[i].flag = 'writer'
+                        }
                         that.allPeople = res.data.pi.totalSize;
-                        // that.writerList = result;
+
                         if (result.length != 0) {
                             fn(result);
                         }
 
                     }
                 });
+
         },
         getResult() {
             // 年级
@@ -653,6 +712,18 @@ export default {
 .reacResult {
     margin-top: 10px;
     padding: 10px;
+}
+
+.adImgA {
+    margin-top: 10px;
+    display: block;
+    width: 100%;
+    height: 145px;
+}
+
+.adImg {
+    height: 100%;
+    width: 100%;
 }
 
 .brifResult {

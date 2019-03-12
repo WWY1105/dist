@@ -93,6 +93,8 @@ export default {
             idCard: "",
             isios: false,
             frontUrl: '',
+            orifrontUrl:'',
+            oribackUrl: '',
             backUrl: '',
             shortName: ''
         };
@@ -158,6 +160,8 @@ export default {
                         title: res.data.msg
                     })
                 } else {
+                    that.orifrontUrl=res.data.data;
+
                     var showUrl = 'http://nian.im/storage/' + res.data.data
                     that.frontUrl = showUrl
                 }
@@ -185,6 +189,7 @@ export default {
                         title: res.data.msg
                     })
                 } else {
+                     that.oribackUrl=res.data.data;
                     var showUrl = 'http://nian.im/storage/' + res.data.data
                     that.backUrl = showUrl
                     // console.log(that.imgArr)  
@@ -203,8 +208,8 @@ export default {
                 firstName: that.firstName,
                 secondName: that.secondName,
                 idCard: that.idCard,
-                cardFront: that.frontUrl,
-                cardReverse: that.backUrl
+                cardFront: that.orifrontUrl,
+                cardReverse: that.oribackUrl
             }
             var flag = true;
 

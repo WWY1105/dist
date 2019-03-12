@@ -1,7 +1,7 @@
 <template>
 <div id="index" class="bgW">
     <!--轮播图 -->
-    <swiper auto class="swiper" height="120px" :list="swipperList" v-model="demo01_index" @on-index-change="demo01_onIndexChange"></swiper>
+    <swiper auto class="swiper" @click.native="seeBannerUrl" height="120px" :list="swipperList" v-model="demo01_index" @on-index-change="demo01_onIndexChange"></swiper>
     <!--轮播图 end-->
 
     <!--第一部分-->
@@ -97,6 +97,11 @@ export default {
     },
     methods: {
         ...common,
+        // 点击轮播图
+        seeBannerUrl(){
+           var url= this.swipperList[this.demo01_index].bannerContent;
+           window.location.href=url
+        },
         // 轮播图
         getSwipper() {
             var that = this;
@@ -107,7 +112,9 @@ export default {
                     for (var i in result) {
                         result[i].img = that.$store.state.imgUrl+result[i].bannerSrc;
                     }
-                    that.swipperList = result
+                    that.swipperList = result;
+                    console.log('轮播图数组')
+                    console.log(result)
                 }
             });
         },
@@ -146,6 +153,14 @@ export default {
 
            delete this.postData.category;
 
+            
+            for(var i in this.postData){
+                // console.log(i+"***********"+this.postData[i])
+                if(!i||!this.postData[i]){
+                    delete this.postData[i]
+                }
+            }
+            console.log('"***********"')
             console.log(this.postData)
             this.$router.push({
                 path: '/searchResult',

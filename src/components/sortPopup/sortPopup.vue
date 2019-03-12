@@ -70,6 +70,9 @@ export default {
             }
             this.$emit('getPxIsShow',false)
             this.$emit('getOrderType',this.order||this.sortOptions[0].value)
+            // 任务中的排序监听
+            this.$emit('getMissionOrderType',this.order||this.sortOptions[0].value)
+            
         },
         // 点击每一个排序
         choostItem(i) {

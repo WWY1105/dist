@@ -52,17 +52,17 @@
     </div>
     <div class="eachNavBox bgW mrb">
         <group>
-            <cellNav v-for="item,index in navList.slice(0,2)" :noBorder="index==1?'noBorder':''" :link="item.link" :leftTitle="item.title" :icon="item.icon" :num="item.rightNum"></cellNav>
+            <cellNav v-for="item,index in navList.slice(0,3)" :noBorder="index==2?'noBorder':''" :link="item.link" :leftTitle="item.title" :icon="item.icon" :num="item.rightNum"></cellNav>
         </group>
     </div>
     <div class="eachNavBox bgW mrb">
         <group>
-            <cellNav v-for="item,index in navList.slice(2,8)" :noBorder="index==5?'noBorder':''" :writerId="item.writerId" :link="item.link" :leftTitle="item.title" :icon="item.icon" :num="item.rightNum"></cellNav>
+            <cellNav v-for="item,index in navList.slice(3,9)" :noBorder="index==5?'noBorder':''" :writerId="item.writerId" :link="item.link" :leftTitle="item.title" :icon="item.icon" :num="item.rightNum"></cellNav>
         </group>
     </div>
     <div class="eachNavBox bgW mrb">
         <group>
-            <cellNav v-for="item,index in navList.slice(8)" :noBorder="index==4?'noBorder':''" :link="item.link" :leftTitle="item.title" :icon="item.icon" :num="item.rightNum"></cellNav>
+            <cellNav v-for="item,index in navList.slice(9)" :noBorder="index==4?'noBorder':''" :link="item.link" :leftTitle="item.title" :icon="item.icon" :num="item.rightNum"></cellNav>
         </group>
     </div>
 
@@ -98,6 +98,12 @@ export default {
                     link: 'myEnrollMission',
                     rightNum: 0,
                     icon: 'icon-liebiao5'
+                },{
+                    title: '补充登记',
+                    isLink: true,
+                    link: 'supplementaryRegistration',
+                    rightNum: 0,
+                    icon: 'icon-tianjia'
                 }, {
                     title: '预览我的主页',
                     isLink: true,

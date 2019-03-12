@@ -244,11 +244,11 @@ export default {
                     var firstName = res.data.data.realName.firstName;
                     var type = res.data.data.type == "author" ? "作者" : "书商";
                     for (var i in grade) {
-                        gradeArr.push(grade[i].substr(0, 1));
+                        gradeArr.push(grade[i].substr(0, 2));
                     }
                     grade = gradeArr.join("");
                     for (var i in subject) {
-                        subjectArr.push(subject[i].substr(0, 1));
+                        subjectArr.push(subject[i].substr(0, 2));
                     }
                     subject = subjectArr.join("");
                     that.shortName = grade + subject + firstName + type;
@@ -274,21 +274,20 @@ export default {
                     that.rightText2 = res.data.data.authorInfo.subject;
                     
                     // 独资出版费用authorInfo.soleCost
-                    that.rightText4 = res.data.data.authorInfo.soleCost + "元";
+                     that.rightText4 = res.data.data.authorInfo.soleCost + "元";
                      that.soleCost=res.data.data.authorInfo.soleCost
                 .split("元")[0]
                 .split("~")
                 .join("-");
                     // 合资出版费用authorInfo.jointCost
                     that.rightText5 = res.data.data.authorInfo.jointCost + "元";
+                    // alert(that.rightText5)
                     that.jointCost=res.data.data.authorInfo.jointCost
                 .split("元")[0]
                 .split("~")
                 .join("-");
                     // 协作方式authorInfo.coordination
-                    // alert(res.data.data.authorInfo.coordination)
                     that.coordinations=res.data.data.authorInfo.coordination;
-
                     that.rightText3 = res.data.data.authorInfo.coordination;
                     // 协作区域authorInfo.area
                     that.address = res.data.data.authorInfo.area.split(",");
@@ -417,6 +416,10 @@ export default {
         // 点击底部提交按钮
         savuAllContent() {
             var that = this;
+            console.log(typeof this.coordinations)
+            if(this.coordinations instanceof Array){
+                this.coordinations=this.coordinations.join(",")
+            }
             var postData = {
                 uid: this.uid,
                 gender: this.gender,
@@ -424,7 +427,7 @@ export default {
                 subject: this.subject.indexOf(',')>0?this.subject.join(","):this.subject,
                 soleCost: this.soleCost, //独资费用
                 jointCost: this.jointCost, //合资费用
-                coordination: this.coordinations.indexOf(',')>0?this.coordinations.join(","):this.coordinations,
+                coordination:this.coordinations,
                 area: this.area,
                 selfCon: this.introductionContent,
                 nickname: this.shortName

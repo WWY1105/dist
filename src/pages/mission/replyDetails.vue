@@ -21,7 +21,7 @@
             </p>
             <!-- 出钱的人 -->
             <p>服务接收者：
-              <span class="mainText" @click="mainShow=!mainShow;serviceRecipientShow=!serviceRecipientShow">{{serviceReceiver.split(',').length>=5?"查看详细名单共"+bussArr.length+"人":serviceReceiver}}</span>
+              <span class="mainText" @click="mainShow=!mainShow;serviceRecipientShow=!serviceRecipientShow">{{!serviceReceiver?'':serviceReceiver.split(',').length>=5?"查看详细名单共"+bussArr.length+"人":serviceReceiver}}</span>
               <!-- <span class="mainText">{{postUser.nickname}}</span> -->
             </p>
           </div>

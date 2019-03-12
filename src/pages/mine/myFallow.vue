@@ -1,8 +1,7 @@
 <template>
 <div id="myFallow">
     <router-link :to="{path:'/writerDetail',query:{'writerId':item.id}}" v-for="item,index in writerList">
-        <writers :imgurl="item.imgurl"
-        :shortName="item.nickname"></writers>
+        <writers :imgurl="item.imgurl" :shortName="item.nickname"></writers>
     </router-link>
 </div>
 </template>
@@ -19,7 +18,7 @@ export default {
             writerList: []
         }
     },
-    mounted(){
+    mounted() {
         this.getFellowList()
     },
     methods: {
@@ -42,7 +41,7 @@ export default {
         //             }
         //         });
         // }
-         getFellowList() {
+        getFellowList() {
             var that = this;
             var baseUrl = that.$store.state.baseUrl;
             that
@@ -51,9 +50,9 @@ export default {
                 })
                 .then(function (res) {
                     if (res.data.code == '00') {
-                        var result=res.data.data;
-                        var resultArr=[];
-                        for(var i in result){
+                        var result = res.data.data;
+                        var resultArr = [];
+                        for (var i in result) {
                             resultArr.push(result[i].followingUser)
                         }
                         console.log(resultArr)

@@ -77,8 +77,8 @@ export default {
                                 console.log(res.data.data)
                                 var result = res.data.data;
                                 var type = result.type == "author" ? '作者' : '书商';
-                                var clas = result.authorInfo.classParent == '' ? '' : result.authorInfo.classParent.substr(0, 1);
-                                var category = result.authorInfo.subject == '' ? '' : result.authorInfo.subject.substr(0, 1);;
+                                var clas = result.authorInfo.classParent == '' ? '' : result.authorInfo.classParent.substr(0, 2);
+                                var category = result.authorInfo.subject == '' ? '' : result.authorInfo.subject.substr(0, 2);
                                 var nickname = clas + category + type;
                                 console.log(nickname);
                                 var postData = {

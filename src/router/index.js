@@ -34,12 +34,16 @@ import replyDetails from '@/pages/mission/replyDetails'
 import toConfirmMission from '@/pages/mission/toConfirmMission'
 import serviceRecipient from '@/pages/mission/serviceRecipient'
 import handelEnroll  from '@/pages/mission/handelEnroll'
-
+import taskPay  from '@/pages/mission/taskPay'
+import paySuccess  from '@/pages/mission/paySuccess'
+import payFail  from '@/pages/mission/payFail'
 // 任务  end
 
 
 // 我的
 import mineIndex from '@/pages/mine/mineIndex'
+import supplementaryRegistration from '@/pages/mine/supplementaryRegistration'
+
 import myMainPage from '@/pages/mine/myMainPage'
 import realNameAuthentication  from '@/pages/mine/realNameAuthentication'
 import educationAuthentication  from '@/pages/mine/educationAuthentication'
@@ -436,6 +440,28 @@ export default new Router({
         title:'处理报名'
       }
     },{
+      path: '/taskPay',
+      name: 'taskPay',
+      component: taskPay,
+      meta:{
+        title:'支付'
+      }
+    },{
+      path: '/payFail',
+      name: 'payFail',
+      component: payFail,
+      meta:{
+        title:'支付结果'
+      }
+    },{
+      path: '/paySuccess',
+      name: 'paySuccess',
+      component: paySuccess,
+      meta:{
+        title:'支付结果'
+      }
+    },
+    {
       path: '/writerDetail',
       name: 'writerDetail',
       component: writerDetail,
@@ -456,6 +482,13 @@ export default new Router({
       component:mineIndex,
       meta:{
         title:'我的'
+      }
+    },{
+      path:'/supplementaryRegistration',
+      name:'mine',
+      component:supplementaryRegistration,
+      meta:{
+        title:'补充登记'
       }
     },{
       path:'/myMainPage',

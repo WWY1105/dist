@@ -8,12 +8,12 @@
                     <p class="name">{{showData.webUser.nickname}}</p>
                     <p class="tag">
                         <span>实名
-                               <i class="iconfont icon-wenhao" v-if="showData.realAuth!=2?true:false"></i>
-                        <i class="iconfont icon-gouxuan" v-if="showData.realAuth==2?true:false"></i>
+                               <i class="iconfont icon-wenhao" v-if="showData.webUser.realAuth!=2?true:false"></i>
+                        <i class="iconfont icon-gouxuan" v-if="showData.webUser.realAuth==2?true:false"></i>
                             </span>
                         <span>学历
-                               <i class="iconfont icon-wenhao" v-if="showData.eduAuth!=2?true:false"></i>
-                        <i class="iconfont icon-gouxuan" v-if="showData.eduAuth==2?true:false"></i>
+                               <i class="iconfont icon-wenhao" v-if="showData.webUser.eduAuth!=2?true:false"></i>
+                        <i class="iconfont icon-gouxuan" v-if="showData.webUser.eduAuth==2?true:false"></i>
                             </span>
                     </p>
                 </div>
@@ -117,20 +117,30 @@
     <!-- 不是我的任务 -->
     <div class="btnBox bgw" v-if="!isMyTask">
 
-        <button v-if="apply?taskStatus=='3'?true:false:false" class="long_btn" @click="toConfirmTask">发布者已回复，请确认（剩余？？？）</button>
-        <button v-if="apply&&taskStatus=='7'?true:false" class="long_btn disable">已报名，请等待发布者确认</button>
+        <button v-if="apply?taskStatus=='7'?true:false:false" class="long_btn" @click="toConfirmTask">发布者已回复，请确认</button>
+        <button v-if="apply&&taskStatus!='7'?true:false" class="long_btn disable">已报名，请等待发布者确认</button>
         <button v-if="!apply" class="long_btn" @click="toEnroll">参加报名（截至{{showData.deadline}}）</button>
 
     </div>
     <div class="btnBox bgw" v-if="isMyTask">
-        <flexbox>
+        <!-- 我的任务，未确认 -->
+        <flexbox v-if="taskStatus!=2&&taskStatus!=3">
             <flexbox-item>
-                <router-link tag="button" class="long_btn clbm" :to="{path:'/handelEnroll',query:{taskId:id,priceType:showData.priceType,taskType:showData.taskType,busniessCount:showData.busniessCount}}">处理报名
+                <router-link tag="button" class="long_btn clbm" :to="{path:'/handelEnroll',query:{taskId:id,priceType:showData.priceType,enrollStatus:enrollStatus,taskType:showData.taskType,busniessCount:showData.busniessCount}}">处理报名
                     <badge v-if="enrollerWriterList.length+enrollerBussList.length==0?false:true" :text="enrollerWriterList.length+enrollerBussList.length"></badge>
                 </router-link>
             </flexbox-item>
             <flexbox-item><button  class="long_btn red" @click.stop="deleteTesk">取消发布</button></flexbox-item>
         </flexbox>
+    <!-- 我的任务，已经确认 -->
+        <flexbox v-if="taskStatus==3?isPay?true:false:false">
+            <flexbox-item>
+                <router-link tag="button" class="long_btn clbm" :to="{path:'/taskPay',query:{taskId:id,amount:amount}}">支付
+                </router-link>
+            </flexbox-item>
+            <flexbox-item><button  class="long_btn red" @click.stop="deleteTesk">取消发布</button></flexbox-item>
+        </flexbox>
+
     </div>
 </div>
 </template>
@@ -165,7 +175,8 @@ export default {
     data() {
         return {
             isCanChoose: true,
-
+            // 剩余时间
+            remainingTime: {},
             step1: 1,
             step2: 0,
             // 任务的id
@@ -182,15 +193,21 @@ export default {
             authorInfo: {},
             userData:{},
             taskStatus:'',
-            taskType:'1'
+            taskType:'1',
+            enrollStatus:0,
+            isPay:false,
+            amount:0
         }
     },
     mounted() {
         // console.log()
         this.getMissiondetail(this.id);
-        this.getEnrollWriter(this.id)
+      
         // 获取当前登陆用户信息
         this.getWebUser(this.$store.state.uid)
+
+        // 任务报名详情
+        //   this.getEnrollWriter(this.id)
       
     },
     methods: {
@@ -234,12 +251,20 @@ export default {
             })
         },
         // 获取报名的作者列表
-        getEnrollWriter() {
+        getEnrollWriter(status) {
             var that = this;
+            // var enrollStatus=0;
+          
+            if(status==2){
+                that.enrollStatus=1
+            }else if(status==7){
+                 that.enrollStatus=1
+            }
+            console.log('@@@@@@@@@@@@@'+status)
             var postData = {
                 // taskId: that.id,
                 taskId: that.id,
-                status: "1"
+                status:  that.enrollStatus
                 // uid: this.$store.state.uid
             }
             that.$http('get', that.$store.state.baseUrl + 'api/Task/Apply/List', postData).then(function (res) {
@@ -316,8 +341,14 @@ export default {
             that.$http('get', that.$store.state.baseUrl + 'api/Task/' + id + "?uid=" + this.$store.state.uid).then(function (res) {
                 that.apply = res.data.data.apply
                 that.taskType=res.data.data.taskType
-                 that.taskStatus=res.data.data.status;
-            
+                that.taskStatus=res.data.data.status;
+                that.amount=res.data.data.amount
+                if(res.data.data.payTime==null){
+                    that.isPay=true
+                }else{
+                     that.isPay=false
+                }
+                that.getEnrollWriter(res.data.data.status)
                 // 1-发布中,2-已选定服务人,3-执行中,4-已结束,6-已经取消,99-已失败
                 switch (res.data.data.status) {
                     case 1:
@@ -346,6 +377,10 @@ export default {
                 that.authorInfo = res.data.data.webUser.authorInfo;
                
                 that.showData = res.data.data;
+
+               
+
+               
                  console.log(that.apply+"---"+that.taskStatus)
             })
         },

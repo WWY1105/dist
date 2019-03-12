@@ -111,7 +111,7 @@
     </div>
     <div class="btnBox bgW flexSpace">
         <button class="long_btn" @click="gotoWrite">写阶段计划</button>
-         <!-- <button class="long_btn" @click="gotoRegist">登记阶段成果</button> -->
+        <!-- <button class="long_btn" @click="gotoRegist">登记阶段成果</button> -->
         <button :class="isCanRegister?'long_btn':'long_btn disabled'" @click="gotoRegist">登记阶段成果</button>
     </div>
 
@@ -150,7 +150,8 @@ export default {
             nicknameArr: [],
             confirmList: [],
             missionCancelMsg: {},
-            isCanRegister: false
+            isCanRegister: false,
+            isPay: false
 
         }
     },
@@ -200,7 +201,12 @@ export default {
             var that = this;
             that.$http('get', that.$store.state.baseUrl + 'api/Task/' + id + "?uid=" + this.$store.state.uid).then(function (res) {
                 if (res.data.code == '00') {
-                    var obj = res.data.data.webUser
+                    var obj = res.data.data.webUser;
+                    if (res.data.data.payTime == null) {
+                        that.isPay = false;
+                    } else {
+                        isPay = true
+                    }
                     that.nickname = obj.nickname;
                     // 1-发布中,2-已选定服务人,3-执行中,4-已结束,6-已经取消,99-已失败
                     switch (res.data.data.status) {
@@ -338,7 +344,7 @@ export default {
         },
 
         format(shijianchuo) {
-            var that=this;
+            var that = this;
             //shijianchuo是整数，否则要parseInt转换
             var time = new Date(shijianchuo);
             var y = time.getFullYear();
@@ -367,8 +373,8 @@ export default {
                     }
                     // console.log(new Date(that.nextStageTime).getTime() )
                     // console.log(new Date().getTime())
-                    if(new Date().getTime()>=new Date(that.nextStageTime).getTime() ){
-                        that.isCanRegister=true;
+                    if (new Date().getTime() >= new Date(that.nextStageTime).getTime()) {
+                        that.isCanRegister = true;
                     }
                     that.stageDetail = res.data.data;
 
@@ -379,13 +385,20 @@ export default {
         // 去写阶段计划
         gotoWrite() {
             var that = this;
-            that.$router.push({
-                path: 'stagePlan',
-                query: {
-                    missionId: that.missionId,
-                    stageDetail: JSON.stringify(that.stageDetail)
-                }
-            })
+            if (that.isPay) {
+                that.$router.push({
+                    path: 'stagePlan',
+                    query: {
+                        missionId: that.missionId,
+                        stageDetail: JSON.stringify(that.stageDetail)
+                    }
+                })
+            } else {
+                AlertModule.show({
+                    title: "对方尚未支付"
+                })
+            }
+
         },
         // 登记阶段成果
         gotoRegist() {

@@ -213,7 +213,7 @@ const common = {
 
     // 科目
     this.postData.category = val;
-    alert(val)
+    // alert(val)
     if (val) {
       this.postData.subject = val.name;
     }
@@ -243,7 +243,9 @@ const common = {
   changeResultWay(val) {
     // 协作方式
     // '作者拜访','书商拜访','远程协作'
-    switch (val.join(',')) {
+    console.log('啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊')
+    console.log(val)
+        switch (val.join(',')) {
       case '作者拜访':
         this.postData.coordination = 'author';
         break;
@@ -299,7 +301,7 @@ const common = {
   // 没有做选择的时候，设默认值
   setDefaultVal(val, defaultVal) {
     if (!val) {
-      alert(val)
+      // alert(val)
       val = defaultVal
     }
   },

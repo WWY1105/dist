@@ -374,9 +374,9 @@ export default {
                 )
                 .then(function (res) {
                     if (res.data.code != "00") {
-                        AlertModule.show({
-                            title: res.data.msg
-                        });
+                        // AlertModule.show({
+                        //     title: res.data.msg
+                        // });
                     } else {}
                 });
             return result;
@@ -615,7 +615,7 @@ export default {
             that.postData = {
                 order: that.order,
                 taskId: that.id,
-                status: '1',
+                status: that.$route.enrollStatus,
                 // ===
                 classNo: that.rightText1,
                 subject: that.rightText2,
@@ -673,7 +673,7 @@ export default {
             // };
             that.postData.order = order;
             that.postData.taskId = id;
-            that.postData.status = '1';
+            that.postData.status = that.$route.enrollStatus;
 
             that
                 .$http(

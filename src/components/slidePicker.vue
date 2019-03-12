@@ -29,6 +29,8 @@ export default {
     mounted(){
         
          console.log(this.gradesArr)
+        
+         console.log(this.sliderArr)
     },
     methods:{
          // pop

@@ -38,7 +38,7 @@
                 </div>
 
                 <div class="btnBox flexSpace">
-                    <div :class="item.collection?'eachBtn flexCenter SCactive':'eachBtn flexCenter'" @click.stop="toCollection(item.id)"><i class="iconfont icon-tubiaozhizuomoban"></i> {{item.collectionCount==0?'':item.collectionCount}}收藏</div>
+                    <div :aaa="item.collection"  :class="item.collection?'eachBtn flexCenter SCactive':'eachBtn flexCenter'" @click.stop="toCollection(item.id)"><i class="iconfont icon-tubiaozhizuomoban"></i> {{item.collectionCount==0?'':item.collectionCount}}收藏</div>
                     <div :class="item.like?'eachBtn flexCenter DZactive':'eachBtn flexCenter '" @click.stop="toLike(index)"><i class="iconfont icon-aixin"></i> {{item.likeCount==0?'':item.likeCount}}点赞</div>
                     <div class="eachBtn flexCenter " @click.stop="toComment(item.id)"><i class="iconfont icon-tubiaopinglunshu"></i> {{item.commentCount==0?'':item.commentCount}}评论</div>
                 </div>
@@ -99,7 +99,11 @@ export default {
             nowPage: 1,
             pullupDefaultConfig: pullupDefaultConfig,
             pulldownDefaultConfig: pulldownDefaultConfig,
-            postData: {},
+            postData: {
+                loginUid:this.$store.state.uid,
+                pageSize:5,
+                currentPage:1
+            },
             options: {
                 getThumbBoundsFn(index) {
                     // find thumbnail element
@@ -136,7 +140,7 @@ export default {
         });
         that.loadMore();
         // 圈子列表
-        // this.getCircleLoist()
+        // this.getCircleList()
         // 圈子动态
         that.getCircleDynamic()
     },
@@ -145,30 +149,28 @@ export default {
         // ========================================
         refresh() {
             var that = this;
-            if (that.nowPage != 0) {
-                that.nowPage--;
-                that.getCircleLoist(data => {
-                    that.circleList = that.circleList.concat(data);
-                    that.$refs.scrollerBottom.enablePullup();
-                    that.$refs.scrollerBottom.donePulldown();
-                });
-            }
+            // if (that.nowPage != 0) {
+            //     that.nowPage--;
+            //     that.getCircleList(data => {
+            //         that.circleList = that.circleList.concat(data);
+            //         that.$refs.scrollerBottom.enablePullup();
+            //         that.$refs.scrollerBottom.donePulldown();
+            //     });
+            // }
         },
         loadMore() {
             var that = this;
-            that.getCircleLoist(data => {
-                if(data.length>0){
-                    that.circleList = that.circleList.concat(data)
-                }
-                if (data.length >= 10) {
+            that.getCircleList(data => {
+                
+                if (data.length <= 4) {
                     that.$refs.scrollerBottom.disablePullup();
                 }
-                // that.circleList = that.circleList.concat(data);
+                 that.circleList = that.circleList.concat(data);
                 that.$refs.scrollerBottom.donePullup();
-                //  alert(that.circleList.length)
-                //  alert(data.length)
+              
             });
            
+            that.postData.currentPage = that.nowPage;
             that.nowPage++;
            
         },
@@ -205,9 +207,11 @@ export default {
                         title: res.data.msg
                     })
                 } else {
+                    that.circleList=[];
                     that.nowPage=1;
+                    that.postData.currentPage=that.nowPage;
                     that.loadMore()
-                    // that.getCircleLoist()
+                    // that.getCircleList()
                 }
             })
         },
@@ -225,9 +229,10 @@ export default {
                     })
                 } else {
                     // that.circleList[index].like=true;
+                     that.circleList=[];
                     that.nowPage=1;
+                    that.postData.currentPage=that.nowPage;
                     that.loadMore()
-                    that.getCircleDynamic()
                 }
             })
         },
@@ -250,11 +255,11 @@ export default {
             })
         },
         // 获取圈子列表
-        getCircleLoist(fn) {
+        getCircleList(fn) {
             var that = this;
             var baseUrl = this.$store.state.baseUrl;
-            that.postData.currentPage = that.nowPage;
-            that.postData.loginUid = that.uid
+            // that.postData.currentPage = that.nowPage;
+            // that.postData.loginUid = that.uid
 
             that.$http('get', baseUrl + 'api/Circle/Page', that.postData).then(function (res) {
                 if (res.data.code != '00') {
@@ -306,8 +311,9 @@ export default {
                         title: res.data.msg
                     })
                 } else {
-                     that.nowPage=1;
-
+                      that.circleList=[];
+                    that.nowPage=1;
+                    that.postData.currentPage=that.nowPage;
                     that.loadMore()
                 }
             })
