@@ -59,13 +59,80 @@
 
             <!--顶部tab栏END-->
             <!-- 登记列表 -->
-            <div v-if="showPart==0">列表</div>
+            <div v-if="showPart==0">
+                <!-- scroller -->
+                  <scroller use-pullup :pullup-config="pullupDefaultConfig" @on-pullup-loading="loadMore" use-pulldown :pulldown-config="pulldownDefaultConfig" @on-pulldown-loading="refresh" lock-x ref="scrollerBottom" height="-48">
+                    <div>
+                        
+                        <!--任务list-->
+                        <div class="reacResult" id="resultPeoples">
+                            <div :class="'eachPeople bgW '+item.borderColor" v-for="item,index of postList" @click.stop="toSeeMissionDetail(index)">
+                                <div class="titleBox flexSpace">
+                                    <div class="left flexStart">
+                                        <img
+                      :src="$store.state.imgUrl+item.webUser.imgurl"
+                      @click="seeUserDetail(item.uid)"
+                      class="userImg"
+                      alt
+                    >
+                                        <div>
+                                            <!-- {{item.webUser.type=='author'?"作者":"书商"}} -->
+                                            <p class="name">{{item.nickname==null?'':item.nickname}}</p>
+                                            <p class="options flexSpace">
+                                                <span class="option flexStart">
+                          实名
+                          <i class="iconfont icon-gouxuan" v-if="item.webUser.realAuth=='2'?true:false"></i>
+                          <i class="iconfont icon-wenhao" v-if="item.webUser.realAuth=='2'?false:true"></i>
+                        </span>
+                                                <span class="option">
+                          学历
+                          <i class="iconfont icon-gouxuan" v-if="item.eduAuth=='2'?true:false"></i>
+                          <i class="iconfont icon-wenhao" v-if="item.eduAuth=='2'?false:true"></i>
+                        </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="right flexEnd">
+                                        <p class="button searchSS" v-if="item.taskType=='2'?true:false">找书商</p>
+                                        <p class="button searchZZ" v-if="item.taskType=='1'?true:false">找作者</p>
+                                        <p class="button searchSZ" v-if="item.taskType=='3'?true:false">找作者和书商</p>
+                                        <p class="price">￥ {{item.priceMin}} - ￥{{item.priceMax}}/小时</p>
+                                    </div>
+                                </div>
+                                <div class="details">
+                                    <p class="hang flexSpace">
+                                        <span class="eachItem">年级：{{item.classNo}}</span>
+                                        <span class="eachItem">科目：{{item.category}}</span>
+                                        <span class="eachItem">出版：{{item.taskType=='1'?'独资出版':"合资出版"}}</span>
+                                    </p>
+                                    <p class="hang flexStart">
+                                        <span class="eachItem">协作：{{item.coordination}}</span>
+                                        <span class="eachItem add">区域：{{item.area}}</span>
+                                    </p>
+                                    <p class="hang">
+                                        <span>简述：{{item.introduction}}</span>
+                                    </p>
+                                </div>
+                                <div class="otherMsg flexSpace">
+                                    <p class="left">
+                                        <span>截至报名：{{!item.deadline?"":item.deadline.substr(0,10)}}</span>
+                                        <span>已报名：{{item.applicationCount}}</span>
+                                    </p>
+                                    <p class="right">
+                                        <button class="submitBtn" @click.stop="toEnroll(index)">报名</button>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </scroller>
+            </div>
             <!-- 添加登记 -->
-            <div v-if="showPart==1" class="content bgW">
+            <div v-if="showPart==1" class="content  addContent bgW">
                 <!--选项内容-->
                 <div class="eachArea">
-                    <slidePicker :sliderArr="serverList" :leftText="leftText7" v-on:changeResult="changeResultWayServer1"></slidePicker>
-                    <slidePicker :sliderArr="serverList" :leftText="leftText8" v-on:changeResult="changeResultWayServer2"></slidePicker>
+                    <slidePicker :sliderArr="serverList" :leftText="leftText7" :rightText="rightText7" v-on:changeResult="changeResultWayServer1"></slidePicker>
+                    <slidePicker :sliderArr="serverList" :leftText="leftText8" :rightText="rightText8" v-on:changeResult="changeResultWayServer2"></slidePicker>
                 </div>
                 <div class="eachArea">
                     <!--年级选择-->
@@ -225,16 +292,39 @@ import {
     XTextarea,
     ChinaAddressV4Data,
     XAddress,
+     Scroller,
     AlertModule,
     Alert,
     PopupPicker,
     Value2nameFilter as value2name
 } from 'vux'
+const pulldownDefaultConfig = {
+    content: "下拉刷新",
+    height: 40,
+    autoRefresh: false,
+    downContent: "下拉刷新",
+    upContent: "释放后刷新",
+    loadingContent: "正在刷新...",
+    clsPrefix: "xs-plugin-pulldown-"
+};
+const pullupDefaultConfig = {
+    content: "上拉加载更多",
+    pullUpHeight: 60,
+    height: 40,
+    autoRefresh: false,
+    downContent: "释放后加载",
+    upContent: "上拉加载更多",
+    loadingContent: "加载中...",
+    clsPrefix: "xs-plugin-pullup-"
+};
 import writers from '@/components/writer/writer'
 export default {
     data() {
         return {
             myFallowShow: false,
+            
+            pullupDefaultConfig: pullupDefaultConfig,
+            pulldownDefaultConfig: pulldownDefaultConfig,
             // 根据顶部tab某些部件不显示
             seeZZ: true,
             seeSS: true,
@@ -291,6 +381,8 @@ export default {
             leftText5: '协作区域',
             leftText7: '服务提供方',
             leftText8: '服务接收方',
+            rightText7: '',
+            rightText8: '',
             leftText9: "阶段次数",
             beginDate: "",
             endDate: "",
@@ -329,10 +421,15 @@ export default {
                 area: '',
                 introduction: ''
             },
+            postData1:{
+                currentPage:1,
+                supplement:true,
+                uid:this.$store.state.uid
+            },
             userData: {},
             showPart: 0,
             writerList: [],
-            chooseWriterList: {},
+            chooseWriterList: [],
             serviceRate: 0,
             adjustmentRate: 0,
             taskId: '',
@@ -343,8 +440,12 @@ export default {
             showUrl1: '',
             showUrl2: '',
             showUrl3: '',
-            isMulSelection: false
-
+            isMulSelection: false,
+            // 是否发布任务成功
+            postSuccess:false,
+            nowPage:1,
+             //任务列表
+            postList: [],
         }
     },
     components: {
@@ -365,7 +466,8 @@ export default {
         Alert,
         slidePicker,
         PopupPicker,
-        AlertModule
+        AlertModule,
+         Scroller,
     },
     mounted() {
         this.getCategory();
@@ -387,13 +489,86 @@ export default {
             arr2.push(i);
         }
         this.timeArr.push(arr);
-        // this.booksellerArr.push(arr)
-        // ======
+        
         this.getFellowList()
+        // 列表
+        this.postList = [];
+        this.postData.currentPage = this.nowPage;
+        this.postData.pageSize = 5;
+        this.loadMore();
     },
     methods: {
 
         ...common,
+        loadMore() {
+            var that = this;
+            console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@加载");
+            // console.log(params)
+            // params.currentPage=that.nowPage;
+            // params.pageSize=5;
+            that.getMIssionlist(data => {
+                // that.postList = data;
+
+                if (data.length <= 4) {
+                    //禁止上啦，已经没有数据
+                    that.$refs.scrollerBottom.disablePullup();
+                }
+                that.postList = that.postList.concat(data);
+                //  console.log("长度"+that.postList.length)
+                //  console.log(that.postList)
+                that.$refs.scrollerBottom.donePullup();
+            });
+            that.postData1.currentPage = that.nowPage;
+            that.nowPage++;
+
+            that.postData.pageSize = 5;
+        },
+         refresh() {
+            var that = this;
+            // if (that.nowPage != 0) {
+            //     that.nowPage--;
+            //     that.getMIssionlist(data => {
+            //         that.postList = data;
+            //         that.$refs.scrollerBottom.enablePullup();
+            //         that.$refs.scrollerBottom.donePulldown();
+            //     });
+            // }
+        },
+         // 获取任务列表
+        getMIssionlist(fn) {
+            var that = this;
+            console.log('传入的参数')
+            console.log(that.postData)
+            that
+                .$http(
+                    "get",
+                    that.$store.state.baseUrl + "api/Task/Page",
+                    that.postData1
+                )
+                .then(function (res) {
+                    if (res.data.code == "00") {
+                        //  alert(res.data.pi.totalSize)
+                        that.totalWriter = res.data.pi.totalSize
+                        var result = res.data.data;
+                        for (var i in result) {
+                            var arr = result[i].priceRange.split("-");
+                            result[i].priceMin = arr[0];
+                            result[i].priceMax = arr[1];
+                            result[i].nickname = result[i].webUser.nickname;
+                            // console.log(result[i].webUser.nickname);
+                            if (result[i].taskType == 1) {
+                                result[i].borderColor = "zz";
+                            } else if (result[i].taskType == 2) {
+                                result[i].borderColor = "ss";
+                            } else {
+                                result[i].borderColor = "sz";
+                            }
+                        }
+                        fn(result);
+                    }
+                });
+        },
+        // ======================================
         frontImg(id) {
             var file = document.getElementById("upload_file" + id);
             file.click()
@@ -520,7 +695,7 @@ export default {
                 that.myFallowShow = true;
                 that.isMulSelection = true;
             }
-
+            that.rightText7 = val;
         },
         // 任务接收者（多选）
         changeResultWayServer2(val) {
@@ -531,6 +706,7 @@ export default {
                 that.myFallowShow = true;
                 that.isMulSelection = false;
             }
+            that.rightText8 = val;
         },
         // 年级
         changeResultGrade(value) {
@@ -572,66 +748,8 @@ export default {
             that.myFallowShow = false;
 
         },
-        // 生成费用列表=============================
-        getTimesList() {
-            var step = this.times.join("");
-            var s1 = this.beginDate.replace(/-/g, "/");
-            var s2 = this.endDate.replace(/-/g, "/");
-            var originPrice = this.finalPrice;
-
-            if (s1 != "" && s2 != "") {
-                var totalDay = Number(this.DateDiff(s1, s2));
-                // alert("总天数" + totalDay);
-                var yushu = Number(totalDay) % Number(step);
-                //  alert("余数" + yushu);
-                totalDay -= Number(yushu);
-                //  alert("总天数" + totalDay);
-                var gapDay = parseInt(totalDay / step);
-            }
-            // alert("总金额" + this.finalPrice);
-
-            var arr = [{
-                index: 1,
-                date: s1
-            }];
-            for (var i = 1; i <= step; i++) {
-                var obj = {};
-                obj.index = i;
-                obj.date = "";
-                obj.money = 0;
-                arr.push(obj);
-                arr[i].date = this.getNextDate(arr[i - 1].date, gapDay);
-            }
-            arr = arr.slice(1, arr.length);
-            var yushuPrice = this.finalPrice % arr.length;
-            // console.log('余下的'+yushuPrice)
-            // this.finalPrice -= yushuPrice;
-            // var finalPrice = this.finalPrice;
-            var finalPrice = this.finalPrice - this.serviceRate * this.finalPrice - this.finalPrice * this.adjustmentRate;
-            finalPrice -= yushuPrice;
-            this.eachPrice = finalPrice / arr.length;
-            for (var i in arr) {
-                arr[i].money = this.eachPrice;
-            }
-            // console.log("价格余数" + yushuPrice);
-            if (yushu != 0) {
-                arr[arr.length - 1].date = this.getNextDate(
-                    arr[arr.length - 1].date,
-                    yushu
-                );
-                this.finalPrice = originPrice;
-            }
-            if (yushuPrice != 0) {
-                arr[arr.length - 1].money += yushuPrice;
-            }
-            this.timesList = arr;
-            this.actualEachStage =
-                Math.floor(
-                    this.finalPrice -
-                    this.serviceRate * this.finalPrice -
-                    this.finalPrice * this.adjustmentRate
-                ) / this.timesList.length;
-        },
+        
+     
         getNextDate(beginDate, day) {
             var that = this;
             beginDate = that.convertDateFromString(beginDate);
@@ -817,25 +935,42 @@ export default {
                 if (res.data.code == '00') {
                     that.taskId = res.data.data.id;
                     // 任务发布成功之后，选择报名用户/api/Task/Apply/Select/uid
-                    if (that.chooseMyFelloUser.length == 0) {
+                    if (that.chooseWriterList.length == 0) {
                         AlertModule.show({
                             title: '请选择服务提供者/服务接收者'
                         })
                     } else {
-                        for (var i in that.chooseMyFelloUser) {
-                            var obj = {
-                                uid: that.chooseMyFelloUser[i].id,
-                                id:that.taskId,
-                                status:'2'
-                            }
-                            that.$http('post', that.$store.state.baseUrl + 'api/Task', that.postData).then(function (res) {
-                                if (res.data.code == '00') {
+                        for (var i in that.chooseWriterList) {
+                            // 分别调用报名接口
+                            that
+                                .$http("post", that.$store.state.baseUrl + "api/Task/Apply", {
+                                    taskId: that.taskId,
+                                    uid: that.chooseWriterList[i].followingUid
+                                })
+                                .then(function (res) {
+                                    if (res.data.code != "00") {
+                                        AlertModule.show({
+                                            title: res.data.msg
+                                        });
+                                    } else {
+                                        // 报名成功，选择此作者
+                                        var obj = {
+                                            uid: that.chooseWriterList[i].followingUid,
+                                            id: that.taskId,
+                                            status: '2'
+                                        }
+                                        that.$http('post', that.$store.state.baseUrl + 'api/Task/Apply/Select/uid', obj).then(function (res) {
+                                            if (res.data.code == '00') {
+                                                console.log('确定作者成功')
+                                            }
+                                        })
+                                    }
+                                });
+                            // 报名结束
 
-                                }
-                            })
                         }
                     }
-
+                  taht.postSuccess=true;
                 } else {
                     AlertModule.show({
                         title: res.data.msg
@@ -844,6 +979,7 @@ export default {
             })
 
         },
+        // 提交审核
         supplementaryRegistration() {
             var that = this;
             that.posiMission()
@@ -905,7 +1041,10 @@ export default {
                     this.finalPrice * this.adjustmentRate
                 ) / this.timesList.length;
             // that.getTimesList();
-            that.sendConfirm()
+            if(that.postSuccess){
+                 that.sendConfirm()
+            }
+           
             // if (!that.postData.priceType) {
             //     that.postData.priceType = 1;
             // }
@@ -998,7 +1137,8 @@ html,
 }
 
 #supplementaryRegistration .chooseContent {
-    padding-bottom: 50px;
+    /* padding-bottom: 50px; */
+    height: 100%;
 }
 
 #supplementaryRegistration .imgArea {
@@ -1011,10 +1151,14 @@ html,
     /* border-bottom: 1px solid #DDDDDD; */
 
 }
+#resultPeoples.reacResult .titleBox p.name{
+    height: 20px;
+}
 
 #supplementaryRegistration .content {
     padding: 15px 11px;
     background: #fff;
+    padding-bottom: 0;
 }
 
 #supplementaryRegistration .titleBox input {
@@ -1182,6 +1326,14 @@ input.finalPrice.mainText {
     border-top: 1px solid #D9D9D9;
 }
 
+#supplementaryRegistration .addContent {
+    padding-bottom: 80px;
+}
+
+#supplementaryRegistration .help .content {
+    background: #f5f5f5;
+}
+
 /* 00000000000000000000 */
 
 .reacResult {
@@ -1300,4 +1452,108 @@ input.finalPrice.mainText {
 .reacResult .options .option i.icon-wenhao {
     color: #ccc;
 }
+#resultPeoples {
+    background: #f5f5f5;
+}
+
+#resultPeoples.reacResult .details {
+    display: block;
+    color: #707070;
+}
+
+#resultPeoples.reacResult .hang {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 7px;
+}
+
+#resultPeoples.reacResult span.eachItem {
+    width: 33.333%;
+    display: inline-block;
+}
+
+#resultPeoples.reacResult span.eachItem.add {
+    width: 66%;
+}
+
+
+#resultPeoples.reacResult .right .button {
+    font-size: 14px;
+    padding: 1px 7px 1px 12px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+}
+
+
+#resultPeoples.reacResult .right .button.searchSS {
+    color: #2ea200;
+    border: 1px solid #2ea200;
+}
+
+
+#resultPeoples.reacResult .right .button.searchZZ {
+    color: #3375c5;
+    border: 1px solid #3375c5;
+}
+
+
+#resultPeoples.reacResult .right .button.searchSZ {
+    color: #feab29;
+    border: 1px solid #feab29;
+}
+
+.eachPeople .otherMsg {
+    padding: 18px 0 16px 0;
+    color: #999999;
+    font-size: 12px;
+}
+
+.eachPeople .submitBtn {
+    width: 60px;
+    height: 21px;
+    background: #3375c5;
+    color: #fff;
+    border-radius: 5px;
+    font-weight: bold;
+    border: none;
+}
+
+#resultPeoples.reacResult .details {
+    display: block;
+    color: #707070;
+}
+.eachPeople {
+    padding: 11px;
+    /*padding-bottom: 0;*/
+    /*margin-top: 10px;*/
+    margin-bottom: 10px;
+}
+
+.eachPeople.ss {
+    border-bottom: 4px solid #2ea200;
+}
+
+.eachPeople.zz {
+    border-bottom: 4px solid #3375c5;
+}
+
+.eachPeople.sz {
+    border-bottom: 4px solid #feab29;
+}
+
+#resultPeoples.reacResult .hang {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 7px;
+}
+
+#resultPeoples.reacResult span.eachItem {
+    width: 33.333%;
+    display: inline-block;
+}
+
+#resultPeoples.reacResult span.eachItem.add {
+    width: 66%;
+}
+
 </style>

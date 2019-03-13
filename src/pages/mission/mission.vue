@@ -203,7 +203,7 @@
                                 </div>
                                 <div class="otherMsg flexSpace">
                                     <p class="left">
-                                        <span>截至报名：{{item.deadline.substr(0,10)}}</span>
+                                        <span>截至报名：{{!item.deadline?"":item.deadline.substr(0,10)}}</span>
                                         <span>已报名：{{item.applicationCount}}</span>
                                     </p>
                                     <p class="right">
