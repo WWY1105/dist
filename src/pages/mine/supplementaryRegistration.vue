@@ -61,9 +61,9 @@
             <!-- 登记列表 -->
             <div v-if="showPart==0">
                 <!-- scroller -->
-                  <scroller use-pullup :pullup-config="pullupDefaultConfig" @on-pullup-loading="loadMore" use-pulldown :pulldown-config="pulldownDefaultConfig" @on-pulldown-loading="refresh" lock-x ref="scrollerBottom" height="-48">
+                <scroller use-pullup :pullup-config="pullupDefaultConfig" @on-pullup-loading="loadMore" use-pulldown :pulldown-config="pulldownDefaultConfig" @on-pulldown-loading="refresh" lock-x ref="scrollerBottom" height="-48">
                     <div>
-                        
+
                         <!--任务list-->
                         <div class="reacResult" id="resultPeoples">
                             <div :class="'eachPeople bgW '+item.borderColor" v-for="item,index of postList" @click.stop="toSeeMissionDetail(index)">
@@ -292,7 +292,7 @@ import {
     XTextarea,
     ChinaAddressV4Data,
     XAddress,
-     Scroller,
+    Scroller,
     AlertModule,
     Alert,
     PopupPicker,
@@ -322,7 +322,7 @@ export default {
     data() {
         return {
             myFallowShow: false,
-            
+
             pullupDefaultConfig: pullupDefaultConfig,
             pulldownDefaultConfig: pulldownDefaultConfig,
             // 根据顶部tab某些部件不显示
@@ -394,6 +394,7 @@ export default {
             serverList: [
                 ['我', '选择用户']
             ],
+            autherId: '',
             // rightText2: '不限',
             // 传入radio的值
             radioTitle: '选择性别',
@@ -421,10 +422,10 @@ export default {
                 area: '',
                 introduction: ''
             },
-            postData1:{
-                currentPage:1,
-                supplement:true,
-                uid:this.$store.state.uid
+            postData1: {
+                currentPage: 1,
+                supplement: true,
+                uid: this.$store.state.uid
             },
             userData: {},
             showPart: 0,
@@ -442,10 +443,12 @@ export default {
             showUrl3: '',
             isMulSelection: false,
             // 是否发布任务成功
-            postSuccess:false,
-            nowPage:1,
-             //任务列表
+            postSuccess: false,
+            nowPage: 1,
+            //任务列表
             postList: [],
+            // 服务接收者列表
+            selectList: []
         }
     },
     components: {
@@ -467,7 +470,7 @@ export default {
         slidePicker,
         PopupPicker,
         AlertModule,
-         Scroller,
+        Scroller,
     },
     mounted() {
         this.getCategory();
@@ -489,7 +492,7 @@ export default {
             arr2.push(i);
         }
         this.timeArr.push(arr);
-        
+
         this.getFellowList()
         // 列表
         this.postList = [];
@@ -523,7 +526,7 @@ export default {
 
             that.postData.pageSize = 5;
         },
-         refresh() {
+        refresh() {
             var that = this;
             // if (that.nowPage != 0) {
             //     that.nowPage--;
@@ -534,7 +537,7 @@ export default {
             //     });
             // }
         },
-         // 获取任务列表
+        // 获取任务列表
         getMIssionlist(fn) {
             var that = this;
             console.log('传入的参数')
@@ -551,9 +554,13 @@ export default {
                         that.totalWriter = res.data.pi.totalSize
                         var result = res.data.data;
                         for (var i in result) {
-                            var arr = result[i].priceRange.split("-");
-                            result[i].priceMin = arr[0];
+                            if(result[i].priceRange){
+                                var arr = result[i].priceRange.split("-");
+                                result[i].priceMin = arr[0];
                             result[i].priceMax = arr[1];
+                            }
+                            
+                            
                             result[i].nickname = result[i].webUser.nickname;
                             // console.log(result[i].webUser.nickname);
                             if (result[i].taskType == 1) {
@@ -678,6 +685,7 @@ export default {
         },
         chooseMyFelloUser(index) {
             var that = this;
+            // isMulSelection=true;说明选择服务提供者
             if (that.isMulSelection) {
                 // 单选
                 for (var i in that.writerList) {
@@ -692,8 +700,13 @@ export default {
         changeResultWayServer1(val) {
             var that = this;
             if (val[0] == '选择用户') {
+                 for (var i in that.writerList) {
+                    that.writerList[i].isChoosen=false
+                }
                 that.myFallowShow = true;
                 that.isMulSelection = true;
+            } else {
+                that.autherId = that.$store.state.uid;
             }
             that.rightText7 = val;
         },
@@ -703,8 +716,13 @@ export default {
             console.log(val)
             // var that = this;
             if (val[0] == '选择用户') {
+                for (var i in that.writerList) {
+                    that.writerList[i].isChoosen=false
+                }
                 that.myFallowShow = true;
                 that.isMulSelection = false;
+            } else {
+                that.selectList.push(that.$store.state.uid)
             }
             that.rightText8 = val;
         },
@@ -737,19 +755,26 @@ export default {
             this.postData.category = value.name;
             console.log(this.postData.category)
         },
-        // 选择作者
+        // 选择作者,弹出窗口的确定按钮
         confirmWriter() {
             var that = this;
-            for (var i in that.writerList) {
-                if (that.writerList[i].isChoosen) {
-                    that.chooseWriterList.push(that.writerList[i])
+            if (that.selectList.length == 0) {
+                // 服务接收者不是“我”
+                for (var i in that.writerList) {
+                    if (that.writerList[i].isChoosen) {
+                        that.chooseWriterList.push(that.writerList[i])
+                    }
                 }
             }
+
             that.myFallowShow = false;
+            // that.isMulSelection.说明是选择“服务提供者”
+            if (that.isMulSelection && !that.autherId) {
+                that.autherId = that.chooseWriterList[0].followingUid
+            }
 
         },
-        
-     
+
         getNextDate(beginDate, day) {
             var that = this;
             beginDate = that.convertDateFromString(beginDate);
@@ -929,6 +954,7 @@ export default {
             if (that.frontUrl3) {
                 that.postData.ziliao = that.postData.ziliao + that.frontUrl3
             }
+            that.postData.autherId = that.autherId;
             console.log(that.postData)
             that.$http('post', that.$store.state.baseUrl + 'api/Task', that.postData).then(function (res) {
                 console.log(res.data)
@@ -940,37 +966,39 @@ export default {
                             title: '请选择服务提供者/服务接收者'
                         })
                     } else {
-                        for (var i in that.chooseWriterList) {
-                            // 分别调用报名接口
-                            that
-                                .$http("post", that.$store.state.baseUrl + "api/Task/Apply", {
-                                    taskId: that.taskId,
-                                    uid: that.chooseWriterList[i].followingUid
-                                })
-                                .then(function (res) {
-                                    if (res.data.code != "00") {
-                                        AlertModule.show({
-                                            title: res.data.msg
-                                        });
-                                    } else {
-                                        // 报名成功，选择此作者
-                                        var obj = {
-                                            uid: that.chooseWriterList[i].followingUid,
-                                            id: that.taskId,
-                                            status: '2'
-                                        }
-                                        that.$http('post', that.$store.state.baseUrl + 'api/Task/Apply/Select/uid', obj).then(function (res) {
-                                            if (res.data.code == '00') {
-                                                console.log('确定作者成功')
-                                            }
-                                        })
-                                    }
-                                });
-                            // 报名结束
+                        console.log('00000000000000')
+                        console.log(that.selectList)
+                        // for (var i in that.chooseWriterList) {
+                        //     // 分别调用报名接口
+                        //     that
+                        //         .$http("post", that.$store.state.baseUrl + "api/Task/Apply", {
+                        //             taskId: that.taskId,
+                        //             uid: that.chooseWriterList[i].followingUid
+                        //         })
+                        //         .then(function (res) {
+                        //             if (res.data.code != "00") {
+                        //                 AlertModule.show({
+                        //                     title: res.data.msg
+                        //                 });
+                        //             } else {
+                        //                 // 报名成功，选择此作者
+                        //                 var obj = {
+                        //                     uid: that.chooseWriterList[i].followingUid,
+                        //                     id: that.taskId,
+                        //                     status: '2'
+                        //                 }
+                        //                 that.$http('post', that.$store.state.baseUrl + 'api/Task/Apply/Select/uid', obj).then(function (res) {
+                        //                     if (res.data.code == '00') {
+                        //                         console.log('确定作者成功')
+                        //                     }
+                        //                 })
+                        //             }
+                        //         });
+                        //     // 报名结束
 
-                        }
+                        // }
                     }
-                  taht.postSuccess=true;
+                    that.postSuccess = true;
                 } else {
                     AlertModule.show({
                         title: res.data.msg
@@ -1041,10 +1069,10 @@ export default {
                     this.finalPrice * this.adjustmentRate
                 ) / this.timesList.length;
             // that.getTimesList();
-            if(that.postSuccess){
-                 that.sendConfirm()
+            if (that.postSuccess) {
+                that.sendConfirm()
             }
-           
+
             // if (!that.postData.priceType) {
             //     that.postData.priceType = 1;
             // }
@@ -1151,7 +1179,8 @@ html,
     /* border-bottom: 1px solid #DDDDDD; */
 
 }
-#resultPeoples.reacResult .titleBox p.name{
+
+#resultPeoples.reacResult .titleBox p.name {
     height: 20px;
 }
 
@@ -1452,6 +1481,7 @@ input.finalPrice.mainText {
 .reacResult .options .option i.icon-wenhao {
     color: #ccc;
 }
+
 #resultPeoples {
     background: #f5f5f5;
 }
@@ -1476,7 +1506,6 @@ input.finalPrice.mainText {
     width: 66%;
 }
 
-
 #resultPeoples.reacResult .right .button {
     font-size: 14px;
     padding: 1px 7px 1px 12px;
@@ -1484,18 +1513,15 @@ input.finalPrice.mainText {
     margin-bottom: 8px;
 }
 
-
 #resultPeoples.reacResult .right .button.searchSS {
     color: #2ea200;
     border: 1px solid #2ea200;
 }
 
-
 #resultPeoples.reacResult .right .button.searchZZ {
     color: #3375c5;
     border: 1px solid #3375c5;
 }
-
 
 #resultPeoples.reacResult .right .button.searchSZ {
     color: #feab29;
@@ -1522,6 +1548,7 @@ input.finalPrice.mainText {
     display: block;
     color: #707070;
 }
+
 .eachPeople {
     padding: 11px;
     /*padding-bottom: 0;*/
@@ -1555,5 +1582,4 @@ input.finalPrice.mainText {
 #resultPeoples.reacResult span.eachItem.add {
     width: 66%;
 }
-
 </style>
