@@ -36,7 +36,7 @@
             <div class="details padding11">
                 <p class="hang flexSpace mainText">
                     <span class="eachItem">状态：{{item.status}}</span>
-                    <span class="eachItem textAright">截止报名：{{item.deadline.substr(0,10)}}</span>
+                    <span class="eachItem textAright">截止报名：{{item.deadline?item.deadline.substr(0,10):''}}</span>
                 </p>
                 <p class="hang flexSpace">
                     <span
@@ -47,7 +47,7 @@
                 </p>
                 <p class="hang flexStart">
                     <span class="eachItem">{{item.coordination}}/{{item.area}}</span>
-                    <span class="eachItem add textAright">发布日期：{{item.createTime.substr(0,10)}}</span>
+                    <span class="eachItem add textAright">发布日期：{{item.createTime?item.createTime.substr(0,10):''}}</span>
                 </p>
             </div>
             <div class="otherMsg flexSpace padding11">

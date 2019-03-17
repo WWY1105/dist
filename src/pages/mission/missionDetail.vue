@@ -343,7 +343,7 @@ export default {
                 that.taskType=res.data.data.taskType
                 that.taskStatus=res.data.data.status;
                 that.amount=res.data.data.amount
-                if(res.data.data.payTime==null){
+                if(res.data.data.allPay==false&&that.$store.state.uid!=res.data.data.authorId){
                     that.isPay=true
                 }else{
                      that.isPay=false

@@ -31,7 +31,7 @@
             <!--协作方式-->
             <slidePicker :sliderArr="coordination" :leftText="leftText4" v-on:changeResult="changeResultWay"></slidePicker>
             <!--协作区域-->
-            <x-address :gradesArr="addressData" :title="leftText5" v-model="myarea" :list="addressData" class="areaBox"   @on-hide="onAddressChange"></x-address>
+            <x-address :gradesArr="addressData" :title="leftText5" v-model="myarea" :list="addressData" class="areaBox" @on-hide="onAddressChange"></x-address>
         </div>
         <!--报名截至日期-->
         <div class="eachArea">
@@ -77,7 +77,7 @@ import {
     AlertModule,
     Alert,
     PopupPicker,
-     Value2nameFilter as value2name
+    Value2nameFilter as value2name
 } from 'vux'
 
 export default {
@@ -99,7 +99,7 @@ export default {
             priceMin: '',
             priceMax: '',
             // data--end
-             myarea: [],
+            myarea: [],
             addressData: ChinaAddressV4Data,
             date: '',
             sliderSubjectArr: [],
@@ -170,7 +170,8 @@ export default {
                 area: '',
                 introduction: ''
             },
-            userData: {}
+            userData: {},
+            postUserType:''
         }
     },
     components: {
@@ -209,7 +210,7 @@ export default {
     methods: {
 
         ...common,
-          // 区域
+        // 区域
         onAddressChange(val) {
             this.postData.area = value2name(this.myarea, ChinaAddressV4Data).split(' ').join(",");
         },
@@ -230,6 +231,7 @@ export default {
             var baseUrl = this.$store.state.baseUrl;
             that.$http('get', baseUrl + 'api/WebUser/' + uid).then(function (res) {
                 that.userData = res.data.data;
+                that.postUserType=res.data.data.type;
             })
         },
         //出版方式：独资合资
@@ -243,8 +245,8 @@ export default {
                     this.radiosArr[i].selected = false
                 }
                 this.radiosArr[0].selected = true
-            }else{
-                this.postData.priceType=val
+            } else {
+                this.postData.priceType = val
             }
         },
         // 协作方式
@@ -354,26 +356,33 @@ export default {
                         title: "抱歉，独资方式只能选择一名书商"
                     })
                 } else {
-                //     that.postData.busniessCount = val.join('')
-                // }
-                that.$http('post', that.$store.state.baseUrl + 'api/Task', that.postData).then(function (res) {
-                    console.log(res.data)
-                    if (res.data.code == '00') {
-                        AlertModule.show({
-                            title: '操作成功！',
-                            onHide() {
-                                that.$router.go(-1)
-                            }
-                        })
-                    } else {
-                        AlertModule.show({
-                            title: res.data.msg
-                        })
-                        that.$router.push({
-                            path: '/mission'
-                        })
+                    /***
+                     * taskType (string): 出版方式(1-找作者,2-找书商,3-找作者和书商) 
+                     * postUserType;author;business
+                     */
+                    if(that.taskType=='2'){
+                        that.postData.authorId=that.$store.state.uid;
                     }
-                })
+                  
+
+                    that.$http('post', that.$store.state.baseUrl + 'api/Task', that.postData).then(function (res) {
+                        console.log(res.data)
+                        if (res.data.code == '00') {
+                            AlertModule.show({
+                                title: '操作成功！',
+                                onHide() {
+                                    that.$router.go(-1)
+                                }
+                            })
+                        } else {
+                            AlertModule.show({
+                                title: res.data.msg
+                            })
+                            that.$router.push({
+                                path: '/mission'
+                            })
+                        }
+                    })
                 }
             }
 

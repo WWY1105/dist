@@ -2,7 +2,7 @@
     <div>
         <group>
              <!--年级选择器start-->
-            <popup-picker :title="leftText"  @on-change='change' v-model="chooseResult" :placeholder="rightText[0]" :data="sliderArr"   class="gradePicker"></popup-picker>
+            <popup-picker :title="leftText"  @on-change='change' v-model="chooseResult"  :data="sliderArr"   class="gradePicker"></popup-picker>
             <!--年级选择器end-->
         </group>
         

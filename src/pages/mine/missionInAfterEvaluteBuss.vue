@@ -70,7 +70,7 @@
                 <p class="right"><span class="title">费用标准：</span><span class="mainText" >{{stageDetail.timeStage}}</span></p>
             </div>
             <div class="lastHang flexStart">
-                <div class="bigTitle">每阶段实际到账：<span>￥396</span> </div>
+                <div class="bigTitle">每阶段实际到账：<span>￥{{stageDetail.price}}</span> </div>
             </div>
         </div>
     </div>
@@ -151,7 +151,7 @@ export default {
     mounted() {
          
         this.getMissiondetail(this.missionId);
-        this.getCommentList(this.missionId);
+        // this.getCommentList(this.missionId);
         this.getStageDetail();
        
 
@@ -266,19 +266,19 @@ export default {
 
         },
         //    获取任务评价列表
-        getCommentList(id) {
-            var that = this;
-            that.$http('get', that.$store.state.baseUrl + "api/TaskComment/List?taskId=" + id).then(function (res) {
-                if (res.data.code == '00') {
-                   var  result=res.data.data
-                    for(var i in result){
-                        result[i].commentTags= result[i].commentTags.split(',')
-                    }
-                    that.commentList = res.data.data
-                    console.log(that.commentList)
-                }
-            })
-        },
+        // getCommentList(id) {
+        //     var that = this;
+        //     that.$http('get', that.$store.state.baseUrl + "api/TaskComment/List?taskId=" + id).then(function (res) {
+        //         if (res.data.code == '00') {
+        //            var  result=res.data.data
+        //             for(var i in result){
+        //                 result[i].commentTags= result[i].commentTags.split(',')
+        //             }
+        //             that.commentList = res.data.data
+        //             console.log(that.commentList)
+        //         }
+        //     })
+        // },
         // 赞赏红包
         giveRed(){
             var that=this;

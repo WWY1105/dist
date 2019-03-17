@@ -96,7 +96,7 @@
                                         <p class="button searchSS" v-if="item.taskType=='2'?true:false">找书商</p>
                                         <p class="button searchZZ" v-if="item.taskType=='1'?true:false">找作者</p>
                                         <p class="button searchSZ" v-if="item.taskType=='3'?true:false">找作者和书商</p>
-                                        <p class="price">￥ {{item.priceMin}} - ￥{{item.priceMax}}/小时</p>
+                                        <p class="price">￥ {{item.amount}}</p>
                                     </div>
                                 </div>
                                 <div class="details">
@@ -118,9 +118,9 @@
                                         <span>截至报名：{{!item.deadline?"":item.deadline.substr(0,10)}}</span>
                                         <span>已报名：{{item.applicationCount}}</span>
                                     </p>
-                                    <p class="right">
-                                        <button class="submitBtn" @click.stop="toEnroll(index)">报名</button>
-                                    </p>
+                                    <!-- <p class="right">
+                                         <button class="submitBtn" @click.stop="toEnroll(index)">报名</button>
+                                    </p> -->
                                 </div>
                             </div>
                         </div>
@@ -131,8 +131,14 @@
             <div v-if="showPart==1" class="content  addContent bgW">
                 <!--选项内容-->
                 <div class="eachArea">
-                    <slidePicker :sliderArr="serverList" :leftText="leftText7" :rightText="rightText7" v-on:changeResult="changeResultWayServer1"></slidePicker>
-                    <slidePicker :sliderArr="serverList" :leftText="leftText8" :rightText="rightText8" v-on:changeResult="changeResultWayServer2"></slidePicker>
+                    <!-- <slidePicker :sliderArr="serverList" :leftText="leftText7" :rightText="rightText7" v-on:changeResult="changeResultWayServer1"></slidePicker>
+                    v-model="chooseResult"
+v-model="chooseResult"
+                    <slidePicker :sliderArr="serverList" :leftText="leftText8" :rightText="rightText8" v-on:changeResult="changeResultWayServer2"></slidePicker> -->
+                    <group>
+                        <popup-picker :title="leftText7" @on-change='changeResultWayServer1' :placeholder="rightText7" :data="serverList" class="gradePicker"></popup-picker>
+                        <popup-picker :title="leftText8" @on-change='changeResultWayServer2' :placeholder="rightText8" :data="serverList" class="gradePicker"></popup-picker>
+                    </group>
                 </div>
                 <div class="eachArea">
                     <!--年级选择-->
@@ -554,13 +560,12 @@ export default {
                         that.totalWriter = res.data.pi.totalSize
                         var result = res.data.data;
                         for (var i in result) {
-                            if(result[i].priceRange){
+                            if (result[i].priceRange) {
                                 var arr = result[i].priceRange.split("-");
                                 result[i].priceMin = arr[0];
-                            result[i].priceMax = arr[1];
+                                result[i].priceMax = arr[1];
                             }
-                            
-                            
+
                             result[i].nickname = result[i].webUser.nickname;
                             // console.log(result[i].webUser.nickname);
                             if (result[i].taskType == 1) {
@@ -699,32 +704,55 @@ export default {
         // 服务提供方(单选)isMulSelection
         changeResultWayServer1(val) {
             var that = this;
-            if (val[0] == '选择用户') {
-                 for (var i in that.writerList) {
-                    that.writerList[i].isChoosen=false
-                }
-                that.myFallowShow = true;
-                that.isMulSelection = true;
+            if (that.rightText8 == '我' && val[0] == '我' || that.rightText8 == '选择用户' && val[0] == '选择用户') {
+                AlertModule.show({
+                    title: "服务提供方和服务接收方只能/必须有一个选择“我”",
+                    onHide() {
+                        that.rightText7 = ''
+                    }
+                });
+
             } else {
-                that.autherId = that.$store.state.uid;
+                if (val[0] == '选择用户') {
+                    for (var i in that.writerList) {
+                        that.writerList[i].isChoosen = false
+                    }
+                    that.myFallowShow = true;
+                    that.isMulSelection = true;
+                } else {
+                    that.autherId = that.$store.state.uid;
+
+                }
+                that.rightText7 = val[0];
             }
-            that.rightText7 = val;
         },
         // 任务接收者（多选）
         changeResultWayServer2(val) {
             var that = this;
-            console.log(val)
+            console.log(val[0])
             // var that = this;
-            if (val[0] == '选择用户') {
-                for (var i in that.writerList) {
-                    that.writerList[i].isChoosen=false
-                }
-                that.myFallowShow = true;
-                that.isMulSelection = false;
+            if (that.rightText7 == '我' && val == '我' || that.rightText7 == '选择用户' && val == '选择用户') {
+                AlertModule.show({
+                    title: "服务提供方和服务接收方只能/必须有一个选择“我”",
+                    onHide() {
+                        that.rightText8 = ''
+                    }
+                });
+
             } else {
-                that.selectList.push(that.$store.state.uid)
+                if (val[0] == '选择用户') {
+                    for (var i in that.writerList) {
+                        that.writerList[i].isChoosen = false
+                    }
+                    that.myFallowShow = true;
+                    that.isMulSelection = false;
+                } else {
+                    // 当：服务接收者是“我”
+                    that.selectList.push(that.$store.state.uid)
+                }
+                that.rightText8 = val[0];
             }
-            that.rightText8 = val;
+
         },
         // 年级
         changeResultGrade(value) {
@@ -758,21 +786,13 @@ export default {
         // 选择作者,弹出窗口的确定按钮
         confirmWriter() {
             var that = this;
-            if (that.selectList.length == 0) {
-                // 服务接收者不是“我”
-                for (var i in that.writerList) {
-                    if (that.writerList[i].isChoosen) {
-                        that.chooseWriterList.push(that.writerList[i])
-                    }
+            for (var i in that.writerList) {
+                if (that.writerList[i].isChoosen) {
+                    that.chooseWriterList.push(that.writerList[i])
                 }
             }
 
             that.myFallowShow = false;
-            // that.isMulSelection.说明是选择“服务提供者”
-            if (that.isMulSelection && !that.autherId) {
-                that.autherId = that.chooseWriterList[0].followingUid
-            }
-
         },
 
         getNextDate(beginDate, day) {
@@ -798,6 +818,21 @@ export default {
 
             return time2;
         },
+          // 查看任务详情
+        toSeeMissionDetail(i) {
+            var that = this;
+            // 任务的id
+            var id = that.postList[i].id;
+         
+            // 如果要传递参数，一定要指定neme
+            that.$router.push({
+                // name: "missionDetail",
+                path: "/supplementMissionDetail",
+                query: {
+                    id: id
+                }
+            });
+        },
         // 字符串转date对象
         convertDateFromString(dateString) {
             if (dateString) {
@@ -822,6 +857,7 @@ export default {
         },
         // 发送确认
         sendConfirm() {
+         
             var that = this;
             var infos = [];
             for (var i in that.timesList) {
@@ -851,30 +887,38 @@ export default {
                 };
                 console.log('oooooooooooooooooooooooooooooooooooooooo')
                 console.log(postData);
+                var dataArr = [postData.price, postData.timeStage, postData.beginDate, postData.endDate, postData.stage]
+                var nameArr = ['总价', '每次时长', '开始时间', '结束时间', '阶段次数']
 
-                axios
-                    .post(that.$store.state.baseUrl + "api/Task/Stage", postData, {
-                        headers: {
-                            "Content-Type": "application/json;charset=UTF-8"
-                        }
+                if (that.isEmpty(dataArr, nameArr).length != 0) {
+                    AlertModule.show({
+                        title: "请填写：" + that.isEmpty(dataArr, nameArr).join(',')
                     })
-                    .then(function (res) {
-                        //  alert(res.data.code)
-                        if (res.data.code == "00") {
-                            // alert('走到这')
-                            AlertModule.show({
-                                title: "确认成功",
-                                onHide() {
-                                    that.sendSuccess = true;
-                                }
-                            });
-                        } else {
-                            //  alert('走到这1')
-                            AlertModule.show({
-                                title: res.data.msg
-                            });
-                        }
-                    });
+                } else {
+                    axios
+                        .post(that.$store.state.baseUrl + "api/Task/Stage", postData, {
+                            headers: {
+                                "Content-Type": "application/json;charset=UTF-8"
+                            }
+                        })
+                        .then(function (res) {
+                            //  alert(res.data.code)
+                            if (res.data.code == "00") {
+                                // alert('走到这')
+                                // AlertModule.show({
+                                //     title: "成功"
+                                // });
+                                // 确认啊啊啊啊
+                                 that.sendConfirm1()
+                            } else {
+                                //  alert('走到这1')
+                                AlertModule.show({
+                                    title: res.data.msg
+                                });
+                            }
+                        });
+                }
+
             } else {
                 AlertModule.show({
                     title: "请点击生成费用列表"
@@ -890,19 +934,6 @@ export default {
             }
             that.tabItem[id].isActive = true;
             that.showPart = id
-            // if (id == 2) {
-            //     this.seezzss = true
-            // } else if (id == 0) {
-            //     for (var i in this.radiosArr) {
-            //         this.radiosArr[i].selected = false
-            //     }
-            //     this.radiosArr[0].selected = true
-            // } else {
-            //     this.seezzss = false
-            // }
-            // 出版方式，顶部tab
-            // this.postData.taskType = ++id;
-            // console.log(this.postData.taskType)
 
         },
 
@@ -956,177 +987,190 @@ export default {
             }
             that.postData.autherId = that.autherId;
             console.log(that.postData)
-            that.$http('post', that.$store.state.baseUrl + 'api/Task', that.postData).then(function (res) {
-                console.log(res.data)
-                if (res.data.code == '00') {
-                    that.taskId = res.data.data.id;
-                    // 任务发布成功之后，选择报名用户/api/Task/Apply/Select/uid
-                    if (that.chooseWriterList.length == 0) {
-                        AlertModule.show({
-                            title: '请选择服务提供者/服务接收者'
-                        })
-                    } else {
-                        console.log('00000000000000')
-                        console.log(that.selectList)
-                        // for (var i in that.chooseWriterList) {
-                        //     // 分别调用报名接口
-                        //     that
-                        //         .$http("post", that.$store.state.baseUrl + "api/Task/Apply", {
-                        //             taskId: that.taskId,
-                        //             uid: that.chooseWriterList[i].followingUid
-                        //         })
-                        //         .then(function (res) {
-                        //             if (res.data.code != "00") {
-                        //                 AlertModule.show({
-                        //                     title: res.data.msg
-                        //                 });
-                        //             } else {
-                        //                 // 报名成功，选择此作者
-                        //                 var obj = {
-                        //                     uid: that.chooseWriterList[i].followingUid,
-                        //                     id: that.taskId,
-                        //                     status: '2'
-                        //                 }
-                        //                 that.$http('post', that.$store.state.baseUrl + 'api/Task/Apply/Select/uid', obj).then(function (res) {
-                        //                     if (res.data.code == '00') {
-                        //                         console.log('确定作者成功')
-                        //                     }
-                        //                 })
-                        //             }
-                        //         });
-                        //     // 报名结束
-
-                        // }
-                    }
-                    that.postSuccess = true;
-                } else {
+            // 判断是否填写相关用户
+            if (that.autherId == '' || that.chooseWriterList.length == 0) {
+                AlertModule.show({
+                    title: '请选择服务提供者/服务接收者'
+                })
+                return false;
+            } else {
+                // 第一步：发布任务
+                var dataArr = [that.postData.classNo, that.postData.category, that.postData.priceType, that.postData.area, that.postData.introduction];
+                var nameArr = ['年级', "科目", '出版方式', '写作区域', '简述']
+                if (that.isEmpty(dataArr, nameArr).length != 0) {
                     AlertModule.show({
-                        title: res.data.msg
+                        title: "请填写：" + that.isEmpty(dataArr, nameArr).join(',')
+                    })
+                    return false;
+                } else {
+                    that.$http('post', that.$store.state.baseUrl + 'api/Task', that.postData).then(function (res) {
+                        console.log(res.data)
+                        if (res.data.code == '00') {
+                            that.taskId = res.data.data.id;
+                            // 任务发布成功之后，选择报名用户/api/Task/Apply/Select/uid
+                            if (that.chooseWriterList.length == 0) {
+                                AlertModule.show({
+                                    title: '请选择服务提供者/服务接收者'
+                                })
+                            } else {
+                                console.log('---------------')
+                                console.log(that.autherId)
+                                console.log(that.selectList)
+                                // 第二步：  用户报名
+                                for (var i in that.chooseWriterList) {
+                                    // 分别调用报名接口
+                                    that
+                                        .$http("post", that.$store.state.baseUrl + "api/Task/Apply", {
+                                            taskId: that.taskId,
+                                            uid: that.chooseWriterList[i].followingUid
+                                        })
+                                        .then(function (res) {
+                                            if (res.data.code != "00") {
+                                                AlertModule.show({
+                                                    title: res.data.msg
+                                                });
+                                            } else {
+                                                // 第三步：报名成功，选择此作者
+                                                var obj = {
+                                                    uid: that.chooseWriterList[i].followingUid,
+                                                    id: that.taskId,
+                                                    status: '2'
+                                                }
+                                                that.$http('post', that.$store.state.baseUrl + 'api/Task/Apply/Select/uid', obj).then(function (res) {
+                                                    if (res.data.code == '00') {
+                                                        console.log('确定作者成功')
+                                                         that.sendConfirm()
+                                                    }
+                                                })
+                                            }
+                                        });
+                                    // 报名结束
+
+                                }
+                            }
+                            that.postSuccess = true;
+                           
+                            AlertModule.show({
+                                title: "补充成功"
+                            });
+                        } else {
+                            AlertModule.show({
+                                title: res.data.msg
+                            })
+                        }
                     })
                 }
-            })
+            }
 
         },
-        // 提交审核
-        supplementaryRegistration() {
+        // 发送确认
+        sendConfirm1() {
             var that = this;
-            that.posiMission()
-            var step = this.times.join("");
-            var s1 = this.beginDate.replace(/-/g, "/");
-            var s2 = this.endDate.replace(/-/g, "/");
-            var originPrice = this.finalPrice;
+            var postData = {
+                taskId: that.taskId,
+                status: "2"
+            };
+            that
+                .$http(
+                    "post",
+                    that.$store.state.baseUrl +
+                    "api/Task/Stage/Confirm",
+                    postData
+                ).then(function (res) {
+                    if (res.data.code != "00") {
+                        AlertModule.show({
+                            title: res.data.msg
+                        });
+                    } else {
+                        // AlertModule.show({
+                        //   title: "确认成功",
+                        //   onHide(){
+                        //     that.$router.push({
+                        //       name:'myEnrollMission'
+                        //     })
+                        //   }
 
-            if (s1 != "" && s2 != "") {
-                var totalDay = Number(this.DateDiff(s1, s2));
-                // alert("总天数" + totalDay);
-                var yushu = Number(totalDay) % Number(step);
-                //  alert("余数" + yushu);
-                totalDay -= Number(yushu);
-                //  alert("总天数" + totalDay);
-                var gapDay = parseInt(totalDay / step);
+                        // });
+                            //    that.$router.push({
+                            //   name:'supplementaryRegistration'
+                            // })
+
+                    }
+                });
+        },
+            // 提交审核
+            supplementaryRegistration() {
+                var that = this;
+                that.posiMission()
+                var step = this.times.join("");
+                var s1 = this.beginDate.replace(/-/g, "/");
+                var s2 = this.endDate.replace(/-/g, "/");
+                var originPrice = this.finalPrice;
+
+                if (s1 != "" && s2 != "") {
+                    var totalDay = Number(this.DateDiff(s1, s2));
+                    // alert("总天数" + totalDay);
+                    var yushu = Number(totalDay) % Number(step);
+                    //  alert("余数" + yushu);
+                    totalDay -= Number(yushu);
+                    //  alert("总天数" + totalDay);
+                    var gapDay = parseInt(totalDay / step);
+                }
+                // alert("总金额" + this.finalPrice);
+
+                var arr = [{
+                    index: 1,
+                    date: s1
+                }];
+                for (var i = 1; i <= step; i++) {
+                    var obj = {};
+                    obj.index = i;
+                    obj.date = "";
+                    obj.money = 0;
+                    arr.push(obj);
+                    arr[i].date = this.getNextDate(arr[i - 1].date, gapDay);
+                }
+                arr = arr.slice(1, arr.length);
+                var yushuPrice = this.finalPrice % arr.length;
+                // console.log('余下的'+yushuPrice)
+                // this.finalPrice -= yushuPrice;
+                // var finalPrice = this.finalPrice;
+                var finalPrice = this.finalPrice - this.serviceRate * this.finalPrice - this.finalPrice * this.adjustmentRate;
+                finalPrice -= yushuPrice;
+                this.eachPrice = finalPrice / arr.length;
+                for (var i in arr) {
+                    arr[i].money = this.eachPrice;
+                }
+                // console.log("价格余数" + yushuPrice);
+                if (yushu != 0) {
+                    arr[arr.length - 1].date = this.getNextDate(
+                        arr[arr.length - 1].date,
+                        yushu
+                    );
+                    this.finalPrice = originPrice;
+                }
+                if (yushuPrice != 0) {
+                    arr[arr.length - 1].money += yushuPrice;
+                }
+                this.timesList = arr;
+                this.actualEachStage =
+                    Math.floor(
+                        this.finalPrice -
+                        this.serviceRate * this.finalPrice -
+                        this.finalPrice * this.adjustmentRate
+                    ) / this.timesList.length;
+                // that.getTimesList();
+                // if (that.postSuccess) {
+                   
+                // }
+
             }
-            // alert("总金额" + this.finalPrice);
-
-            var arr = [{
-                index: 1,
-                date: s1
-            }];
-            for (var i = 1; i <= step; i++) {
-                var obj = {};
-                obj.index = i;
-                obj.date = "";
-                obj.money = 0;
-                arr.push(obj);
-                arr[i].date = this.getNextDate(arr[i - 1].date, gapDay);
-            }
-            arr = arr.slice(1, arr.length);
-            var yushuPrice = this.finalPrice % arr.length;
-            // console.log('余下的'+yushuPrice)
-            // this.finalPrice -= yushuPrice;
-            // var finalPrice = this.finalPrice;
-            var finalPrice = this.finalPrice - this.serviceRate * this.finalPrice - this.finalPrice * this.adjustmentRate;
-            finalPrice -= yushuPrice;
-            this.eachPrice = finalPrice / arr.length;
-            for (var i in arr) {
-                arr[i].money = this.eachPrice;
-            }
-            // console.log("价格余数" + yushuPrice);
-            if (yushu != 0) {
-                arr[arr.length - 1].date = this.getNextDate(
-                    arr[arr.length - 1].date,
-                    yushu
-                );
-                this.finalPrice = originPrice;
-            }
-            if (yushuPrice != 0) {
-                arr[arr.length - 1].money += yushuPrice;
-            }
-            this.timesList = arr;
-            this.actualEachStage =
-                Math.floor(
-                    this.finalPrice -
-                    this.serviceRate * this.finalPrice -
-                    this.finalPrice * this.adjustmentRate
-                ) / this.timesList.length;
-            // that.getTimesList();
-            if (that.postSuccess) {
-                that.sendConfirm()
-            }
-
-            // if (!that.postData.priceType) {
-            //     that.postData.priceType = 1;
-            // }
-
-            // console.log(that.postData)
-
-            // if (that.postData.taskType == '1') {
-            //     var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.deadline, that.postData.coordination, that.postData.area, that.postData.introduction];
-            //     var nameArr = ['年级', "科目", '出版方式', '出资方式', '价格区间', '截止日期', '协作方式', '写作区域', '简述']
-
-            // } else {
-            //     var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.busniessCount, that.postData.deadline, that.postData.coordination, that.postData.area, that.postData.introduction];
-            //     var nameArr = ['年级', "科目", '出版方式', '出资方式', '价格区间', '书商数量', '截止日期', '协作方式', '写作区域', '简述']
-
-            // }
-            // if (that.isEmpty(dataArr, nameArr).length != 0) {
-            //     AlertModule.show({
-            //         title: "请填写：" + that.isEmpty(dataArr, nameArr).join(',')
-            //     })
-            // } else {
-            //     if (that.priceType == '1' && that.postData.busniessCount != 1) {
-            //         AlertModule.show({
-            //             title: "抱歉，独资方式只能选择一名书商"
-            //         })
-            //     } else {
-            // that.$http('post', that.$store.state.baseUrl + 'api/Task', that.postData).then(function (res) {
-            //     console.log(res.data)
-            //     if (res.data.code == '00') {
-            //         AlertModule.show({
-            //             title: '操作成功！',
-            //             onHide() {
-            //                 that.$router.go(-1)
-            //             }
-            //         })
-            //     } else {
-            //         AlertModule.show({
-            //             title: res.data.msg
-            //         })
-            //         that.$router.push({
-            //             path: '/mission'
-            //         })
-            //     }
-            //         // })
-            //     }
-            // }
-
         }
     }
-}
 </script>
 
-<style>
-body,
-html,
+<style >
+
 #supplementaryRegistration {
     background: #fff;
     height: 100%;
@@ -1554,9 +1598,10 @@ input.finalPrice.mainText {
     /*padding-bottom: 0;*/
     /*margin-top: 10px;*/
     margin-bottom: 10px;
+     border-bottom: 4px solid #eee;
 }
 
-.eachPeople.ss {
+/* .eachPeople.ss {
     border-bottom: 4px solid #2ea200;
 }
 
@@ -1566,7 +1611,7 @@ input.finalPrice.mainText {
 
 .eachPeople.sz {
     border-bottom: 4px solid #feab29;
-}
+} */
 
 #resultPeoples.reacResult .hang {
     width: 100%;

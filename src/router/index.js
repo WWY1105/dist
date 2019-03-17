@@ -26,6 +26,7 @@ import activeMessage from '@/pages/circle/activeMessage'
 // 圈子END
 
 // 任务
+import supplementMissionDetail from '@/pages/mission/supplementMissionDetail'
 import missionDetail from '@/pages/mission/missionDetail'
 import mission from '@/pages/mission/mission'
 import postMission from '@/pages/mission/postMission'
@@ -193,7 +194,18 @@ export default new Router({
         title:'任务详情',
         keepAlive: false
       }
-    },,{
+    },
+    {
+      path: '/supplementMissionDetail',
+      name: 'supplementMissionDetail',
+      component: supplementMissionDetail,
+      meta:{
+        title:'任务详情',
+        keepAlive: false
+      }
+    },
+    
+    {
       path: '/mission',
       name: 'mission',
       component: mission,

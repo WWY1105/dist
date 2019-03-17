@@ -423,11 +423,11 @@ export default {
             // 服务提供者serviceProvider
             // 被发布者选定的人nicknameArr
             if (that.missionType == "1") {
-              that.serviceReceiver = that.postUser.nickname;
-              that.serviceProvider = that.nicknameArr.join(",");
+                 that.serviceReceiver = that.postUser.nickname;
+                 that.serviceProvider = that.nicknameArr.join(",");
             } else if (that.missionType == "2") {
-              that.serviceProvider = that.postUser.nickname;
-              that.serviceReceiver = that.nicknameArr.join(",");
+                 that.serviceProvider = that.postUser.nickname;
+                 that.serviceReceiver = that.nicknameArr.join(",");
             } else {
               var writerNickname = [];
               var bussNickname = [];
@@ -446,6 +446,7 @@ export default {
                 }
               }
               that.serviceProvider = writerNickname.join(",");
+              bussNickname.push(that.postUser.nickname)
               that.serviceReceiver = bussNickname.join(",");
               console.log("00000");
               console.log(writerNickname);
