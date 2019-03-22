@@ -19,7 +19,7 @@
     </p>
     <div class="mymediator topMyMediator">
         <p class="smallTitle">我的调解人</p>
-        <div class="mediator flexSpace bgW" v-if="myMediator.length==0?false:true" v-for="item,index in myMediator">
+        <router-link :to="{path:'/writerDetail',query:{'writerId':item.id}}"  class="mediator flexSpace bgW" v-if="myMediator.length==0?false:true" v-for="item,index in myMediator">
             <!-- 有数据的时候 -->
             <div class="left flexStart">
                 <img :src="$store.state.imgUrl+item.imgurl" class="userImg mediatorImg" alt="">
@@ -29,7 +29,7 @@
                 <i class="iconfont icon-jiantou"></i>
             </div>
 
-        </div>
+        </router-link>
         <div class="mediator flexSpace bgW" @click="addMyMediator" v-if="myMediator.length==0?true:false">
             <!-- 没有数据的时候 -->
             <div class="left flexStart">添加我的调解人</div>

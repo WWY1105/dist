@@ -366,7 +366,8 @@ export default {
          var that = this;
       var postData = {
         taskId: that.taskId,
-        status: "4"
+        status: "3",
+        uid:that.$store.state.uid
       };
        that
         .$http(
@@ -392,7 +393,8 @@ export default {
       var that = this;
       var postData = {
         taskId: that.taskId,
-        status: "2"
+        status: "2",
+          uid:that.$store.state.uid
       };
        that
         .$http(

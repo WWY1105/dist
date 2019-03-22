@@ -497,7 +497,7 @@ export default new Router({
       }
     },{
       path:'/supplementaryRegistration',
-      name:'mine',
+      name:'supplementaryRegistration',
       component:supplementaryRegistration,
       meta:{
         title:'补充登记'

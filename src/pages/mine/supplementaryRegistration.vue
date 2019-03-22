@@ -1068,7 +1068,8 @@ export default {
             var that = this;
             var postData = {
                 taskId: that.taskId,
-                status: "2"
+                status: "2",
+                
             };
             that
                 .$http(
