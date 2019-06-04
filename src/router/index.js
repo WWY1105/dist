@@ -14,6 +14,7 @@ import index from '@/pages/index/index'
 import searchResult from '@/pages/index/searchResult'
 import writerDetail from '@/pages/index/writerDetail'
 import privateMsg from '@/pages/index/privateMsg'
+import viewingMechanism from '@/pages/index/viewingMechanism'
 // 首页模块 end
 
 // 圈子
@@ -31,6 +32,7 @@ import missionDetail from '@/pages/mission/missionDetail'
 import mission from '@/pages/mission/mission'
 import postMission from '@/pages/mission/postMission'
 import taskOrientation from '@/pages/mission/taskOrientation'
+import replyDetailsToPay from '@/pages/mission/replyDetailsToPay'
 import replyDetails from '@/pages/mission/replyDetails'
 import toConfirmMission from '@/pages/mission/toConfirmMission'
 import serviceRecipient from '@/pages/mission/serviceRecipient'
@@ -67,6 +69,7 @@ import recharge from '@/pages/mine/recharge'
 import cashWithdrawal from '@/pages/mine/cashWithdrawal'
 import cashWithdrawalSuccess from '@/pages/mine/cashWithdrawalSuccess'
 import myMediator from '@/pages/mine/myMediator'
+import addFellow from '@/pages/mine/addFellow'
 import giveRedEnvelopes from '@/pages/mine/giveRedEnvelopes'
 import missionInExecutionBuss from '@/pages/mine/missionInExecutionBuss'
 import missionInExecutionAuth from '@/pages/mine/missionInExecutionAuth'
@@ -74,7 +77,7 @@ import stagePlan from '@/pages/mine/stagePlan'
 import registAchievement from '@/pages/mine/registAchievement'
 import missionInAfterEvaluteBuss from '@/pages/mine/missionInAfterEvaluteBuss'
 
-// 给作者贴标签
+// 给家教贴标签
 import evaluationAuthor from '@/pages/mine/evaluationAuthor'
 
 // 我的end
@@ -149,6 +152,13 @@ export default new Router({
       component: index,
       meta:{
         title:'首页'
+      }
+    },{
+      path: '/viewingMechanism',
+      name: 'viewingMechanism',
+      component: viewingMechanism,
+      meta:{
+        title:'机构'
       }
     },{
       path:'/bindTel',
@@ -228,6 +238,13 @@ export default new Router({
       }
     },
     {
+      path: '/replyDetailsToPay',
+      name: 'replyDetailsToPay',
+      component: replyDetailsToPay,
+      meta:{
+        title:'发送确认'
+      }
+    },{
       path: '/replyDetails',
       name: 'replyDetails',
       component: replyDetails,
@@ -339,12 +356,19 @@ export default new Router({
       meta:{
         title:'我的钱包'
       }
-    },,{
+    },{
       path: '/myMediator',
       name: 'myMediator',
       component: myMediator,
       meta:{
         title:'我的调解人'
+      }
+    },{
+      path: '/addFellow',
+      name: 'addFellow',
+      component: addFellow,
+      meta:{
+        title:'我的关注'
       }
     },{
       path: '/recharge',
@@ -478,7 +502,7 @@ export default new Router({
       name: 'writerDetail',
       component: writerDetail,
       meta:{
-        title:'作者详情',
+        title:'家教详情',
         keepAlive: false
       }
     },{
@@ -497,7 +521,7 @@ export default new Router({
       }
     },{
       path:'/supplementaryRegistration',
-      name:'supplementaryRegistration',
+      name:'mine',
       component:supplementaryRegistration,
       meta:{
         title:'补充登记'
@@ -521,7 +545,7 @@ export default new Router({
       name:'authorAuthentication',
       component:authorAuthentication,
       meta:{
-        title:'作者认证'
+        title:'家教资历'
       }
     },{
       path:'/realNameAuthentication',

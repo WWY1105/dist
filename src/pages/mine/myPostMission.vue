@@ -1,7 +1,7 @@
 <template>
 <div id="myPostMission">
     <!-- 顶部TAB -->
-    <div class="topTab flexSpace bgW">
+    <div class="topTab flexSpace bgW" v-if="!showAllMsg">
         <div :class="item.active==true?'item active':'item'" v-for="item,index in tabList" @click="chooseTab(index)">{{item.name}}</div>
     </div>
     <!-- 任务列表 -->
@@ -9,14 +9,14 @@
         <div :class="'eachPeople bgW '+item.borderColor" v-for="item,index of postList" @click="toSeemyPostMissionDetail(index)">
             <div class="titleBox flexSpace padding11">
                 <div class="left flexStart">
-                    <img :src="$store.state.imgUrl+item.webUser.imgurl" class="userImg" alt>
+                    <img :src="item.webUser?$store.state.imgUrl+item.webUser.imgurl:''" class="userImg" alt>
                     <div>
-                        <p class="name">{{item.webUser.nickname}}</p>
-                        <p class="options flexSpace">
+                        <p class="name">{{item.webUser?item.webUser.nickname:''}}</p>
+                        <p class="options flexStart">
                             <span class="option flexStart">
                   实名
-                  <i class="iconfont icon-wenhao" v-if="item.realAuth!=2?true:false"></i>
-                  <i class="iconfont icon-gouxuan" v-if="item.realAuth!=2?false:true"></i>
+                  <i class="iconfont icon-wenhao" v-if="item.webUser?item.webUser.realAuth!=2?true:false:''"></i>
+                  <i class="iconfont icon-gouxuan" v-if="item.webUser?item.webUser.realAuth!=2?false:true:''"></i>
                 </span>
                             <span class="option">
                   学历
@@ -27,23 +27,26 @@
                     </div>
                 </div>
                 <div class="right flexEnd">
-                    <p class="button searchSS" v-if="item.taskType=='2'?true:false">找书商</p>
-                    <p class="button searchZZ" v-if="item.taskType=='1'?true:false">找作者</p>
-                    <p class="button searchSZ" v-if="item.taskType=='3'?true:false">找作者和书商</p>
-                    <p class="price">￥ {{item.priceMin}} - ￥{{item.priceMax}}</p>
+                    <p class="button searchSS" v-if="item.taskType=='2'?true:false">找家长</p>
+                    <p class="button searchZZ" v-if="item.taskType=='1'?true:false">找家教</p>
+                    <p class="button searchSZ" v-if="item.taskType=='3'?true:false">团家长找家教</p>
+                    <!-- <p class="price">￥ {{item.priceMin}} - ￥{{item.priceMax}}</p>
+                     -->
+                     <p class="price">{{item.supplement?'￥'+item.amount:'￥'+item.priceMin+'-￥'+item.priceMax}}</p>
+                     
                 </div>
             </div>
             <div class="details padding11">
                 <p class="hang flexSpace mainText">
-                    <span class="eachItem">状态：{{item.status}}</span>
+                    <span class="eachItem">状态：{{item.supplement?"补充登记":item.status}}</span>
                     <span class="eachItem textAright">截止报名：{{item.deadline?item.deadline.substr(0,10):''}}</span>
                 </p>
                 <p class="hang flexSpace">
                     <span
               class="eachItem"
-            >{{item.webUser.authorInfo.classNo}}/{{item.webUser.authorInfo.subject}}/{{item.priceType=='1'?'独资出版':'合资出版'}}</span>
+            >{{item.classNo?item.classNo:''}}/{{item.category?item.category:''}}/{{item.priceType=='1'?'1对1':'1对多'}}</span>
                     <span class="eachItem textAright">已报名：{{item.applicationCount}}</span>
-                    <!-- <span class="eachItem">出版：{{item.taskType}}</span> -->
+                    <!-- <span class="eachItem">组班方式：{{item.taskType}}</span> -->
                 </p>
                 <p class="hang flexStart">
                     <span class="eachItem">{{item.coordination}}/{{item.area}}</span>
@@ -88,7 +91,7 @@ export default {
                 {
                     name: "执行中",
                     active: false,
-                    id: 3
+                    id: 8
                 },
                 {
                     name: "已结束",
@@ -96,14 +99,20 @@ export default {
                     id: 4
                 }
             ],
-            uid: this.$store.state.uid,
-            userData: {}
+            uid: this.$route.query.uid,
+            isCancel: false,
+            userData: {},
+            showAllMsg: false
         };
     },
     mounted() {
 
+        this.getUser(this.$store.state.uid);
+        //  alert(this.$route.query.showAllMsg)
+        if (this.$route.query.showAllMsg) {
+            this.showAllMsg = this.$route.query.showAllMsg;
+        }
         this.getMIssionlist();
-        this.getUser(this.$store.state.uid)
     },
     methods: {
         getUser(uid) {
@@ -116,24 +125,112 @@ export default {
         },
         // 查看任务详情
         toSeemyPostMissionDetail(i) {
+            // alert(this.showAllMsg)
+
             var id = this.postList[i].id;
             var taskStatus = this.postList[i].status;
             var type = this.userData.type;
-            // 我发布的任务，所以我是书商
-            if (taskStatus == '3') {
+            var status = this.postList[i].status;
+
+            var autherId = this.postList[i].authorId;
+            var isAuthor = false;;
+            if (autherId == this.$store.state.uid) {
+                isAuthor = true;
+            }
+            if (this.showAllMsg) {
+                // missionInAfterEvaluteBuss
                 this.$router.push({
-                    path: "/missionInExecutionBuss",
+                    path: '/missionInAfterEvaluteBuss',
                     query: {
+                        keepActive: true,
                         id: id,
-                        isMyTask: true
+                        showAllMsg:this.showAllMsg
+                    }
+                })
+                return false;
+            }
+            // alert(status)
+            // alert(isAuthor)
+            // 如果是执行中的任务
+            if (status == '发布中') {
+                this.$router.push({
+                    path: "/missionDetail",
+                    query: {
+                        id: id
                     }
                 });
-            } else {
+            } else if (status == '执行中' || status == '取消中') {
+                if (isAuthor) {
+                    // 我执行的任务，所以我是家教
+                    // 家教版正在执行的任务
+                    this.$router.push({
+                        path: "/missionInExecutionAuth",
+                        query: {
+                            id: id
+                        }
+                    });
+                } else {
+                    // 我是家长
+                    if (this.postList[i].payTime == null) {
+                        this.$router.push({
+                            path: "/missionDetail",
+                            query: {
+                                id: id,
+                                isMyTask: true
+                            }
+                        });
+                    } else {
+                        this.$router.push({
+                            path: "/missionInExecutionBuss",
+                            query: {
+                                id: id
+                            }
+                        });
+                    }
+
+                }
+
+            } else if (status == '双方已确认代付款') {
+                // 我是家教
+                if (isAuthor) {
+                    this.$router.push({
+                        path: "/missionInExecutionAuth",
+                        query: {
+                            id: id,
+                            isCancel: true
+                        }
+                    });
+                } else {
+                    this.$router.push({
+                        path: '/replyDetailsToPay',
+                        query: {
+                            taskId: id
+                        }
+                    })
+                }
+            } else if (status == "待确认") {
+                this.$router.push({
+                    path: "/toConfirmMission",
+                    query: {
+                        taskId: id,
+                        isMyTask: true
+                        // doing: true
+                    }
+                });
+            } else if (status == '已选定服务人' || status == '已有人报名') {
                 this.$router.push({
                     path: "/missionDetail",
                     query: {
                         id: id,
-                        isMyTask: true
+                        isMyTask: false
+                    }
+                });
+            } else {
+                this.$router.push({
+                    path: "/missionInExecutionBuss",
+                    query: {
+                        id: id,
+                        isCancel: true
                     }
                 });
             }
@@ -151,15 +248,26 @@ export default {
         // 获取任务列表
         getMIssionlist(status) {
             var that = this;
-            that.postData.uid = that.uid;
-            // if(that.status){
-            that.postData.status = status;
-            // }
+            var postUrl = '';
+            // alert(that.showAllMsg)
+            if (that.showAllMsg) {
+                // 用户主页过来的所有任务
+                postUrl = "api/Task/correlation-task"
+                that.postData.uid = that.uid;
+                // that.postData.supplement = true;
+                that.postData.aduitStatus='2'
+            } else {
+                postUrl = "api/Task/List"
+                that.postData.uid = that.uid;
+                that.postData.status = status;
+                that.postData.supplement = false;
+            }
+
             console.log(that.postData);
             that
                 .$http(
                     "get",
-                    that.$store.state.baseUrl + "api/Task/List",
+                    that.$store.state.baseUrl + postUrl,
                     that.postData
                 )
                 .then(function (res) {
@@ -182,25 +290,32 @@ export default {
                             // =====================
                             switch (result[i].status) {
                                 case 1:
-                                    result[i].status = "发布中";
+                                    result[i].status = '发布中'
                                     break;
                                 case 2:
-                                    result[i].status = "已选定服务人";
+                                    result[i].status = '已选定服务人'
                                     break;
                                 case 3:
-                                    result[i].status = "执行中";
+                                    result[i].status = '双方已确认代付款'
                                     break;
                                 case 4:
-                                    result[i].status = "已结束";
+                                    that.isCancel = true;
+                                    result[i].status = '已结束'
                                     break;
                                 case 6:
-                                    result[i].status = "已取消";
+                                    result[i].status = '已取消'
                                     break;
                                 case 7:
-                                    result[i].status = '已有人报名';
+                                    result[i].status = '已有人报名'
+                                    break;
+                                case 8:
+                                    result[i].status = '执行中'
+                                    break;
+                                case 88:
+                                    result[i].status = '取消中'
                                     break;
                                 case 99:
-                                    result[i].status = "已失败";
+                                    result[i].status = '已失败'
                                     break;
                             }
                         }
@@ -327,6 +442,7 @@ export default {
 .reacResult .right .button.searchSZ {
     color: #feab29;
     border: 1px solid #feab29;
+    word-break: keep-all;
 }
 
 .eachPeople .otherMsg {
@@ -428,5 +544,10 @@ export default {
 #myPostMission .vux-cell-box.areaBox {
     padding: 5px 0px;
     border-bottom: 1px solid #d9d9d9;
+}
+
+.reacResult p.name {
+    /* max-width: 30%; */
+    text-overflow: ellipsis;
 }
 </style>

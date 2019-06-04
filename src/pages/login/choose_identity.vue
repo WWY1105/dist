@@ -9,7 +9,7 @@
 
         <!--<div class="item" @click="chooseWriter"  :class="isActive?'item':'item active'">
                   <p class="circle"><i class="iconfont icon-book1"></i></p>
-                  <p class="text">书商</p>
+                  <p class="text">家长</p>
               </div>-->
         <button class="long_btn" @click.prevent="gotoFillIn">下一步</button>
     </div>
@@ -28,13 +28,13 @@ export default {
                 id: 0,
                 icon: 'icon-iconset0137',
                 isActive: true,
-                text: '作者'
+                text: '家教'
             },
             {
                 id: 0,
                 icon: 'icon-book1',
                 isActive: false,
-                text: '书商'
+                text: '家长'
             }]
         }
     },

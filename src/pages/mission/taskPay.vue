@@ -65,7 +65,7 @@ import wx from 'weixin-js-sdk';
 import common from "@/assets/js/common"
 import {
     InlineXNumber,
-     AlertModule,
+    AlertModule,
 } from 'vux'
 export default {
     data() {
@@ -91,7 +91,7 @@ export default {
     },
     components: {
         InlineXNumber,
-         AlertModule,
+        AlertModule,
     },
     mounted() {
         this.getWebUser(this.uid);
@@ -112,7 +112,7 @@ export default {
             var that = this;
             var baseUrl = this.$store.state.baseUrl;
             var postData = {
-                url: encodeURI("http://nian.im/app/index.html")
+                url: encodeURI("http://www.shuimujiajia.net/app/index.html")
             }
             that
                 .$http("get", baseUrl + "WexinJsConfig", postData)
@@ -141,56 +141,76 @@ export default {
             var that = this;
             var baseUrl = that.$store.state.baseUrl;
             var index;
-            var payType=''
+            var payType = ''
             for (var i in that.eachWay) {
                 if (that.eachWay[i].isChoose) {
                     index = i;
-                    payType=that.eachWay[i].payType
+                    payType = that.eachWay[i].payType
                 }
             }
-            if(!index){
+            if (!index) {
                 AlertModule.show({
                     title: "请选择支付方式"
                 })
-            }else if (that.money > that.userData.amount && index == 0) {
+            } else if (that.money > that.userData.amount && index == 0) {
                 AlertModule.show({
                     title: "余额不足，请选择微信支付"
                 })
             } else {
-                that.$http('post', baseUrl + 'api/Task/Pay/' + that.$route.query.taskId,{
-                    payType:payType,
-                    uid:that.$store.state.uid
-                }).then(function (res) {
-                    if (res.data.code != '00') {
-                        AlertModule.show({
-                            title: res.data.msg
-                        })
-                    } else {
-                        var result = JSON.parse(res.data.data)
-                        wx.ready(function () {
-                            wx.chooseWXPay({
-                                timestamp: result.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
-                                nonceStr: result.nonceStr, // 支付签名随机串，不长于 32 位
-                                package: result.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
-                                signType: result.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
-                                paySign: result.paySign, // 支付签名
-                                success: function (res) {
-                                    // 支付成功后的回调函数
-                                    that.$router.push({
-                                        path: '/paySuccess'
-                                    })
-                                },
-                                fail: function (res) {
-                                    // 支付成功后的回调函数
-                                    that.$router.push({
-                                        path: '/payFail'
-                                    })
-                                }
-                            });
-                        })
-                    }
+                if (payType == 'yue') {
+                    that.$http('post', baseUrl + 'api/Task/Pay/' + that.$route.query.taskId, {
+                        payType: payType,
+                        uid: that.$store.state.uid
+                    }).then(function (res) {
+                        if (res.data.code != '00') {
+                            AlertModule.show({
+                                title: res.data.msg
+                            })
+                        } else {
+                            var result = JSON.parse(res.data.data)
+                            // 支付成功后的回调函数
+                            that.$router.push({
+                                path: '/paySuccess'
+                            })
+                        }
+                    })
+                } else {
+                    that.$http('post', baseUrl + 'api/Task/Pay/' + that.$route.query.taskId, {
+                        payType: payType,
+                        uid: that.$store.state.uid
+                    }).then(function (res) {
+                        if (res.data.code != '00') {
+                            AlertModule.show({
+                                title: res.data.msg
+                            })
+                        } else {
+                            var result = JSON.parse(res.data.data)
+                            wx.ready(function () {
+                                wx.chooseWXPay({
+                                    timestamp: result.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+                                    nonceStr: result.nonceStr, // 支付签名随机串，不长于 32 位
+                                    package: result.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+                                    signType: result.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+                                    paySign: result.paySign, // 支付签名
+                                    success: function (res) {
+                                        // 支付成功后的回调函数
+                                        that.$router.push({
+                                            path: '/paySuccess'
+                                        })
+                                    },
+                                    fail: function (res) {
+                                        // 支付成功后的回调函数
+                                        that.$router.push({
+                                            path: '/paySuccess'
+                                        })
+                                    }
+                                });
+                            })
+                        }
 
-                })
+                    })
+                }
+
             }
 
         }

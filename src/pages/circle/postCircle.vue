@@ -3,10 +3,11 @@
     <div class="postContent bgW">
         <x-textarea v-model="content" placeholder="说点什么.." :height="145"></x-textarea>
         <div class="addpic flexStart">
-            <img :src="item"  type="file" class="chooseImg" v-for="item,index in showImgArr">
+            <img :src="$store.state.imgUrl+item"  type="file" class="chooseImg" v-for="item,index in showImgArr">
 
             <input v-if="isios"  type="file" name="img" accept="image/*" id="upload_file"   mutiple="mutiple"   class="add" @change="chooseImage"/>
-            <input v-if="!isios" type="file" name="img" accept="image/*" id="upload_file"  capture="camera" mutiple="mutiple"   class="add" @change="chooseImage"/>
+            <input v-if="!isios" type="file" name="img" accept="image/*" id="upload_file"   mutiple="mutiple"   class="add" @change="chooseImage"/>
+           <!-- capture="camera" -->
             <button class="add" @click="clickChoose">
                  <i class="iconfont icon-jia"></i>
             </button>
@@ -70,9 +71,9 @@ export default {
                 var file = document.getElementById("upload_file").files[0];
 
                 //    ===============  ===============
-                lrz(file, {
-                    width: 480
-                }).then(function (rst) {
+                // lrz(file, {
+                //     width: 480
+                // }).then(function (rst) {
                     var formdata1 = new FormData(); // 创建form对象
                     formdata1.append('img', file); // 通过append向form对象添加数据,可以通过append继续添加数据
                     //    ===============  ===============
@@ -89,15 +90,15 @@ export default {
                             })
                         } else {
                             that.imgArr.push(res.data.data)
-                            that.showImgArr.push(rst.base64)
+                            that.showImgArr.push(res.data.data)
                             console.log(that.showImgArr)
                         }
                     })
-                    return rst;
-                }).always(function (e) {
-                    // 清空文件上传控件的值
-                    e.target.value = null;
-                })
+                    // return rst;
+                // }).always(function (e) {
+                //     // 清空文件上传控件的值
+                //     e.target.value = null;
+                // })
             } else {
                 AlertModule.show({
                     title: "抱歉，最多只能选择9张图片"

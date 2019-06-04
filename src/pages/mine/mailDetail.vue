@@ -3,15 +3,15 @@
     <!-- 信箱详情 -->
     <div class="eachMail flexSpace bgW">
         <div class="imgBox">
-            <img :src="mailDetail.formUser.imgurl"  class="userImg"  alt="">
+            <img :src="$store.state.imgUrl+mailDetail.user.imgurl"  class="userImg"  alt="">
             <!-- <span class="redDot"></span> -->
         </div>
         <div class="text">
-            <p class="name">{{mailDetail.formUser.nickname}}</p>
+            <p class="name">{{mailDetail.user.nickname}}</p>
             <p class="detailText">{{mailDetail.content}}</p>
             <p class="flexSpace">
                 <span class="date">{{mailDetail.msgTime}}</span>
-                <span class="money">红包：{{mailDetail.redEnvelope}}元</span>
+                <span class="money">红包：{{mailDetail.amount}}元</span>
             </p>
         </div>
     </div>
@@ -19,21 +19,22 @@
     <!-- 回复详情 -->
     <div class="eachMail replayBox flexSpace bgW" v-for="i,j in  comments" @click="replayMsgId(i.msgId)">
         <div class="imgBox">
-            <img  :src="i.user.imgurl"   class="userImg"  alt="">
+            <img  :src="$store.state.imgUrl+i.user.imgurl"   class="userImg"  alt="">
         </div>
             <div class="text">
-                <p class="name">{{i.nickname}}</p>
+                <p class="name">{{i.user.nickname}}</p>
                 <p class="detailText">{{i.content}}</p>
                 <p class="flexSpace">
-                    <span class="date">{{i.msgTime}}</span>
+                    <span class="date">{{i.commentTime}}</span>
                     <!-- <span class="money">红包：1元</span> -->
                 </p>
             </div>
         </div>
-        <div class="replay bgW">
-            <input type="text" placeholder="回复私信" v-model="content" @keypress="sendMsg" ref='input'>
-    </div>
+        <div class="replay bgW flexSpace" v-if="comments.length==0">
+            <input type="text" placeholder="回复私信" v-model="content"  ref='input'>
+            <button class="long_btn" @click="sendMsg">发送</button>
         </div>
+    </div>
 </template>
 
 <script>
@@ -47,57 +48,66 @@ export default {
             mailId: this.$route.query.mailId,
             mailDetail: {},
             comments: [],
-            msgId:'',
-            content:''
+            msgId: '',
+            content: ''
         }
     },
     components: {
         AlertModule
     },
     mounted() {
-        this.getDetail()
+        this.getDetail();
+        this.$refs.input.focus()
     },
     methods: {
         getDetail() {
             var that = this;
             var baseUrl = this.$store.state.baseUrl;
-            that.$http('get', baseUrl + '/api/UserMsg/' + this.mailId).then(function (res) {
+            that.$http('get', baseUrl + 'api/PrivateMsg/' + that.mailId).then(function (res) {
                 if (res.data.code != '00') {
                     AlertModule.show({
                         title: res.data.msg
                     })
                 } else {
                     that.mailDetail = res.data.data;
-                    that.comments = res.data.data.comments
+                    that.comments = res.data.data.comments;
+                    // 设置已读
+                    that.$http('put', baseUrl + 'api/PrivateMsg/read/' + that.mailId).then(function (res) {
+                        if (res.data.code != '00') {
+                            AlertModule.show({
+                                title: res.data.msg
+                            })
+                        } else {
+                            // that.mailDetail = res.data.data;
+                            // that.comments = res.data.data.comments
+                        }
+                    })
+
                 }
             })
         },
         // 选中要回复的信息
-        replayMsgId(id){
-            this.$refs.input.focus()
-            this.msgId=id;
+        replayMsgId(id) {
+            this.msgId = id;
         },
         sendMsg() {
-            if (event.keyCode == 13) {
-                //如果按的是enter键 13是enter
-                event.preventDefault(); //禁止默认事件（默认是换行）
                 var that = this;
                 var baseUrl = this.$store.state.baseUrl;
-                that.$http('post', baseUrl + 'api/UserMsg/Comments', {
-                    msgId:that.msgId,
-                    uid:that.$store.state.uid,
-                    content:that.content
+                that.$http('post', baseUrl + 'api/PrivateMsg/comment', {
+                    privateMsgId: that.mailDetail.id,
+                    uid: that.$store.state.uid,
+                    content: that.content
                 }).then(function (res) {
                     if (res.data.code != '00') {
                         AlertModule.show({
                             title: res.data.msg
                         })
                     } else {
-                        that.getDetail();
-                        that.content=''
-                    }
+                       that.getDetail();
+                       that.content=''
+                    }   
                 })
-            }
+            
         }
     }
 }
@@ -160,13 +170,18 @@ export default {
 
 #mailDetail .replay {
     padding: 9px 16px;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
 
 }
-
+#mailDetail .replay .long_btn{
+    margin: 0;
+    max-width: 80px;
+    margin-left: 10px;
+        height: 36px;
+}
 #mailDetail .replay input {
     width: 100%;
     height: 36px;

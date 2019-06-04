@@ -1,5 +1,6 @@
 <template>
 <div id="activeMessage">
+    <div class="noDataBox" v-if="msgList.length==0"><span> 暂无内容</span></div>
     <div class="eachActiveMsg flexSpace bgW" v-for="item,index in msgList">
         <div class="left ">
             <img :src="$store.state.imgUrl+item.imgurl" class="userImg" alt @click="seeUserDetail(item.uid)">
@@ -49,6 +50,9 @@ export default {
 </script>
 
 <style scoped>
+#activeMessage {
+    height: 100%;
+}
 #activeMessage .eachActiveMsg{
 padding: 15px;
 align-items: flex-start;
@@ -57,6 +61,13 @@ align-items: flex-start;
     width: 30px;
     height: 30px;
     margin-right: 16px;
+}
+.noDataBox{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 #activeMessage .eachActiveMsg .right{
     width: 100%;

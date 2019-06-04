@@ -47,6 +47,15 @@ export default {
                     var result = res.data.data;
                     that.msgList = result;
                 });
+
+                // 把系统消息都设置已读
+                 that
+                .$http("post", baseUrl + "api/SystemMsg/all-read", {
+                    uid:that.uid
+                })
+                .then(function (res) {
+                   
+                });
         }
     }
 }

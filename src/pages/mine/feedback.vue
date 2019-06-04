@@ -11,14 +11,19 @@
 取得联系"></x-textarea>
             </div>
             <button class="long_btn" @click="postFeedback">提交</button>
+       <toast v-model="showToast" type="text" :time="800" is-show-mask text="操作成功" position="middle"></toast>
+     
+
         </div>
 </template>
 
 <script>
 import {
     XTextarea,
-    AlertModule
+    AlertModule,
+    Toast
 } from 'vux'
+import { setTimeout } from 'timers';
 
 export default {
     data() {
@@ -26,13 +31,15 @@ export default {
             uid: this.$store.state.uid,
             nickname: '',
             mobile: '',
-            content: ''
+            content: '',
+            showToast:false
         }
 
     },
     components: {
         XTextarea,
-        AlertModule
+        AlertModule,
+        Toast
     },
     methods: {
         postFeedback() {
@@ -44,22 +51,28 @@ export default {
                 mobile: this.mobile,
                 content: this.content
             }
-            that.$http('get', baseUrl + 'api/CommonProblem/List', postData).then(function (res) {
-                console.log("提交结果")
-                console.log(res.data)
-                if (res.data.code == '00') {
-                    AlertModule.show({
-                        title: '提交成功',
-                        onHide(){
-                            that.$router.go(-1)
-                        }
-                    })
-                }else{
-                    AlertModule.show({
-                        title: res.data.msg
-                    })
-                }
-            })
+            if (this.content) {
+                that.$http('post', baseUrl + 'api/FeedBack', postData).then(function (res) {
+                    console.log("提交结果")
+                    console.log(res.data)
+                    if (res.data.code == '00') {
+                        that.showToast=true;
+                                // that.$router.go(-1)
+                         setTimeout(()=>{
+                             that.$router.go(-1)
+                         },1000)
+                    } else {
+                        AlertModule.show({
+                            title: res.data.msg
+                        })
+                    }
+                })
+            } else {
+                AlertModule.show({
+                    title: "请输入反馈意见"
+                })
+            }
+
         }
     }
 }
@@ -68,7 +81,7 @@ export default {
 <style scoped>
 #feedback {
     padding: 0 16px;
-
+    height: 100%
 }
 
 #feedback input {

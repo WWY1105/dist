@@ -1,51 +1,97 @@
 <template>
 <div id="commonProblem">
     <div class="eachProblem" v-for="item,index in problemList">
-        <p class="title bgW">{{item.id}}、{{item.title}}?</p>
-        <p class="content bgW">{{item.content}}</p>
+        <p class="title bgW">{{index+1}}、{{item.title}}?</p>
+        <div class="content bgW">
+            <p class="textContent" v-html="item.content"></p>
+
+            <!-- 图片信息 -->
+            <div class="picBox flexStart" v-if="item.imgurls.length==0?false:true">
+                <img :src="i.src" alt="" class="previewer-demo-img uploadImg" v-for="i,j in item.imgurls" @click.stop.self="show(index,j)">
+                <div v-transfer-dom>
+                    <previewer :list="item.imgurls" ref="previewer" :options="options"></previewer>
+                </div>
+            </div>
+        </div>
+
     </div>
-    <!-- <div class="eachProblem">
-        <p class="title bgW">2、在线预订有什么好外?</p>
-    </div>
-    <div class="eachProblem">
-        <p class="title bgW">3、如何取消订单?</p>
-    </div>
-    <div class="eachProblem">
-        <p class="title bgW">4、如何评价商品?</p>
-    </div>
-    <div class="eachProblem">
-        <p class="title bgW">5、什么时候可以下单?</p>
-    </div>
-    <div class="eachProblem">
-        <p class="title bgW">6、如何查询订单状态?</p>
-    </div>
-    <div class="eachProblem">
-        <p class="title bgW">7、如何查询我的订单是否取消成功?</p>
-    </div>
-    <div class="eachProblem">
-        <p class="title bgW">8、没有点击取消订单，订单为何取消了?</p>
-    </div> -->
 
 </div>
 </template>
 
 <script>
+import {
+    Previewer
+} from 'vux';
+
 export default {
     data() {
         return {
-            problemList: []
+            problemList: [],
+            options: {
+                getThumbBoundsFn(index) {
+                    // find thumbnail element
+                    let thumbnail = document.querySelectorAll('.previewer-demo-img')[index]
+                    // get window scroll Y
+                    let pageYScroll = window.pageYOffset || document.documentElement.scrollTop
+                    // optionally get horizontal scroll
+                    // get position of element relative to viewport
+                    let rect = thumbnail.getBoundingClientRect()
+                    // w = width
+                    return {
+                        x: rect.left,
+                        y: rect.top + pageYScroll,
+                        w: rect.width
+                    }
+                    // Good guide on how to get element coordinates:
+                    // http://javascript.info/tutorial/coordinates
+                }
+            },
         }
+    },
+    components: {
+        Previewer
     },
     mounted() {
         this.getProblem()
     },
     methods: {
+        show(index, j) {
+            console.log('---' + index)
+            console.log(this.$refs.previewer)
+            this.$refs.previewer[index].show(j)
+        },
         getProblem() {
             var that = this;
             var baseUrl = this.$store.state.baseUrl;
             that.$http('get', baseUrl + 'api/CommonProblem/List', {}).then(function (res) {
                 console.log("系统消息")
-                that.problemList = res.data.data;
+                var result = res.data.data;
+
+                for (var i in result) {
+                    if (result[i].imgurls != '') {
+                        //什么都没有
+                        if (result[i].imgurls.indexOf(',') == -1) {
+                            // 没有逗号，只有一条数据
+                            var Arr = []
+                            var obj = {
+                                src: that.$store.state.imgUrl + result[i].imgurls
+                            }
+                            Arr.push(obj)
+                            result[i].imgurls = Arr;
+                        } else {
+                            result[i].imgurls = result[i].imgurls.split(',')
+                            var arr2 = []
+                            for (var k in result[i].imgurls) {
+                                var obj = {};
+                                obj.src = that.$store.state.imgUrl + result[i].imgurls[k];
+                                arr2.push(obj)
+                            }
+                            result[i].imgurls = arr2;
+                        }
+                    }
+                }
+                that.problemList = result
             })
         }
     }
@@ -53,8 +99,8 @@ export default {
 </script>
 
 <style scoped>
-#commonProblem .eachProblem{
-        margin-bottom: 5px;
+#commonProblem .eachProblem {
+    margin-bottom: 5px;
 }
 
 #commonProblem .eachProblem .title {
@@ -68,5 +114,17 @@ export default {
     color: #999;
     font-size: 12px;
     padding-left: 31px;
+}
+
+#commonProblem .picBox {
+    padding-left: 0px;
+    padding-right: 64px;
+    padding-top: 10px;
+}
+
+#commonProblem .picBox .uploadImg {
+    height: 79px;
+    width: 79px;
+    margin-left: 5px;
 }
 </style>

@@ -88,7 +88,7 @@ export default {
             var that = this;
             var baseUrl = this.$store.state.baseUrl;
             var postData = {
-                url: encodeURI("http://nian.im/app/index.html")
+                url: encodeURI("http://www.shuimujiajia.net/app/index.html")
             }
             that
                 .$http("get", baseUrl + "WexinJsConfig", postData)

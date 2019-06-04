@@ -17,19 +17,19 @@ export default {
     data(){
         return {
             pickerIsShow:false,
-            chooseResult:[],
-            rightText:'不限'
+            chooseResult:[]
         }
     },
-    props:['gradesArr','leftText','id'],
+    props:['gradesArr','leftText','id','rightText'],
     components:{
         Picker,
          Group,
          PopupPicker
     },
     mounted(){
-        console.log('传入的数组')
-         console.log(this.gradesArr)
+        // console.log('传入的数组')
+        //  console.log(this.gradesArr)
+        //  alert(this.rightText)
     },
     methods:{
          // pop

@@ -4,7 +4,7 @@
     <div class="eachCircle bgW">
         <div class="top flexSpace">
             <div class="left flexStart">
-                <img :src="$store.state.imgUrl+circleDetail.imgurl" class="userImg" alt @click="seeUserDetail(item.uid)">
+                <router-link tag="img" :to="{path:'/writerDetail',query:{'writerId':circleDetail.uid}}"   :src="$store.state.imgUrl+circleDetail.imgurl" class="userImg" alt @click="seeUserDetail(item.uid)"></router-link>
                 <div class="text">
                     <p class="name">{{circleDetail.nickname==''?'暂无':circleDetail.nickname}}</p>
                     <p class="date">{{circleDetail.createTime}}</p>
@@ -45,8 +45,10 @@
             <i class="iconfont icon-aixin"></i>
         </div>
         <div class="likesImg">
-            <img :src="$store.state.imgUrl+item.imgurl" alt class="smallImg" v-for="item,index in circleDetail.likes">
-
+             <router-link tag="img" :to="{path:'/writerDetail',query:{'writerId':item.uid}}"  :src="$store.state.imgUrl+item.imgurl" alt class="smallImg" v-for="item,index in circleDetail.likes"></router-link>
+           <!-- <router-link :to="{path:'/writerDetail',query:{'writerId':item.id}}" 
+               
+           </router-link> -->
             </div>
         </div>
         <!-- 评论 -->
@@ -55,7 +57,7 @@
                 <i class="iconfont icon-tubiaopinglunshu"></i>
             </div>
             <div class="eachComment flexStart" v-for="item,index in circleDetail.comments" @click.stop.prevent="toReply(item.uid)">
-                <img :src="$store.state.imgUrl+item.imgurl" alt class="smallImg">
+               <router-link tag="img" :to="{path:'/writerDetail',query:{'writerId':item.uid}}"   :src="$store.state.imgUrl+item.imgurl" alt class="smallImg">></router-link>
                 <div class="text">
                     <div class="name">{{item.nickname}}
                         <span v-if="item.commentNickname==null?false:true" class="replyText">回复</span>
@@ -67,7 +69,7 @@
             <!-- <div class="eachComment flexStart">
                 <img src="../../assets/logo.png" alt class="smallImg">
                 <div class="text">
-                    <p class="name">小初高数李作者</p>
+                    <p class="name">小初高数李家教</p>
                     <p class="textDetail">老师还收学生吗，发了私信给您，业余时间还请指 导一下，谢谢！</p>
                 </div>
       </div>-->
@@ -405,6 +407,7 @@ export default {
 
 #circleDetail .eachCircle .btnBox .eachBtn {
     flex-direction: row;
+    padding: 10px;
 }
 
 #circleDetail .eachCircle .btnBox .eachBtn i {
@@ -414,7 +417,7 @@ export default {
 #circleDetail .replay {
     padding: 9px 16px;
     display: flex;
-     position: absolute;
+     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;

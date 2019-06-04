@@ -21,17 +21,17 @@
                     <i class="iconfont icon-dagouyouquan" v-if="userData.realAuth=='2'"></i>
                     实名认证</router-link>
                 <!-- 学历认证 -->
-                <router-link tag="p" to="/educationAuthentication" class="tagBox" :class="userData.eduAuth =='2'?'tagBox active':'tagBox '">
+                   <router-link v-if="userData.type=='author'" tag="p" to="/educationAuthentication" class="tagBox" :class="userData.eduAuth =='2'?'tagBox active':'tagBox '">
                     <!-- 未认证 -->
                     <i class="iconfont icon-wenhao" v-if="userData.eduAuth!='2'"></i>
                     <!-- 已认证 -->
                     <i class="iconfont icon-dagouyouquan" v-if="userData.eduAuth=='2'"></i> 学历认证</router-link>
-                <!-- 作者认证 -->
-                <router-link tag="p" to="/authorAuthentication" class="tagBox" :class="userData.authorAuth =='2'?'tagBox active':'tagBox '">
+                <!-- 家教资历 -->
+                <router-link tag="p" to="/authorAuthentication" class="tagBox" :class="userData.authorAuth =='2'?'tagBox active':'tagBox '" v-if="userData.type!='business'">
                     <!-- 未认证 -->
                     <i class="iconfont icon-wenhao" v-if="userData.authorAuth!='2'"></i>
                     <!-- 已认证 -->
-                    <i class="iconfont icon-dagouyouquan" v-if="userData.authorAuth=='2'"></i> 作者认证</router-link>
+                    <i class="iconfont icon-dagouyouquan" v-if="userData.authorAuth=='2'"></i> 家教资历</router-link>
             </div>
         </div>
         <!--下-->
@@ -52,17 +52,17 @@
     </div>
     <div class="eachNavBox bgW mrb">
         <group>
-            <cellNav v-for="item,index in navList.slice(0,3)" :noBorder="index==2?'noBorder':''" :link="item.link" :leftTitle="item.title" :icon="item.icon" :num="item.rightNum"></cellNav>
+            <cellNav class="myCell" v-for="item,index in navList.slice(0,3)" :noBorder="index==2?'noBorder':''" :link="item.link"  :uid="item.uid" :leftTitle="item.title" :icon="item.icon" :num="item.rightNum"></cellNav>
         </group>
     </div>
     <div class="eachNavBox bgW mrb">
         <group>
-            <cellNav v-for="item,index in navList.slice(3,9)" :noBorder="index==5?'noBorder':''" :writerId="item.writerId" :link="item.link" :leftTitle="item.title" :icon="item.icon" :num="item.rightNum"></cellNav>
+            <cellNav v-for="item,index in navList.slice(3,9)" :noBorder="index==5?'noBorder':''" :writerId="item.writerId"  :link="item.link" :leftTitle="item.title" :icon="item.icon" :num="item.rightNum"></cellNav>
         </group>
     </div>
     <div class="eachNavBox bgW mrb">
         <group>
-            <cellNav v-for="item,index in navList.slice(9)" :noBorder="index==4?'noBorder':''" :link="item.link" :leftTitle="item.title" :icon="item.icon" :num="item.rightNum"></cellNav>
+            <cellNav @tofellow="tofellow" v-for="item,index in navList.slice(9)" :noBorder="index==4?'noBorder':''"  :link="item.link" :leftTitle="item.title"  :icon="item.icon" :num="item.rightNum" ></cellNav>
         </group>
     </div>
 
@@ -91,14 +91,15 @@ export default {
                     isLink: true,
                     link: 'myPostMission',
                     rightNum: 0,
-                    icon: 'icon-ziyuan'
+                    icon: 'icon-ziyuan',
+                    uid: this.$store.state.uid
                 }, {
                     title: '我报名的任务',
                     isLink: true,
                     link: 'myEnrollMission',
                     rightNum: 0,
                     icon: 'icon-liebiao5'
-                },{
+                }, {
                     title: '补充登记',
                     isLink: true,
                     link: 'supplementaryRegistration',
@@ -109,6 +110,7 @@ export default {
                     isLink: true,
                     link: 'writerDetail',
                     writerId: this.$store.state.uid,
+                
                     rightNum: 0,
                     icon: 'icon-zhuye'
                 }, {
@@ -176,9 +178,9 @@ export default {
                     icon: 'icon-hezuohuobantianjia'
                 },
                 {
-                    title: '版权信息',
+                    title: '关注公众号',
                     isLink: true,
-                    link: '',
+                    // link: 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU4NTczOTE4NQ==#wechat_redirect',
                     rightNum: 0,
                     icon: 'icon-renzhenghuizhang'
                 }
@@ -186,7 +188,8 @@ export default {
             uid: '',
             userData: {},
             baseObj: {},
-            persentNum:0
+            persentNum: 0,
+            systemMsgLength: 0
 
         }
     },
@@ -199,11 +202,61 @@ export default {
 
     mounted() {
         this.getWebUser();
-
+        this.getSystemMsg();
+        this.getNewMailMsg()
     },
 
     methods: {
         ...common,
+       tofellow(link){
+           window.open(link)
+       },
+        // 系统消息
+        getSystemMsg() {
+            // api/SystemMsg/List
+            var that = this;
+            var baseUrl = this.$store.state.baseUrl;
+            var arr = []
+            that
+                .$http("get", baseUrl + "api/SystemMsg/List", {
+                    uid: that.$store.state.uid
+                })
+                .then(function (res) {
+                    console.log(res.data.data);
+                    var result = res.data.data;
+
+                    for (var i in result) {
+                        console.log(result[i].read == false)
+                        if (result[i].read == false) {
+                            arr.push(result[i])
+                        }
+                    }
+                    that.navList[7].rightNum = arr.length;
+                });
+
+        },
+        // 获取我的信箱新消息
+        getNewMailMsg() {
+            var that = this;
+            var baseUrl = this.$store.state.baseUrl;
+            that
+                .$http("get", baseUrl + "api/unread/" + that.$store.state.uid, {
+                    type: 'msg'
+                })
+                .then(function (res) {
+                    that.navList[6].rightNum = res.data.data
+                    that
+                        .$http("get", baseUrl + "api/unread/" + that.$store.state.uid, {
+                            type: 'dxtask'
+                        })
+                        .then(function (res) {
+                            that.navList[1].rightNum = res.data.data
+
+                        });
+                });
+
+        },
+        // 获取
         getWebUser() {
             var that = this;
             var baseUrl = that.$store.state.baseUrl;
@@ -219,27 +272,27 @@ export default {
                 // 关注
                 that.navList[4].rightNum = res.data.data.attention
                 // 基本资料百分比
-                var num=20;
+                var num = 20;
                 that.baseObj = {
                     sex: Boolean(res.data.data.authorInfo.gender),
-                    categories: res.data.data.authorInfo.categories.length==0?false:true,
-                    classList: res.data.data.authorInfo.classList.length==0?false:true,
+                    categories: res.data.data.authorInfo.categories.length == 0 ? false : true,
+                    classList: res.data.data.authorInfo.classList.length == 0 ? false : true,
                     jointCost: Boolean(res.data.data.authorInfo.jointCost),
                     soleCost: Boolean(res.data.data.authorInfo.soleCost),
                     coordination: Boolean(res.data.data.authorInfo.coordination),
                     area: Boolean(res.data.data.authorInfo.area),
                     selfCon: Boolean(res.data.data.authorInfo.selfCon)
                 }
-                
-                for(var i in that.baseObj){
-                    if(that.baseObj[i]){
-                        num+=10;
-                    }else{
-                        num+=0;
+
+                for (var i in that.baseObj) {
+                    if (that.baseObj[i]) {
+                        num += 10;
+                    } else {
+                        num += 0;
                     }
                 }
-                that.persentNum=num;
-                console.log('基本资料%%%%%%%%%'+num)
+                that.persentNum = num;
+                console.log('基本资料%%%%%%%%%' + num)
                 console.log(that.baseObj)
             })
         },
@@ -309,6 +362,10 @@ export default {
     text-overflow: ellipsis;
     max-width: 100px;
     word-break: keep-all;
+}
+
+#mineIndex .myCell .vux-label {
+    width: 100% !important;
 }
 
 #mineIndex .mineInfo .Info .id,

@@ -94,7 +94,7 @@ export default {
             var that = this;
             var baseUrl = this.$store.state.baseUrl;
             var postData = {
-                url: encodeURI("http://nian.im/app/index.html")
+                url: encodeURI("http://www.shuimujiajia.net/app/index.html")
             }
             that
                 .$http("get", baseUrl + "WexinJsConfig", postData)
@@ -117,7 +117,7 @@ export default {
                     }
                 })
         },
-        //点击发送私信给作者
+        //点击发送私信给家教
         sendPrivateMsg() {
             var that = this;
             var baseUrl = this.$store.state.baseUrl;
@@ -153,7 +153,7 @@ export default {
             });
 
         },
-        // 发送信息和红包给书商
+        // 发送信息和红包给家长
         sendMsgAndMoney() {
             var that = this;
             // 循环看看点击了几元的红包

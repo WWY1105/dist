@@ -3,7 +3,7 @@
     <div id="cashWithdrawalSuccess" class="bgW">
         <div class="main flexBox">
             <i class="iconfont icon-gouxuan"></i>
-            <p>提现成功</p>
+            <p>支付成功</p>
             <!-- <router-link tag="button" :to="{path:'/myWallet'}" class="back">返回</router-link> -->
         </div>
     </div>
@@ -11,7 +11,20 @@
 
 <script>
 export default {
-    
+     data() {
+        return {}
+     },
+     mounted(){
+         var timer;
+         timer=setTimeout(() => {
+             this.$router.push({
+                 path:'/mineIndex'
+             })
+         }, 2000);
+     },
+     methods:{
+
+    }
 }
 </script>
 

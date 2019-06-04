@@ -1,36 +1,43 @@
 <template>
 <div id="authorAuthentication" class="bgW">
     <div class="titleBox flexSpace">
-        <span class="leftText">写作年限</span>
+        <span class="leftText">家教年限</span>
         <!-- <input type="text" v-model="year"> -->
         <sliderPopupPicker :gradesArr="yearsArr" :rightText="rightText"  v-on:changeResult="changeResultGrade"></sliderPopupPicker>
     </div>
+   
     <div class="eachArea">
-        <span class="titleBox leftText">写作成果</span>
+        <span class="titleBox leftText">机构背景</span>
         <group>
-            <x-textarea style="background: #F5F5F5" v-model="value1"></x-textarea>
+            <x-textarea style="background: #F5F5F5" v-model="value1" placeholder="例：“某年-某年：某培训机构”或“没有机构背景”"></x-textarea>
         </group>
     </div>
     <div class="eachArea">
-        <span class="titleBox leftText">写作经历</span>
+        <span class="titleBox leftText">家教经历</span>
         <group>
             <x-textarea style="background: #F5F5F5" v-model="value2"></x-textarea>
         </group>
     </div>
-    <div class="eachArea">
-        <span class="titleBox leftText">写过的发行的书商名单</span>
+    <!-- <div class="eachArea">
+        <span class="titleBox leftText">写过的发行的家长名单</span>
         <group>
             <x-textarea style="background: #F5F5F5" v-model="value3"></x-textarea>
         </group>
     </div>
     <div class="eachArea">
-        <span class="titleBox leftText">作者资质签发机构</span>
+        <span class="titleBox leftText">家教资质签发机构</span>
         <group>
             <x-textarea style="background: #F5F5F5" v-model="value4"></x-textarea>
         </group>
     </div>
+     <div class="eachArea">
+        <span class="titleBox leftText">资质号</span>
+        <group>
+            <x-textarea style="background: #F5F5F5" v-model="value0"></x-textarea>
+        </group>
+    </div> -->
     <div class="eachArea">
-        <span class="titleBox leftText">作者资质验证资料</span>
+        <span class="titleBox leftText">家教资质验证资料（可选）</span>
         <div class="imgBox flexSpace">
             <div class="eachBox" @click.stop="frontImg">
                 <img :src="frontUrl" alt="" v-if="frontUrl==''?false:true">
@@ -39,7 +46,7 @@
                 <input v-if="!isios" type="file" name="img" accept="image/*" id="upload_file1" capture="camera" mutiple="mutiple" class="add" @change="chooseImageFront">
 
                 <!-- <img src="../../assets/img/sfz@3x.png" alt=""> -->
-                <p class="text">资料上传</p>
+                <p class="text">材料1</p>
             </div>
             <div class="eachBox" @click.stop="backImg">
                 <img :src="backUrl" alt="" v-if="backUrl==''?false:true">
@@ -48,7 +55,7 @@
                 <input v-if="!isios" type="file" name="img" accept="image/*" id="upload_file2" capture="camera" mutiple="mutiple" class="add" @change="chooseImageBack">
 
                 <!-- <img src="../../assets/img/sfz@3x.png" alt=""> -->
-                <p class="text">其它材料（可选）</p>
+                <p class="text">材料2</p>
             </div>
         </div>
     </div>
@@ -77,7 +84,9 @@ export default {
             isios: false,
             frontUrl: '',
             backUrl: '',
-            rightText:''
+            rightText:'不限',
+            orgfrontUrl:'',
+            orgbackUrl:''
         }
     },
     components: {
@@ -100,9 +109,39 @@ export default {
         for (let i = 0; i <= 100; i++) {
             arr.push(i)
         }
-        this.yearsArr.push(arr)
+        this.yearsArr.push(arr);
+        this.getUser()
     },
     methods: {
+        getUser() {
+            var that = this;
+            var baseUrl = this.$store.state.baseUrl;
+            var uid = that.$store.state.uid;
+            that.$http('get', baseUrl + 'api/WebUser/' + uid).then(function (res) {
+                that.shortName = res.data.data.nickname;
+                // qualification
+                 if(res.data.data.authorAuthInfo.qualification){
+                    that.value0=res.data.data.authorAuthInfo.qualification;
+                }
+                if(res.data.data.authorAuthInfo.workAge){
+                    that.rightText=res.data.data.authorAuthInfo.workAge;
+                    that.year=res.data.data.authorAuthInfo.workAge;
+                }
+                if(res.data.data.authorAuthInfo.achievement){
+                    that.value1=res.data.data.authorAuthInfo.achievement
+                }
+                if(res.data.data.authorAuthInfo.experience){
+                    that.value2=res.data.data.authorAuthInfo.experience
+                }
+                if(res.data.data.authorAuthInfo.books){
+                    that.value3=res.data.data.authorAuthInfo.books
+                }
+                if(res.data.data.authorAuthInfo.org){
+                    that.value4=res.data.data.authorAuthInfo.org
+                }
+               
+            })
+        },
         frontImg() {
             var file = document.getElementById("upload_file1");
             file.click()
@@ -111,14 +150,10 @@ export default {
             var file1 = document.getElementById("upload_file2");
             file1.click()
         },
-        changeResultEdu(val) {
-            this.degree = val.value
-            this.rightText = val.value
-        },
         //   选择正面
         chooseImageFront() {
             var that = this;
-            var baseUrl = "https://nian.im/works/"
+            var baseUrl = that.$store.state.baseUrl
             var file = document.getElementById("upload_file1").files[0];
             var formdata1 = new FormData(); // 创建form对象
             formdata1.append('img', file); // 通过append向form对象添加数据,可以通过append继续添加数据
@@ -135,8 +170,8 @@ export default {
                         title: res.data.msg
                     })
                 } else {
-                    // that.imgArr.push(res.data.data)
-                    var showUrl = 'http://nian.im/storage/' + res.data.data
+                    that.orgfrontUrl=res.data.data;
+                    var showUrl = that.$store.state.imgUrl + res.data.data
                     that.frontUrl = showUrl
                     // console.log(that.imgArr)  
                 }
@@ -146,7 +181,7 @@ export default {
         // 选择反面
         chooseImageBack() {
             var that = this;
-            var baseUrl = "https://nian.im/works/"
+            var baseUrl = that.$store.state.baseUrl
             var file = document.getElementById("upload_file2").files[0];
             var formdata1 = new FormData(); // 创建form对象
             formdata1.append('img', file); // 通过append向form对象添加数据,可以通过append继续添加数据
@@ -162,8 +197,9 @@ export default {
                         title: res.data.msg
                     })
                 } else {
-                    // that.imgArr.push(res.data.data)
-                    var showUrl = 'http://nian.im/storage/' + res.data.data
+                    // that.imgArr.push(res.data.data)\
+                    that.orgbackUrl=res.data.data;
+                    var showUrl = that.$store.state.imgUrl + res.data.data
                     that.backUrl = showUrl
                     // console.log(that.imgArr)  
                 }
@@ -172,7 +208,7 @@ export default {
         changeResultGrade(val) {
              console.log(val)
              this.rightText=val.value;
-            this.year = val.value;
+             this.year = val.value;
         },
         submitData() {
             var that = this;
@@ -180,23 +216,26 @@ export default {
                 achievement: that.value1,
                 books: that.value3,
                 experience: that.value2,
-                material: that.frontUrl,
+                material: that.orgfrontUrl,
                 org: that.value4,
-                workAge: that.year
+                workAge: that.year,
+                qualification:that.value0
+
             }
+            console.log(data)
             var flag=true;
-            for(var i in data){
-                if(!Boolean(data[i])){
-                     AlertModule.show({
-                        title:"请填写全部信息"
-                    })
-                    flag=false
-                    break;
-                }
-                continue;
-            }
+            // for(var i in data){
+            //     if(!Boolean(data[i])){
+            //          AlertModule.show({
+            //             title:"请填写全部信息"
+            //         })
+            //         flag=false
+            //         break;
+            //     }
+            //     continue;
+            // }
             if(flag){
-            data.othersMaterial=that.backUrl;
+            data.othersMaterial=that.orgbackUrl;
             data.uid= that.$store.state.uid
             var baseUrl = this.$store.state.baseUrl;
             that.$http('post', baseUrl + 'api/WebUser/Certificate/Author', data).then(function (res) {

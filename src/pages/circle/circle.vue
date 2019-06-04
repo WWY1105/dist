@@ -101,7 +101,7 @@ export default {
             pulldownDefaultConfig: pulldownDefaultConfig,
             postData: {
                 loginUid:this.$store.state.uid,
-                pageSize:5,
+                pageSize:10,
                 currentPage:1
             },
             options: {
@@ -149,14 +149,22 @@ export default {
         // ========================================
         refresh() {
             var that = this;
-            // if (that.nowPage != 0) {
-            //     that.nowPage--;
-            //     that.getCircleList(data => {
-            //         that.circleList = that.circleList.concat(data);
-            //         that.$refs.scrollerBottom.enablePullup();
-            //         that.$refs.scrollerBottom.donePulldown();
-            //     });
-            // }
+             var that = this;
+              that.getCircleList(data => {
+                // that.postList = data;
+
+                if ( that.postData.currentPage == 1) {
+                    //禁止上啦，已经没有数据
+                    that.$refs.scrollerBottom.disablePulldown();
+                }
+                that.circleList =data;
+                that.$refs.scrollerBottom.donePulldown();
+            });
+            if(that.postData.currentPage>0){
+                that.postData.currentPage--;
+            }
+            
+            that.postData.pageSize =10;
         },
         loadMore() {
             var that = this;
@@ -321,7 +329,7 @@ export default {
         },
 
         show(index,j) {
-            console.log('---'+index)
+            console.log(j+'---'+index)
             console.log(this.$refs.previewer)
             this.$refs.previewer[index].show(j)
         },
@@ -332,6 +340,7 @@ export default {
 <style scoped>
 #circle {
     padding-bottom: 55px;
+    background: #f5f5f5;
 }
 
 #circle .topBox {
@@ -339,6 +348,7 @@ export default {
     line-height: 40px;
     padding-left: 28px;
     margin-bottom: 10px;
+    border-bottom:1px solid #cecece;
 }
 
 #circle .topBox .each {
@@ -412,6 +422,7 @@ export default {
 #circle .eachCircle .picBox {
     padding-left: 64px;
     padding-right: 64px;
+    flex-wrap: wrap;
 }
 
 #circle .eachCircle .picBox .uploadImg {

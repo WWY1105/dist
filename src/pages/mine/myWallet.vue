@@ -20,13 +20,13 @@
     </div>
     <!-- 提现充值记录 -->
     <div class="content bgW">
-        <div class="each flexSpace tx " v-for="item,index in feeRecordList">
+        <div :class="!item.income?'each flexSpace tx':'each flexSpace cz' " v-for="item,index in feeRecordList">
             <div class="left">
                 <p class="title tx">{{item.title}}</p>
                 <p class="date">{{item.createTime}}</p>
             </div>
             <p class="right">
-                {{item.title=='提现'?'-'+item.amount:item.amount}}
+                {{item.income?'+'+item.amount:'-'+item.amount}}
             </p>
         </div>
     </div>
@@ -61,7 +61,7 @@ export default {
         getFeeRecore() {
             var that = this;
             var baseUrl = this.$store.state.baseUrl;
-            that.$http('get', baseUrl + 'api/FeeRecord/List?' + that.uid).then(function (res) {
+            that.$http('get', baseUrl + 'api/FeeRecord/List?uid=' + that.uid).then(function (res) {
                 if (res.data.code != '00') {
                     AlertModule.show({
                         title: res.data.msg

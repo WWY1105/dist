@@ -10,17 +10,17 @@
         <div class="eachArea">
             <!--年级选择-->
             <!-- <input type="text" :placeholder="$refs.picker1&&$refs.picker1.getNameValues()"> -->
-            <sliderPopupPicker :gradesArr="sliderClassArr" :leftText="leftText1" v-on:changeResult="changeResultGrade"></sliderPopupPicker>
+            <sliderPopupPicker :gradesArr="sliderClassArr" :leftText="leftText1" :rightText="rightTextnj" v-on:changeResult="changeResultGrade"></sliderPopupPicker>
             <!--科目选择器-->
-            <sliderPopupPicker :gradesArr="sliderSubjectArr" :leftText="leftText2" v-on:changeResult="changeResultKM"></sliderPopupPicker>
+            <sliderPopupPicker :gradesArr="sliderSubjectArr" :leftText="leftText2" :rightText="rightTextkm" v-on:changeResult="changeResultKM"></sliderPopupPicker>
         </div>
         <div class="eachArea">
-            <!--出版方式-->
+            <!--组班方式-->
             <radioPicker :radiosArr="radiosArr" :title="publish_title" v-on:getRadioValue="getPublicWay"></radioPicker>
-            <!--价格区间-->
-            <sliderPopupPicker :gradesArr="slidePriceArr" :leftText="leftText3" v-on:changeResult="changeResultPrice"></sliderPopupPicker>
+            <!--每小时费用-->
+            <sliderPopupPicker :rightText="rightJg" :gradesArr="slidePriceArr" :leftText="leftText3" v-on:changeResult="changeResultPrice1"></sliderPopupPicker>
 
-            <!--找书商找作者（招标书商人数）-->
+            <!--找家长找家教（招标家长人数）-->
             <group v-if="postData.taskType=='1'?false:true">
                 <!--年级选择器start-->
                 <popup-picker :title="leftText6" @on-change='booksellerGrade' v-model="bookseller" :data="booksellerArr" class="gradePicker"></popup-picker>
@@ -28,10 +28,10 @@
             </group>
         </div>
         <div class="eachArea">
-            <!--协作方式-->
+            <!--上门方式-->
             <slidePicker :sliderArr="coordination" :leftText="leftText4" v-on:changeResult="changeResultWay"></slidePicker>
-            <!--协作区域-->
-            <x-address :gradesArr="addressData" :title="leftText5" v-model="myarea" :list="addressData" class="areaBox" @on-hide="onAddressChange"></x-address>
+            <!--上门区域-->
+            <x-address :disabled="isAreaChoose" :gradesArr="addressData" :title="leftText5" v-model="myarea" :list="addressData" class="areaBox" @on-hide="onAddressChange"></x-address>
         </div>
         <!--报名截至日期-->
         <div class="eachArea">
@@ -88,19 +88,22 @@ export default {
             seeZZ: true,
             seeSS: true,
             seezzss: false,
+            isAreaChoose: false,
             // data--start
             classNo: '',
             category: '',
-            taskType: '', //出版方式
+            taskType: '', //组班方式
             priceType: '',
             area: '',
             introduction: '',
             content: '',
             priceMin: '',
+            rightTextnj: '全年级',
+            rightTextkm: "全科",
             priceMax: '',
             // data--end
             myarea: [],
-            addressData: ChinaAddressV4Data,
+            addressData: [{"name":"上海市","value":"310000"},{"name":"市辖区","value":"310100","parent":"310000"},{"name":"黄浦区","value":"310101","parent":"310100"},{"name":"徐汇区","value":"310104","parent":"310100"},{"name":"长宁区","value":"310105","parent":"310100"},{"name":"静安区","value":"310106","parent":"310100"},{"name":"普陀区","value":"310107","parent":"310100"},{"name":"虹口区","value":"310109","parent":"310100"},{"name":"杨浦区","value":"310110","parent":"310100"},{"name":"闵行区","value":"310112","parent":"310100"},{"name":"宝山区","value":"310113","parent":"310100"},{"name":"嘉定区","value":"310114","parent":"310100"},{"name":"浦东新区","value":"310115","parent":"310100"},{"name":"金山区","value":"310116","parent":"310100"},{"name":"松江区","value":"310117","parent":"310100"},{"name":"青浦区","value":"310118","parent":"310100"},{"name":"奉贤区","value":"310120","parent":"310100"},{"name":"崇明区","value":"310151","parent":"310100"}],
             date: '',
             sliderSubjectArr: [],
             sliderClassArr: [],
@@ -108,16 +111,16 @@ export default {
             tabItem: [{
                     id: 0,
                     isActive: true,
-                    text: '找作者'
+                    text: '找家教'
                 },
                 {
                     id: 1,
                     isActive: false,
-                    text: '找书商'
+                    text: '找家长'
                 }, {
                     id: 2,
                     isActive: false,
-                    text: '找书商找作者'
+                    text: '团家长找家教'
                 }
             ],
             // 顶部tab--end
@@ -131,14 +134,14 @@ export default {
             slidePriceArr: [],
             slidePriceArr2: [],
             coordination: [
-                ['不限', '作者拜访', '书商拜访', '远程协作']
+                ['不限', '家教拜访', '家长拜访', '远程协作']
             ],
 
             leftText2: '科目',
-            leftText3: '价格区间',
-            leftText4: '协作方式',
-            leftText5: '协作区域',
-            leftText6: '招标书商人数',
+            leftText3: '每小时费用',
+            leftText4: '上门方式',
+            leftText5: '上门区域',
+            leftText6: '招标家长人数',
 
             booksellerArr: [
                 // ['1','2','3','4','5']
@@ -146,18 +149,22 @@ export default {
             // rightText2: '不限',
             // 传入radio的值
             radioTitle: '选择性别',
-            publish_title: '出版方式',
+            publish_title: '组班方式',
             radiosArr: [{
                     value: 1,
-                    text: '独资',
+                    text: '1对1',
                     selected: true
                 },
                 {
                     value: 2,
-                    text: '合资',
+                    text: '1对多',
                     selected: false
                 },
             ],
+            rightway: '',
+            rightJg: '',
+            rightTextnj: '',
+            rightTextkm: "",
             postData: {
                 priceType: '',
                 classNo: '',
@@ -171,7 +178,7 @@ export default {
                 introduction: ''
             },
             userData: {},
-            postUserType:''
+            postUserType: ''
         }
     },
     components: {
@@ -200,27 +207,30 @@ export default {
 
         this.getUser(this.$store.state.uid);
         this.postData.taskType = '1';
-        // 招商人数
-        var arr = [];
-        for (var i = 1; i <= 1000; i++) {
-            arr.push(i)
-        };
-        this.booksellerArr.push(arr)
+
     },
     methods: {
 
         ...common,
+        changeResultPrice1(val) {
+            // 价格
+
+            this.postData.priceRange = val.name.split('元')[0].split('~').join('-');
+            this.rightJg = this.postData.priceRange;
+
+        },
         // 区域
         onAddressChange(val) {
             this.postData.area = value2name(this.myarea, ChinaAddressV4Data).split(' ').join(",");
         },
-        // 招标书商人数
+        // 招标家长人数
         booksellerGrade(val) {
-            // 如果选择了独资，书商只能选一个
+            // 如果选择了1对1，家长只能选一个
             if (this.radiosArr[0].selected == true && val[0] != 1) {
                 AlertModule.show({
-                    title: "抱歉，独资方式只能选择一名书商"
+                    title: "1对1方式只能选择一名家长"
                 })
+                this.bookseller = []
             } else {
                 this.postData.busniessCount = val.join('')
             }
@@ -231,40 +241,78 @@ export default {
             var baseUrl = this.$store.state.baseUrl;
             that.$http('get', baseUrl + 'api/WebUser/' + uid).then(function (res) {
                 that.userData = res.data.data;
-                that.postUserType=res.data.data.type;
+                that.postUserType = res.data.data.type;
             })
         },
-        //出版方式：独资合资
+        //组班方式：1对11对多
         getPublicWay(val) {
             console.log(val)
-            if (this.userData.type == 'author' && this.postData.taskType == '1') {
+            if (this.postData.taskType == '1' && val == 2) {
                 AlertModule.show({
-                    title: "抱歉，作者找作者只能选择独资方式"
+                    title: "抱歉，找家教只能选择1对1方式"
                 })
                 for (var i in this.radiosArr) {
                     this.radiosArr[i].selected = false
                 }
                 this.radiosArr[0].selected = true
+            }
+            if (this.postData.taskType == '3' && val == 1) {
+                AlertModule.show({
+                    title: "抱歉，找家长找家教只能选择1对多方式"
+                })
+                for (var i in this.radiosArr) {
+                    this.radiosArr[i].selected = false
+                }
+                this.radiosArr[1].selected = true
             } else {
                 this.postData.priceType = val
             }
+            // =======招标家长
+            console.log(this.postData.taskType+"---"+val)
+            console.log()
+             this.bookseller = []
+            if (val == 2&&this.postData.taskType=='2') {
+                this.booksellerArr = []
+                var arr3 = [];
+                for (var i = 2; i <= 1000; i++) {
+                    arr3.push(i)
+                };
+                this.booksellerArr.push(arr3)
+            }else if(val == 1&&this.postData.taskType=='2'){
+                 this.booksellerArr = []
+                var arr3 = [];
+                for (var i = 1; i <= 1000; i++) {
+                    arr3.push(i)
+                };
+                this.booksellerArr.push(arr3)
+            }
         },
-        // 协作方式
+        // 上门方式
         changeResultWay(val) {
             console.log(val)
-            this.postData.coordination = val[0];
+            if (val[0] == '远程协作') {
+
+                this.isAreaChoose = true;
+                this.postData.coordination = '远程协作'
+            } else {
+                this.isAreaChoose = false;
+                this.postData.coordination = val[0];
+            }
+
         },
 
         // 年级
         changeResultGrade(value) {
             var that = this;
             that.postData.classNo = value.name;
+            that.rightTextnj = value.name;
 
         },
         // 科目
         changeResultKM(value) {
             this.postData.category = value.name;
             console.log(this.postData.category)
+            this.rightTextkm = value.name;
         },
         dateChange(value) {
             console.log(value)
@@ -287,9 +335,46 @@ export default {
             } else {
                 this.seezzss = false
             }
-            // 出版方式，顶部tab
+            // 组班方式，顶部tab
             this.postData.taskType = ++id;
+            if (this.postData.taskType == 3) {
+                for (var i in this.radiosArr) {
+                    this.radiosArr[i].selected = false;
+                }
+                this.radiosArr[1].selected = true
+            }
             // console.log(this.postData.taskType)
+            // 招商人数
+            // var tabItemId;
+            // for (var i in this.tabItem) {
+            //     if (this.tabItem[i].isActive) {
+            //         tabItemId = this.tabItem[i].id
+            //     }
+            // }
+            // alert(id)
+            this.bookseller = []
+            if (id == 3) {
+                this.booksellerArr = []
+                var arr1 = [];
+                for (var i = 1; i <= 1000; i++) {
+                    arr1.push(i)
+                };
+                this.booksellerArr.push(arr1)
+            } else if (id == 2 && this.radiosArr[0].selected) {
+                this.booksellerArr = []
+                var arr3 = [];
+                for (var i = 1; i <= 1000; i++) {
+                    arr3.push(i)
+                };
+                this.booksellerArr.push(arr3)
+            } else {
+                this.booksellerArr = []
+                var arr2 = [];
+                for (var i = 2; i <= 1000; i++) {
+                    arr2.push(i)
+                };
+                this.booksellerArr.push(arr2)
+            }
 
         },
 
@@ -338,12 +423,24 @@ export default {
             console.log(that.postData)
 
             if (that.postData.taskType == '1') {
-                var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.deadline, that.postData.coordination, that.postData.area, that.postData.introduction];
-                var nameArr = ['年级', "科目", '出版方式', '出资方式', '价格区间', '截止日期', '协作方式', '写作区域', '简述']
+                if (that.postData.coordination == '远程协作') {
+                    that.postData.area = '远程协作'
+                    var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.deadline, that.postData.coordination, that.postData.introduction];
+                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时费用', '截止日期', '上门方式', '简述']
+                } else {
+                    var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.deadline, that.postData.coordination, that.postData.area, that.postData.introduction];
+                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时费用', '截止日期', '上门方式', '上门区域', '简述']
+                }
 
             } else {
-                var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.busniessCount, that.postData.deadline, that.postData.coordination, that.postData.area, that.postData.introduction];
-                var nameArr = ['年级', "科目", '出版方式', '出资方式', '价格区间', '书商数量', '截止日期', '协作方式', '写作区域', '简述']
+                if (that.postData.coordination == '远程协作') {
+                    that.postData.area = '远程协作'
+                    var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.busniessCount, that.postData.deadline, that.postData.coordination, that.postData.introduction];
+                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时费用', '家长数量', '截止日期', '上门方式', '简述']
+                } else {
+                    var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.busniessCount, that.postData.deadline, that.postData.coordination, that.postData.area, that.postData.introduction];
+                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时费用', '家长数量', '截止日期', '上门方式', '上门区域', '简述']
+                }
 
             }
             if (that.isEmpty(dataArr, nameArr).length != 0) {
@@ -353,36 +450,77 @@ export default {
             } else {
                 if (that.priceType == '1' && that.postData.busniessCount != 1) {
                     AlertModule.show({
-                        title: "抱歉，独资方式只能选择一名书商"
+                        title: "1对1方式只能选择一名家长"
                     })
                 } else {
                     /***
-                     * taskType (string): 出版方式(1-找作者,2-找书商,3-找作者和书商) 
+                     * taskType (string): 组班方式(1-找家教,2-找家长,3-团家长找家教) 
                      * postUserType;author;business
                      */
-                    if(that.taskType=='2'){
-                        that.postData.authorId=that.$store.state.uid;
+                    if (that.taskType == '2') {
+                        that.postData.authorId = that.$store.state.uid;
                     }
-                  
+                    // that.postData.deadline
+                    var yourtime = that.postData.deadline;
 
-                    that.$http('post', that.$store.state.baseUrl + 'api/Task', that.postData).then(function (res) {
-                        console.log(res.data)
-                        if (res.data.code == '00') {
-                            AlertModule.show({
-                                title: '操作成功！',
-                                onHide() {
-                                    that.$router.go(-1)
-                                }
-                            })
-                        } else {
-                            AlertModule.show({
-                                title: res.data.msg
-                            })
-                            that.$router.push({
-                                path: '/mission'
-                            })
-                        }
-                    })
+                    // yourtime = yourtime.replace(/-/g, "/"); //替换字符，变成标准格式  
+                    // var d2 = new Date(); //取今天的日期  
+                    Date.prototype.Format = function (fmt) { //author: meizz 
+                        var o = {
+                            "M+": this.getMonth() + 1, //月份 
+                            "d+": this.getDate(), //日 
+                            "h+": this.getHours(), //小时 
+                            "m+": this.getMinutes(), //分 
+                            "s+": this.getSeconds(), //秒 
+                            "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+                            "S": this.getMilliseconds() //毫秒 
+                        };
+                        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+                        for (var k in o)
+                            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+                        return fmt;
+                    }
+                    var startDate = new Date().Format("yyyy-MM-dd")
+                    // var d1 = new Date(Date.parse(yourtime));
+                    // console.log(d2 +"----------"+d1) 
+                    function dateCompare(startDate, endDate) {
+                        var aStart = startDate.split('-'); //转成成数组，分别为年，月，日，下同
+                        var aEnd = endDate.split('-');
+                        var startDateTemp = aStart[0] + "/" + aStart[1] + "/" + aStart[2];
+                        var endDateTemp = aEnd[0] + "/" + aEnd[1] + "/" + aEnd[2];
+                        if (startDateTemp <= endDateTemp)
+                            return true;
+                        else
+                            return false;
+                    }
+                    console.log(dateCompare(startDate, yourtime))
+                    that.postData.deadline = that.postData.deadline + " 24:00:00"
+
+                    if (!dateCompare(startDate, yourtime)) {
+                        AlertModule.show({
+                            title: "截止时间不能是今天之前"
+                        })
+                    } else {
+                        that.$http('post', that.$store.state.baseUrl + 'api/Task', that.postData).then(function (res) {
+                            console.log(res.data)
+                            if (res.data.code == '00') {
+                                AlertModule.show({
+                                    title: '操作成功！',
+                                    onHide() {
+                                        that.$router.go(-1)
+                                    }
+                                })
+                            } else {
+                                AlertModule.show({
+                                    title: res.data.msg
+                                })
+                                that.$router.push({
+                                    path: '/mission'
+                                })
+                            }
+                        })
+                    }
+
                 }
             }
 
@@ -397,6 +535,9 @@ html,
 #postMission {
     background: #fff;
     height: 100%;
+    position: fixed;
+    overflow: scroll;
+    width: 100%;
 }
 
 #postMission .topTab .tabItem.active {

@@ -12,53 +12,59 @@
                     <p v-if="isMissionDetail">
                         <span class="price" v-if="!isCanChoose">
                         <!-- ￥1000-￥1200 -->
-                        {{soleCost==''?'￥未填写':'￥'+soleCost}}
+                        {{!priceType?!sole?'￥-':'￥'+sole:priceType==1?!sole?'￥-':'￥'+sole:priceType==2?!joint?'￥-':'￥'+joint:'￥-'}}
                     </span>
                         <span class="radios" v-if="isCanChoose">
                         <i class="iconfont icon-dagouyouquan" :s="isChoosen" v-show="isChoosen"></i>
                         <i class="circle" :s="isChoosen" v-show="!isChoosen"></i>
                     </span>
                     </p>
+                     <p v-if="!isMissionDetail">
+                       <span :class="feeConfirm==3||feeConfirm=='3'?'redText':'mainText'">  {{feeConfirm==1||feeConfirm=='1'?"待确认":feeConfirm==2||feeConfirm=='2'?'已确认':feeConfirm==3||feeConfirm=='3'?'已拒绝':''}}</span>
+                     </p>
                 </div>
                 <p class="options">
                     <span class="option">实名
                          <i class="iconfont icon-wenhao" v-if="realAuth!=2?true:false"></i>
                         <i class="iconfont icon-gouxuan" v-if="realAuth==2?true:false"></i>
                     </span>
-                    <span class="option">学历
+                    <span class="option" v-if="type=='author'">学历
                          <i class="iconfont icon-wenhao" v-if="eduAuth!=2?true:false"></i>
                         <i class="iconfont icon-gouxuan" v-if="eduAuth==2?true:false"></i>
                     </span>
-                    <span class="option">资历：{{workAge}}年</span>
+                    <span class="option" v-if="type=='author'">
+                        <span v-if="authorAuth!=2?true:false">  家教认证  <i class="iconfont icon-wenhao" v-if="authorAuth!=2?true:false"></i></span>
+                       <router-link tag="span" :to="{path:'/viewingMechanism',query:{'tagid':tag?tag.id:''}}" v-if="authorAuth==2?true:false"> <u class="mainText">{{tag?tag.tag:''}} </u><i class="iconfont icon-gouxuan" ></i></router-link>
+                    </span>
+                    <span class="option" v-if="type=='author'">资历：{{workAge}}年</span>
                 </p>
                 <div class="details">
 
                     <div class="hang">
-                        <p class="text">写作小时:
-                            <span class="mainText"> {{workHours}}</span>
+                        <p class="text">服务用户:
+                            <span class="mainText"> {{!serviceUserCount?'0':serviceUserCount}}</span>
                         </p>
-                        <p class="text">写作值:
-                            <span class="mainText">{{cost}}</span>
+                        <p class="text">服务订单:
+                            <span class="mainText">{{!serviceOrderCount?'0':serviceOrderCount}}</span>
                         </p>
-                        <p class="text">相关用户:
-                            <span class="mainText"> {{networkCount}}</span>
+                        <p class="text">服务小时:
+                            <span class="mainText"> {{!serviceHours?'0':serviceHours}}</span>
                         </p>
                     </div>
                     <!--第二行详情（有的页面不显示）-->
                     <div class="hang" v-if="hang2IsShow">
                         <p class="text">任务数:
-                            <span class="mainText">{{missionNum}}</span>
+                            <span class="mainText">{{!missionNum?'0':missionNum}}</span>
                         </p>
                         <p class="text">有效任务:
-                            <span class="mainText">{{avaTaskCount}}</span>
+                            <span class="mainText">{{!avaTaskCount?'0':avaTaskCount}}</span>
                         </p>
                         <p class="text">取消任务:
-                            <span class="mainText">{{missionNum-avaTaskCount}}</span>
+                            <span class="mainText">{{!missionNum?'0':missionNum-avaTaskCount}}</span>
                         </p>
                     </div>
                     <div class="hang flexStart">
-                        <p class="box"><span class="smallBox">{{workAge}}年作者</span></p>
-                        <p class="box" v-for="item,index in Tags"><span class="smallBox" >{{item.tag}}</span></p>
+                        <p class="box" v-if="item.tag!=''" v-for="item,index in Tags"><span class="smallBox" >{{item.tag}}</span></p>
                         <!-- <p class="box"><span class="smallBox">{{userTags[1].tag}}</span></p> -->
                     </div>
                 </div>
@@ -83,13 +89,14 @@ export default {
             if (!this.userTags) {
                 return []
             } else {
-                return this.userTags.slice(0, 2);
+                return this.userTags.slice(0, 3);
             }
 
         }
     },
     methods: {
-        seeUserDetail() {
+        seeUserDetail(uid) {
+            // alert(uid)
             var that = this;
             that.$router.push({
                 path: '/writerDetail',
@@ -100,9 +107,13 @@ export default {
         }
     },
     mounted() {
-        // alert(this.imgurl)
+    //   console.log(this.sole)
+    //   alert(this.imgurl)
+      
     },
-    props: ['userTags', 'cost', 'uid', 'avaTaskCount', 'workHours', 'missionNum', 'hang2IsShow', 'imgurl', 'isMissionDetail', 'isChoosen', 'shortName', 'workAge', 'realAuth', 'eduAuth', 'networkCount', 'soleCost', 'isCanChoose']
+    props: ['userTags', 'cost','serviceHours',
+'serviceOrderCount',
+'serviceUserCount','type','tag','authorAuth','feeConfirm', 'uid','sole','joint', 'priceType','avaTaskCount','workHours', 'missionNum', 'hang2IsShow', 'imgurl', 'isMissionDetail', 'isChoosen','shortName', 'workAge', 'realAuth', 'eduAuth', 'userCount', 'isCanChoose']
 
 }
 </script>
@@ -123,7 +134,12 @@ export default {
 .hang.flexStart {
     justify-content: flex-start;
 }
-
+#missionInAfterEvaluteBuss .hang p {
+    width: 50%;
+}
+#missionInAfterEvaluteBuss .hang p .left{
+    text-align: left;
+}
 .hang p {
     width: 33.33%;
 }
@@ -186,10 +202,12 @@ export default {
     font-size: 12px;
     margin-bottom: 8px;
     display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
 }
 
 .reacResult .options .option {
-    margin-right: 17px;
+    margin-right: 5px;
 }
 
 .reacResult .options .option i {
@@ -227,5 +245,14 @@ export default {
 
 .reacResult .options .option i.icon-wenhao {
     color: #ccc;
+}
+#missionInAfterEvaluteBuss .hang p{
+    width: auto;
+}
+#missionInAfterEvaluteBuss .hang p.left{
+text-align: left;
+}
+#missionInAfterEvaluteBuss .hang p.right{
+text-align: right;
 }
 </style>

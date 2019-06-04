@@ -20,7 +20,6 @@ import {
 export default {
     data() {
         return {
-            //  uid: this.$store.state.uid,
             uid: this.$store.state.uid,
             mobile: ''
 
@@ -45,9 +44,7 @@ export default {
                     AlertModule.show({
                         title: "提交成功",
                         onHide() {
-                            this.$router.push({
-                                path: '/myNetwork'
-                            })
+                            that.$router.go(-1)
                         }
                     })
                 }
@@ -55,7 +52,21 @@ export default {
             })
         },
         goBack() {
-            this.$router.go(-1)
+            var that = this;
+            var baseUrl = this.$store.state.baseUrl;
+            that.$http('delete', baseUrl + 'api/Mediator/'+this.$store.state.uid, {
+                
+            }).then(function (res) {
+                if (res.data.code != '00') {
+                    AlertModule.show({
+                        title: res.data.msg
+                    })
+                } else {
+                    that.$router.go(-1)
+                }
+
+            })
+            
         }
     }
 }
@@ -77,7 +88,7 @@ export default {
     border: 1px solid #C3C3C3;
     height: 40px;
     padding: 0 5px;
-    line-height: 50px;
+    /* line-height: 50px; */
     margin: 12px 0 22px 0;
 }
 

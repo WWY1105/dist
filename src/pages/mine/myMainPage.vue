@@ -1,74 +1,70 @@
 <template>
 <div id="myMainPage" class="bgW">
     <div class="main bgW" v-if="mainShow">
-        <img :src="$store.state.imgUrl+userData.imgurl" class="myPic" alt>
-        <!--不能更改的部分-->
-        <div class="disPart flexSpace">
-            <p class="left">昵称</p>
-            <p class="right">{{shortName}}</p>
+        <!-- 头像 -->
+        <div class="imgBox">
+
+            <img :src="$store.state.imgUrl+myImage" class="myPic" alt @click.stop="chooseImg">
+             <input v-if="isios"  type="file" name="img" accept="image/*" id="upload_file"   mutiple="mutiple"   class="add" @change="chooseImage"/>
+             <input v-if="!isios" type="file" name="img" accept="image/*" id="upload_file"   mutiple="mutiple"   class="add"  @change="chooseImage"/>
+           <!-- capture="camera" -->
+            
+
         </div>
-        <!--选项-->
-        <div class="content bgW">
-            <div class="eachArea">
-                <!--性别-->
-                <radioPicker class="bgG" :radiosArr="radiosArr" :title="publish_title" v-on:getRadioValue="getGender"></radioPicker>
+
+            <!--不能更改的部分-->
+            <div class="disPart flexSpace">
+                <p class="left">昵称</p>
+                <!--@change="shortNamePut" -->
+                <p class="right"><input type="text" v-model="shortName" class="shortName" ></p>
             </div>
-            <!--选项内容-->
-            <div class="eachArea">
-                <!--年级选择-->
-                <cell title="年级" is-link :value="rightText1" @click.native="gotoMultiPicker('class')"></cell>
-                <!--科目选择器-->
-                <cell title="科目" is-link :value="rightText2" @click.native="gotoMultiPicker('category')"></cell>
+            <!--选项-->
+            <div class="content bgW">
+                <div class="eachArea">
+                    <!--性别-->
+                    <radioPicker class="bgG" :radiosArr="radiosArr" :title="publish_title" v-on:getRadioValue="getGender"></radioPicker>
+                </div>
+                <!--选项内容-->
+                <div class="eachArea">
+                    <!--年级选择-->
+                    <cell title="年级" is-link :value="rightText1" @click.native="gotoMultiPicker('class')"></cell>
+                    <!--科目选择器-->
+                    <cell title="科目" is-link :value="rightText2" @click.native="gotoMultiPicker('category')"></cell>
+                </div>
+                <div class="eachArea">
+                    <!--每小时费用-->
+                    <sliderPopupPicker class="bgG" :gradesArr="slidePriceArr2" :leftText="leftText3" :rightText="rightText4" v-on:changeResult="changeResultSoleCost"></sliderPopupPicker>
+                    <sliderPopupPicker class="bgG" :gradesArr="slidePriceArr2" :leftText="leftText7" :rightText="rightText5" v-on:changeResult="changeResultJointCost"></sliderPopupPicker>
+                </div>
+                <div class="eachArea">
+                    <cell class="xzfs" title="上门方式" is-link :value="rightText3" @click.native="gotoMultiPicker('coordination')"></cell>
+                    <!--上门区域-->
+                    <x-address :gradesArr="addressData" :title="leftText5" :list="addressData" class="areaBox" v-model="address" @on-hide="onAddressChange"></x-address>
+                </div>
+                <!--报名截至日期-->
+                <div class="eachArea">
+                    <group title="简述（200字内）">
+                        <x-textarea style="background:#f5f5f5" :show-counter="false" :rows="3" :max="200" autosize v-model="introductionContent"></x-textarea>
+                    </group>
+                </div>
+                <!--选项内容ENDbtnSave-->
+                <div class="btn_box">
+                    <button class="long_btn " @click="savuAllContent">保存</button>
+                </div>
             </div>
-            <div class="eachArea">
-                <!--价格区间-->
-                <sliderPopupPicker class="bgG" :gradesArr="slidePriceArr2" :leftText="leftText3" :rightText="rightText4" v-on:changeResult="changeResultSoleCost"></sliderPopupPicker>
-                <sliderPopupPicker class="bgG" :gradesArr="slidePriceArr2" :leftText="leftText7" :rightText="rightText5" v-on:changeResult="changeResultJointCost"></sliderPopupPicker>
-            </div>
-            <div class="eachArea">
-                <!--协作方式-->
-                <!-- <sliderPopupPicker
-            class="bgG"
-            :gradesArr="coordination"
-            :leftText="leftText4"
-            v-on:changeResult="changeResultWay"
-          ></sliderPopupPicker>-->
-                <cell class="xzfs" title="协作方式" is-link :value="rightText3" @click.native="gotoMultiPicker('coordination')"></cell>
-                <!--协作区域-->
-                <x-address :gradesArr="addressData" :title="leftText5" :list="addressData" class="areaBox" v-model="address" @on-hide="onAddressChange"></x-address>
-            </div>
-            <!--报名截至日期-->
-            <!-- <div class="eachArea">
-          <datetimePicker
-            title="报名截至日期"
-            v-model="date"
-            class="datetimePicker"
-            v-on:dateChange="dateChange"
-          ></datetimePicker>
-        </div>-->
-            <div class="eachArea">
-                <group title="简述（200字内）">
-                    <x-textarea style="background:#f5f5f5" :show-counter="false" :rows="3" :max="200" autosize v-model="introductionContent"></x-textarea>
-                </group>
-            </div>
-            <!-- <div class="eachArea">
-          <group title="详述（200字内，选填）">
-            <x-textarea :show-counter="false" :rows="8" :max="200" autosize v-model="content"></x-textarea>
-          </group>
-        </div>-->
-            <!--选项内容END-->
+
         </div>
-        <button class="long_btn" @click="savuAllContent">保存</button>
-    </div>
-    <div class="component">
-        <div id="multiPicker">
+
+        <div id="multiPicker" class="component" v-if="!mainShow">
             <!-- 年级 -->
             <div class="gradeContent" v-if="classShow">
                 <p class="title bgW">{{leftText1}}（选择后保存）</p>
                 <div class="content flexSpace bgW">
                     <p :class="item.active==true?'item active':'item'" v-for="item,index in gradesArr" @click="addActive(index)">{{item.className}}</p>
                 </div>
-                <button class="long_btn" @click="getResult">确认</button>
+
+                <div class="btn_box"><button class="long_btn" @click="getResult">确认</button></div>
+
             </div>
             <!-- 科目 -->
             <div class="categoryContent" v-if="categoryShow">
@@ -76,19 +72,18 @@
                 <div class="content flexSpace bgW">
                     <p :class="item.active==true?'item active':'item'" v-for="item,index in subjectArr" @click="addActive2(index)">{{item.categroy}}</p>
                 </div>
-                <button class="long_btn" @click="getResult2">确认</button>
+                <div class="btn_box"> <button class="long_btn" @click="getResult2">确认</button></div>
             </div>
-            <!-- 协作方式 -->
+            <!-- 上门方式 -->
             <div class="categoryContent" v-if="coordinationShow">
                 <p class="title bgW">{{leftText5}}（选择后保存）</p>
                 <div class="content flexSpace bgW">
                     <p :class="item.active==true?'item active':'item'" v-for="item,index in coordination" @click="addActive3(index)">{{item.name}}</p>
                 </div>
-                <button class="long_btn" @click="getResult3">确认</button>
+                <div class="btn_box"> <button class="long_btn" @click="getResult3">确认</button></div>
             </div>
         </div>
     </div>
-</div>
 </template>
 
 <script>
@@ -97,6 +92,7 @@ import radioPicker from "@/components/radioPicker";
 import datetimePicker from "@/components/datetimePicker";
 import multiPicker from "@/components/multiPicker";
 import common from "@/assets/js/common";
+import axios from 'axios'
 import {
     Range,
     Popup,
@@ -137,19 +133,21 @@ export default {
     data() {
         return {
             // data--start
+            myImage: '',
             classNo: [],
             subject: [],
             soleCost: "",
             jointCost: "",
             category: "",
-            taskType: "", //出版方式
+            taskType: "", //组班方式
             priceType: "",
-            coordinations: [], //协作方式
+            coordinations: [], //上门方式
             area: "",
             introductionContent: "",
             content: "",
             priceMin: "",
             priceMax: "",
+            isios: false,
             // 多选结果
             multiResult: {},
             gradesArr: [],
@@ -168,11 +166,11 @@ export default {
             priceArr: [],
             slidePriceArr2: [],
             coordination: [{
-                    name: "作者拜访",
+                    name: "家教拜访",
                     active: false
                 },
                 {
-                    name: "书商拜访",
+                    name: "家长拜访",
                     active: false
                 },
                 {
@@ -185,11 +183,11 @@ export default {
                 [1, 2, 3, 4, 5]
             ],
             leftText2: "科目",
-            leftText3: "独资出版费用",
-            leftText4: "协作方式",
-            leftText5: "协作区域",
-            leftText6: "招标书商人数",
-            leftText7: "合资出版费用",
+            leftText3: "1对1费用",
+            leftText4: "上门方式",
+            leftText5: "上门区域",
+            leftText6: "招标家长人数",
+            leftText7: "1对多费用",
             introduction: "",
             content: "",
             // rightText2: '不限',
@@ -208,14 +206,17 @@ export default {
                 }
             ],
             // data--end
-            addressData: ChinaAddressV4Data,
+            addressData: [{"name":"上海市","value":"310000"},{"name":"市辖区","value":"310100","parent":"310000"},{"name":"黄浦区","value":"310101","parent":"310100"},{"name":"徐汇区","value":"310104","parent":"310100"},{"name":"长宁区","value":"310105","parent":"310100"},{"name":"静安区","value":"310106","parent":"310100"},{"name":"普陀区","value":"310107","parent":"310100"},{"name":"虹口区","value":"310109","parent":"310100"},{"name":"杨浦区","value":"310110","parent":"310100"},{"name":"闵行区","value":"310112","parent":"310100"},{"name":"宝山区","value":"310113","parent":"310100"},{"name":"嘉定区","value":"310114","parent":"310100"},{"name":"浦东新区","value":"310115","parent":"310100"},{"name":"金山区","value":"310116","parent":"310100"},{"name":"松江区","value":"310117","parent":"310100"},{"name":"青浦区","value":"310118","parent":"310100"},{"name":"奉贤区","value":"310120","parent":"310100"},{"name":"崇明区","value":"310151","parent":"310100"}],
             date: "",
             postData: {},
-            shortName: "",
             uid: this.$store.state.uid,
             rightText4: "不限",
             rightText5: "不限",
-            address: []
+            address:  [],
+            editFlag: false,
+            notEditshortName: '',
+            shortName: '',
+            myImage: ''
         };
     },
     mounted() {
@@ -224,10 +225,53 @@ export default {
         this.getWebUser();
         this.getPriceArr();
 
-        // console.log('年级')
+        //获取浏览器的userAgent,并转化为小写
+        var ua = navigator.userAgent.toLowerCase();
+        //判断是否是苹果手机，是则是true
+        var isIos = (ua.indexOf('iphone') != -1) || (ua.indexOf('ipad') != -1);
+        //  alert(isIos)
+        if (isIos) {
+            this.isios = true;
+        } else {
+            this.isios = false
+        }
     },
+
     methods: {
         ...common,
+        chooseImg() {
+            var file1 = document.getElementById("upload_file");
+            file1.click()
+        },
+        //   选择头像
+        chooseImage() {
+            var that = this;
+            var baseUrl = that.$store.state.baseUrl
+            var file = document.getElementById("upload_file").files[0];
+            var formdata1 = new FormData(); // 创建form对象
+            formdata1.append('img', file); // 通过append向form对象添加数据,可以通过append继续添加数据
+            let config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            };
+            //添加请求头
+            axios.post(baseUrl + 'file/img', formdata1, config).then(function (res) {
+                // console.log(res)
+                if (res.data.code != '00') {
+                    AlertModule.show({
+                        title: res.data.msg
+                    })
+                } else {
+                    // that.orgfrontUrl=res.data.data;
+                    var showUrl = res.data.data
+                    that.myImage = showUrl;
+
+                    console.log('我的头像')
+                    console.log(that.myImage)
+                }
+            })
+        },
         // 获取用户信息
         getWebUser() {
             var that = this;
@@ -236,13 +280,14 @@ export default {
                 .$http("get", baseUrl + "api/WebUser/" + this.uid)
                 .then(function (res) {
                     that.userData = res.data.data;
+                    that.myImage = res.data.data.imgurl
                     // 短名字
                     var grade = res.data.data.authorInfo.classParent.split(",");
                     var gradeArr = [];
                     var subject = res.data.data.authorInfo.subject.split(",");
                     var subjectArr = [];
                     var firstName = res.data.data.realName.firstName;
-                    var type = res.data.data.type == "author" ? "作者" : "书商";
+                    var type = res.data.data.type == "author" ? "家教" : "家长";
                     for (var i in grade) {
                         gradeArr.push(grade[i].substr(0, 2));
                     }
@@ -251,10 +296,26 @@ export default {
                         subjectArr.push(subject[i].substr(0, 2));
                     }
                     subject = subjectArr.join("");
-                    that.shortName = grade + subject + firstName + type;
-                    // 获取用户信息做默认展示
+
+                    //    that.notEditshortName  = grade + subject + firstName + type;
+                    that.shortName = res.data.data.nickname;
+                    that.notEditshortName = grade + subject + firstName + type;
+
+                    // 获取用户信息做默认展示res.data.data.authorInfo.gender=='1'
                     // 性别authorInfo.gender
-                    that.gender = res.data.data.authorInfo.gender;
+                    // ?that.radiosArr[0].selected=true;that.radiosArr[1].selected=false:that.radiosArr[1].selected=true;
+
+                    // alert(res.data.data.authorInfo.gender=='1')
+                    if (res.data.data.authorInfo.gender == '1') {
+                        that.radiosArr[0].selected = true;
+                        that.radiosArr[1].selected = false;
+                        that.gender = '1'
+                    } else {
+                        that.radiosArr[1].selected = true;
+                        that.radiosArr[0].selected = false;
+                        that.gender = '2'
+                    }
+
                     // 年级authorInfo.classNo
                     that.rightText1 = res.data.data.authorInfo.classNo;
                     // -------------------
@@ -272,26 +333,36 @@ export default {
                     // -------------------
                     // 科目authorInfo.subject
                     that.rightText2 = res.data.data.authorInfo.subject;
-                    
-                    // 独资出版费用authorInfo.soleCost
-                     that.rightText4 = res.data.data.authorInfo.soleCost + "元";
-                     that.soleCost=res.data.data.authorInfo.soleCost
-                .split("元")[0]
-                .split("~")
-                .join("-");
-                    // 合资出版费用authorInfo.jointCost
+
+                    // 1对1费用authorInfo.soleCost
+                    that.rightText4 = res.data.data.authorInfo.soleCost + "元";
+                    that.soleCost = res.data.data.authorInfo.soleCost
+                        .split("元")[0]
+                        .split("~")
+                        .join("-");
+                    // 1对多费用authorInfo.jointCost
                     that.rightText5 = res.data.data.authorInfo.jointCost + "元";
                     // alert(that.rightText5)
-                    that.jointCost=res.data.data.authorInfo.jointCost
-                .split("元")[0]
-                .split("~")
-                .join("-");
-                    // 协作方式authorInfo.coordination
-                    that.coordinations=res.data.data.authorInfo.coordination;
+                    that.jointCost = res.data.data.authorInfo.jointCost
+                        .split("元")[0]
+                        .split("~")
+                        .join("-");
+                    // 上门方式authorInfo.coordination
+                    that.coordinations = res.data.data.authorInfo.coordination;
                     that.rightText3 = res.data.data.authorInfo.coordination;
-                    // 协作区域authorInfo.area
+                    var coorditaArr = that.rightText3.split(',');
+                    // coordination
+                    for (var i in coorditaArr) {
+                        for (var j in that.coordination) {
+                            if (coorditaArr[i] == that.coordination[j].name) {
+                                that.coordination[j].active = true;
+                            }
+                        }
+
+                    }
+                    // 上门区域authorInfo.area
                     that.address = res.data.data.authorInfo.area.split(",");
-                    that.area=res.data.data.authorInfo.area.split(",");
+                    that.area = res.data.data.authorInfo.area.split(",");
                     // 简述
                     that.introductionContent = res.data.data.authorInfo.selfCon;
                 });
@@ -340,19 +411,18 @@ export default {
             this.rightText2 = arr.join(",");
         },
         getResult3() {
-            // 协作方式
+            // 上门方式
             var arr = [];
             for (let i in this.coordination) {
                 if (this.coordination[i].active == true) {
                     arr.push(this.coordination[i].name);
-                    // this.coordinations.push(this.coordination[i].name);
                 }
             }
-            this.coordinations=arr;
+            this.coordinations = arr;
             this.mainShow = true;
             this.coordinationShow = false;
             this.rightText3 = arr.join(",");
-            
+
         },
         // 性别
         getGender(val) {
@@ -403,7 +473,7 @@ export default {
                 .split("元")[0]
                 .split("~")
                 .join("-");
-            console.log("独资费用");
+            console.log("1对1费用");
             console.log(this.rightText4)
         },
         changeResultJointCost(val) {
@@ -413,25 +483,33 @@ export default {
                 .split("~")
                 .join("-");
         },
+        shortNamePut() {
+            this.editFlag = true;
+            console.log(this.editFlag)
+        },
         // 点击底部提交按钮
         savuAllContent() {
             var that = this;
-            console.log(typeof this.coordinations)
-            if(this.coordinations instanceof Array){
-                this.coordinations=this.coordinations.join(",")
+            console.log(typeof that.coordinations)
+            if (that.coordinations instanceof Array) {
+                that.coordinations = that.coordinations.join(",")
             }
+            // that.editFlag ? that.shortName : that.notEditshortName
             var postData = {
-                uid: this.uid,
-                gender: this.gender,
-                classNo: this.classNo.indexOf(',')>0?this.classNojoin(","):this.classNo,
-                subject: this.subject.indexOf(',')>0?this.subject.join(","):this.subject,
-                soleCost: this.soleCost, //独资费用
-                jointCost: this.jointCost, //合资费用
-                coordination:this.coordinations,
-                area: this.area,
-                selfCon: this.introductionContent,
-                nickname: this.shortName
+                uid: that.uid,
+                gender: that.gender,
+                classNo: that.classNo.indexOf(',') > 0 ? that.classNojoin(",") : that.classNo,
+                subject: that.subject.indexOf(',') > 0 ? that.subject.join(",") : that.subject,
+                soleCost: that.soleCost, //1对1费用
+                jointCost: that.jointCost, //1对多费用
+                coordination: that.coordinations,
+                area: that.area,
+                selfCon: that.introductionContent,
+                nickname: that.shortName 
+               
+
             };
+
             var flag = false;
             for (var i in postData) {
                 if (postData[i] == '') {
@@ -441,47 +519,62 @@ export default {
                     });
                     break;
                 } else {
-                   flag = true;
-                   continue
+                    flag = true;
+                    continue
                 }
             }
             console.log(postData)
             //   提交保存
-            if(flag){
-            that
-                .$http(
-                    "post",
-                    that.$store.state.baseUrl + "api/WebUser/Author",
-                    postData
-                )
-                .then(function (res) {
-                    if (res.data.code == "00") {
-                        AlertModule.show({
-                            title: "保存成功！",
-                            onHide() {
-                                that.$router.push({
-                                    path: '/mineIndex'
-                                })
+            if (flag) {
+                that
+                    .$http(
+                        "post",
+                        that.$store.state.baseUrl + "api/WebUser/Author",
+                        postData
+                    )
+                    .then(function (res) {
+                        var id = that.$store.state.uid;
+                        var data = {
+                            imgurl: that.myImage,
+                            id: id
+                        }
+                        var url = that.$store.state.baseUrl + '/api/WebUser/' + id;
+                        // console.log(url)
+                        that.$http('put', url, data).then(function (res) {
+                            // console.log(res)
+                            if (res.data.code == '00') {
+
+                                if (res.data.code == "00") {
+                                    AlertModule.show({
+                                        title: "保存成功！",
+                                        onHide() {
+                                            that.$router.push({
+                                                path: '/mineIndex'
+                                            })
+                                        }
+                                    });
+                                    that.getWebUser()
+                                } else {
+                                    AlertModule.show({
+                                        title: res.data.msg
+                                    });
+                                }
                             }
-                        });
-                        that.getWebUser()
-                    } else {
-                        AlertModule.show({
-                            title: res.data.msg
-                        });
-                    }
-                });
-        }
+                        })
+
+                    });
+            }
         }
     }
 };
 </script>
 
 <style scoped>
-body, html{
-    margin: 0;
-    height: 100%;
-    background: #fff !important;
+body,
+html {}
+
+.bgG {
+    background: #cdcdcd;
 }
 
 .xzfs.weui-cell {
@@ -492,36 +585,49 @@ body, html{
     border: none !important;
     border-bottom: none !important;
 }
-#myMainPage .vux-popup-picker-placeholder{
+
+#myMainPage .vux-popup-picker-placeholder {
     font-size: 12px;
+}
+
+#myMainPage .main .btn_box {
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    padding-bottom: 10px;
+    justify-content: center;
+    left: 0;
+    height: 60px;
+    background: #fff;
+    padding-top: 10px;
+    z-index: 9999999;
+    border-top: 1px solid #ddd;
+    margin-top: 20px;
+    position: fixed;
 }
 
 #myMainPage {
     /* padding-top: 50px; */
-    /* padding-left: 10px;
-    padding-right: 10px; */
-    height: 100%;
+    /* height: 100%; */
     background: #fff;
-    /* padding-bottom: 700px; */
 }
-#myMainPage .main{
-    padding-top: 50px;
-        padding-left: 10px;
+
+#myMainPage .main {
+    padding-left: 10px;
     padding-right: 10px;
-    padding-bottom: 10px;
 }
+
 #myMainPage .myPic {
     border-radius: 50%;
     width: 80px;
     height: 80px;
-    margin: 0 auto;
+    /* margin: 0 auto;
     display: table;
-    margin-bottom: 50px;
-    /* margin-top: 50px; */
+    margin-bottom: 50px; */
 }
 
 #myMainPage .disPart {
-    padding: 15px 15px;
+    padding: 0px 15px;
     border-radius: 5px;
     background: #cdcdcd;
     margin-bottom: 8px;
@@ -541,10 +647,9 @@ body, html{
     border: none;
 }
 
-/*content*/
-
 #myMainPage .content {
-    padding: 15px 0px;
+    padding: 10px 0px;
+    padding-bottom: 80px
 }
 
 #myMainPage .priceBox {
@@ -565,6 +670,13 @@ body, html{
 #myMainPage .weui-cell__bd textarea {
     background: #f5f5f5;
     font-size: 14px;
+}
+
+.shortName {
+    text-align: right;
+    height: 100%;
+    padding: 15px 5px;
+    border: none;
 }
 
 #myMainPage .vux-x-textarea.weui-cell {
@@ -635,15 +747,17 @@ body, html{
 
 #myMainPage .long_btn {
     width: 90%;
-    margin-top: 10px;
-    /* margin-bottom: 35px; */
+    margin-left: 0;
+    margin: 0;
+    display: block;
+    z-index: 9999999999999999999999999999;
+
 }
 
 #myMainPage .booksellerBox {
     border-top: 1px solid #d9d9d9;
 }
 
-/* 000000000000000000000000000000000000000000 */
 #multiPicker .title {
     padding: 11px;
     border-bottom: 1px solid #cecece;
@@ -660,7 +774,6 @@ body, html{
     border: 1px solid #3375c5;
     color: #fff;
     background: #3375c5;
-    /*margin-right: 15px;*/
     font-size: 14px;
 }
 
@@ -671,12 +784,56 @@ body, html{
     text-align: center;
     border: 1px solid #848484;
     color: #868686;
-    /*margin-right: 15px;*/
     background: #fff;
     margin-bottom: 10px;
 }
 
 #multiPicker .long_btn {
     margin-top: 60px;
+    display: block;
+}
+
+.imgBox {
+    position: relative;
+    height: 160px;
+}
+
+.imgBox img {
+    position: absolute;
+    top: 50%;
+    margin-top: -40px;
+    left: 50%;
+    margin-left: -40px;
+}
+
+.imgBox input {
+    visibility: hidden;
+    position: absolute;
+    /* width: 100%;
+    height: 100%; */
+    top: 0;
+    left: 0;
+    /* z-index: 999; */
+}
+
+#myMainPage #multiPicker.component .btn_box {
+    display: flex;
+    justify-content: center;
+}
+
+#myMainPage #multiPicker.component .long_btn {
+    margin-top: 10px;
+}
+
+#myMainPage .btnSave {
+    position: fixed;
+    left: 5%;
+    bottom: 10px;
+    z-index: 99999;
+}
+
+.vux-cell-box:not(:first-child):before {
+
+    left: 0;
 }
 </style>

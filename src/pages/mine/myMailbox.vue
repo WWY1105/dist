@@ -2,15 +2,15 @@
   <div id="myMailbox">
     <div class="eachMail flexSpace bgW" @click="toShowMailDetail(item.id)" v-for="item,index in msgList">
       <div class="imgBox">
-        <img :src="item.formUser.imgurl" class="userImg" alt>
+        <img :src="item.user?$store.state.imgUrl+item.user.imgurl:''" class="userImg" alt>
         <span class="redDot" v-if="!item.read"></span>
       </div>
       <div class="text">
-        <p class="name">{{item.formUser.nickname}}</p>
+        <p class="name">{{item.user?item.user.nickname:''}}</p>
         <p class="detailText">{{item.content}}</p>
         <p class="flexSpace">
           <span class="date">{{item.msgTime}}</span>
-          <span class="money">红包：{{item.redEnvelope}}元</span>
+          <span class="money" v-if="item.amount>0">红包：{{!item.amount?'0':item.amount}}元</span>
         </p>
       </div>
     </div>
@@ -39,14 +39,16 @@ export default {
       var baseUrl = this.$store.state.baseUrl;
       // alert(that.uid)
       that
-        .$http("get", baseUrl + "api/UserMsg/List", {
-          uid:that.uid
+        .$http("get", baseUrl + "api/PrivateMsg/List", {
+          toUid:that.uid
         })
         .then(function(res) {
           console.log(res.data.data);
           var result = res.data.data;
           that.mailId=result.id;
            that.msgList = result;
+           console.log('000')
+           console.log(that.msgList)
         });
     },
     toShowMailDetail(id) {

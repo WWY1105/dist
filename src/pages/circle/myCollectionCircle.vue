@@ -1,5 +1,6 @@
 <template>
 <div id="myCollectionCircle">
+    <div class="noDataBox" v-if="circleList.length==0"><span> 暂无内容</span></div>
     <div class="eachCircle bgW" v-for="item,index in circleList" @click="toComment(item.id)">
                 <div class="top flexSpace">
                     <div class="left flexStart">
@@ -166,8 +167,16 @@ export default {
 </script>
 
 <style scoped>
-
-
+#myCollectionCircle{
+    height: 100%;
+}
+.noDataBox{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
  
 #myCollectionCircle .eachCircle {
     margin-bottom: 10px;

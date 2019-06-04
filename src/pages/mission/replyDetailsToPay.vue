@@ -13,12 +13,12 @@
                 <div class="lelft">
                     <p>发布者：
                         <router-link tag="span" :to="{path:'/writerDetail',query:{'writerId':postUser.id}}"   class="mainText">{{postUser.nickname}}</router-link>
+                  
                     </p>
                     <p>服务提供者：
-                      <router-link tag="span" :to="{path:'/writerDetail',query:{'writerId':serviceProvider.id}}"    class="mainText">{{serviceProvider.nickname}}</router-link>
-                        <!-- <span class="mainText">{{nicknameArr.length==0?'':nicknameArr.join(',')}}</span> -->
+                        <router-link tag="span" :to="{path:'/writerDetail',query:{'writerId':serviceProvider.id}}"    class="mainText">{{serviceProvider.nickname}}</router-link>
+                       <!-- <span class="mainText">{{nicknameArr.length==0?'':nicknameArr.join(',')}}</span> -->
                     </p>
-                    <!-- 出钱的人 -->
                     <p>服务接收者：
                         <span class="mainText" @click="mainShow=!mainShow;serviceRecipientShow=!serviceRecipientShow">{{!nicknameArr?'':"查看详细名单共"+bussArr.length+"人"}}</span>
                         <!-- <span class="mainText">{{postUser.nickname}}</span> -->
@@ -62,14 +62,14 @@
                         </group>
                     </div>
                     <div class="eachLink slide flexSpace">
-                        <group>
-                            <!-- <datetimePicker title="开始日期" v-model="beginDate" :min="minDate" class="datetimePicker" v-on:dateChange="beginDateChange"></datetimePicker> -->
-                            <datetime v-model="beginDate" :start-date="beginStartDate" format="YYYY-MM-DD" @on-change="beginDateChange" title="开始日期"></datetime>
-                        </group>
+                        <datetime v-model="beginDate" :start-date="beginStartDate" format="YYYY-MM-DD" @on-change="beginDateChange" title="开始日期"></datetime>
+                        <!-- <datetimePicker title="开始日期" v-model="beginDate" class="datetimePicker" v-on:dateChange="beginDateChange"></datetimePicker> -->
                     </div>
                     <div class="eachLink slide flexSpace">
                         <!-- <datetimePicker title="结束日期" v-model="endDate" class="datetimePicker" v-on:dateChange="endDateChange"></datetimePicker> -->
+
                         <datetime v-model="endDate" :start-date="endStartDate" format="YYYY-MM-DD" @on-change="endDateChange" title="结束日期"></datetime>
+
                     </div>
                     <div class="eachLink flexSpace finalPriceLink">
                         <span class="left">最终总价</span>
@@ -81,7 +81,6 @@
                     v-model="finalPrice"
                     placeholder="0"
                     class="finalPrice mainText"
-                    @keyup="finalPriceChange"
                   >
                 </p>
                                 <x-icon class="arrow" type="ios-arrow-right" size="20"></x-icon>
@@ -90,17 +89,17 @@
                 </div>
                 <div class="titleBox flexSpace">
                     <span></span>
-                    <button class="smallBtn" @click="getTimesList(true)">生成费用列表</button>
 
+                    <toast v-model="showPositionValue" type="text" :time="800" is-show-mask text="操作成功" position="middle"></toast>
+                    <button class="smallBtn" @click="getTimesList">生成费用列表</button>
                 </div>
-                <toast v-model="showPositionValue" type="text" :time="800" is-show-mask text="操作成功" position="middle"></toast>
             </div>
             <!--发送确认==================end====================页面才会显示-->
             <!--每个盒子-1-->
             <div class="eachBox bgW">
                 <div class="titleBox flexSpace">
                     <span>费用明细与细节</span>
-                    <span class="mainText" v-if="sendSuccess" @click="reEditInfo">修改</span>
+                    <span class="mainText" v-if="sendSuccess&&isMyTask" @click="reEditInfo">修改</span>
                 </div>
                 <div class="content flexSpace">
                     <div class="left">
@@ -122,10 +121,10 @@
                         </p>
                         <p>
                             费用单价：
+                            <!-- {{Math.floor((finalPrice-serviceRate*finalPrice-finalPrice*adjustmentRate)/(time.join('')*times.join(''))*100)/100}} -->
                             <span
                   class="mainText"
-                >￥{{unitPrice}}
-               /小时</span>
+                >￥{{Math.floor((finalPrice-serviceRate*finalPrice-finalPrice*adjustmentRate)/(time.join('')*times.join(''))*100)/100}} /小时</span>
                         </p>
                     </div>
 
@@ -144,11 +143,11 @@
                         </p>
                         <p>
                             手续费({{serviceRate*100}}%)：
-                            <span class="mainText">￥{{Math.floor(serviceRate*finalPrice*100)/100}}</span>
+                            <span class="mainText">￥{{Math.floor((serviceRate*finalPrice)*100)/100  }}</span>
                         </p>
                         <p>
-                            调解费({{adjustmentRate*100}}%)：
-                            <span class="mainText">￥{{Math.floor(finalPrice*adjustmentRate*100)/100 }}</span>
+                            调解费({{ adjustmentRate*100}}%)：
+                            <span class="mainText">￥{{Math.floor((finalPrice*adjustmentRate)*100)/100}}</span>
                         </p>
                     </div>
                 </div>
@@ -156,7 +155,9 @@
                     人均支付：
                     <span
               class="mainText"
-            >￥{{taskObj.taskType=='3'?Math.floor(finalPrice/(taskObj.busniessCount+1)*100)/100:Math.floor(finalPrice/taskObj.busniessCount*100)/100}}/人（服务接收者）
+            >￥
+            {{taskObj.taskType=='3'?Math.floor(finalPrice/(taskObj.busniessCount+1)*100)/100:Math.floor(finalPrice/taskObj.busniessCount*100)/100}}
+            /人（服务接收者）
                 </span>
                 </p>
             </div>
@@ -180,8 +181,8 @@
                     <div class="eachHang flexSpace" v-for="item,index in timesList">
                         <p class="left">第{{item.index}}次</p>
                         <p class="center" v-if="sendSuccess">{{item.date}}</p>
+                        <!-- <datetime v-if="!sendSuccess" :placeholder="item.date" v-model="item.date" class="center"></datetime> -->
                         <datetime v-if="!sendSuccess" :start-date="endStartDate" :end-date="timesListEndDate" :placeholder="item.date" v-model="item.date" class="center"></datetime>
-
                         <p class="right mainText">￥{{Math.floor(item.money*100)/100}}</p>
                     </div>
                     <!-- <div class="eachHang flexSpace">
@@ -204,7 +205,8 @@
               </div>
                             <div class="rightTime flexSpace">
                                 <div>
-                                    <p class="name">{{item.nickname}}</p>
+                                   <router-link tag="span" :to="{path:'/writerDetail',query:{'writerId':item.user.id}}"   class="mainText">{{item.user.nickname}}</router-link>
+                   
                                     <p class="massage">{{item.content}}</p>
                                 </div>
                                 <p>{{item.createTime}}</p>
@@ -214,8 +216,23 @@
                 </div>
 
                 <!-- 第一次填写并确认 -->
-                <div class="btnBox bgw" >
-                    <button v-if="!sendSuccess" class="long_btn" @click.stop="sendConfirm">发送确认</button>
+                <div class="btnBox bgw flexSpace" v-if="sendSuccess">
+                    <div v-transfer-dom>
+                        <confirm v-model="show" @on-cancel="onCancel" @on-confirm="deleteTeskonConfirm">
+                            <p style="text-align:center;">确定取消任务吗</p>
+                        </confirm>
+                    </div>
+                    <!-- 是我的任务？（费用明细不等于已拒绝/不是找家长） -->
+                    <button    v-if="isMyTask?(sendSuccess&&infoStatus!=4&&taskObj.status!=2):(taskObj.status==3||taskObj.status==2)" :class="taskObj.status!=3&&taskObj.taskType==3?'disabled long_btn':'long_btn'" @click.stop="toPay">{{taskObj.status!=3&&taskObj.taskType==3?'等待家教确认':'确定同意并支付'}}</button>
+                    <button v-if="isMyTask?(sendSuccess&&!isMyTask&&infoStatus!=4&&taskObj.status!=2):(taskObj.status==3||taskObj.status==2)" class="long_btn red" @click="sendRefuse">拒绝</button>
+                    <button  v-if="sendSuccess&&isMyTask&&infoStatus!=4&&taskObj.status!=2" class="long_btn red" @click.stop="deleteTesk">取消发布</button>
+                    <router-link v-if="infoStatus==4&&taskObj.status!=2" tag="button" class="long_btn clbm" :to="{path:'/handelEnroll',query:{taskId:taskId,priceType:taskObj.priceType,enrollStatus:enrollStatus,taskType:taskObj.taskType,busniessCount:taskObj.busniessCount}}">家教拒绝,重新处理
+                        <badge text="1"></badge>
+                    </router-link>
+                    <button class="long_btn disabled" v-if="isMyTask&&taskObj.status==2">已报价,等待确认</button>
+                </div>
+                <div class="btnBox bgw flexSpace" v-if="!sendSuccess">
+                    <button v-if="!sendSuccess" class="long_btn" @click.stop="sendConfirm1">发送确认</button>
                     <!-- 发送成功以后的禁用按钮 -->
                     <button v-if="sendSuccess" class="long_btn disable">已发送确认，等待对方回复</button>
                 </div>
@@ -239,6 +256,9 @@
                     <router-link tag="span" :to="{path:'/writerDetail',query:{'writerId':item.user.id}}"   class="mainText">{{item.user.nickname}}</router-link>
                     <span class="mainText">{{item.payText}}</span>
                 </div>
+                <!-- <div class="eachList flexSpace">
+                <span class="mainText">小初高数学贾家长</span><span class="mainText">已支付</span>
+            </div> -->
             </div>
         </div>
     </div>
@@ -255,7 +275,9 @@ import {
     PopupPicker,
     Datetime,
     AlertModule,
+    Badge,
     Alert,
+    Confirm,
     Toast
 } from "vux";
 
@@ -266,22 +288,26 @@ export default {
         PopupPicker,
         Datetime,
         datetimePicker,
+        Badge,
         AlertModule,
-        Toast,
-        Alert
+        Alert,
+        Confirm,
+        Toast
     },
     data() {
         return {
-            mainShow: true,
-            serviceRecipientShow: false,
             limitHourValue: '',
             beginStartDate: '2019-01-01',
             endStartDate: '2019-01-01',
             timesListEndDate: '2019-01-01',
+            amount: 0,
+            show: false,
+            mainShow: true,
+            serviceRecipientShow: false,
+            showPositionValue: false,
             //  mainShow:false,
             //  serviceRecipientShow:true,
             finalPrice: 0,
-            showPositionValue: false,
             beginDate: "",
             endDate: "",
             leftText2: "每次时长",
@@ -293,13 +319,13 @@ export default {
             // 被选择的家教
             chooseWriterId: "",
             // 是否填写过阶段信息
-            isNew: true,
+            isNew: false,
             canTalk: false,
             // 任务id
             taskId: this.$route.query.taskId,
             taskObj: {},
             stage: 0,
-            sendSuccess: false,
+            sendSuccess: true,
             gapDay: 1,
             eachPrice: 0,
             actualEachStage: 0,
@@ -316,19 +342,20 @@ export default {
             bussNotPay: [],
             bussRefuse: [],
             bussHasPay: [],
+            infoStatus: '',
+            canPay: false,
+            isMyTask: false,
+            nextStageTime: '',
             missionType: "",
-            authorId: '',
             // 服务接受者
             serviceReceiver: "",
             // 服务提供者
-            serviceProvider: "",
-            unitPrice: '*'
+            serviceProvider: ""
         };
     },
-  
+
     mounted() {
-        timer=setTimeout(() => {
-                this.getConfirmWriter(this.taskId);
+
         if (this.$route.query.chooseWriterId instanceof Array) {
             this.chooseWriterId = this.$route.query.chooseWriterId.split(",");
         } else {
@@ -346,15 +373,24 @@ export default {
         this.timeArr.push(arr);
 
         this.getMissiondetail(this.taskId);
+
+        this.getAvgMoney(this.taskId)
         // 调解费
         this.getBaseRate();
 
         console.log("当前任务对象");
 
+        this.getUser("postUser", this.$store.state.uid);
         this.getTalkList();
-
-        // 获取阶段信息
-        this.getStageMsg(this.taskId);
+        // 循环被选择的人物与
+        // for (var i in this.chooseWriterId) {
+        //     this.getUser('recipient', this.chooseWriterId[i])
+        // }
+        this.getConfirmWriter(this.taskId);
+        this.getTalkList();
+        if (this.sendSuccess) {
+            this.getStageDetail()
+        }
         // =================================
         Date.prototype.Format = function (fmt) { //author: meizz 
             var o = {
@@ -373,380 +409,75 @@ export default {
         }
 
         this.beginStartDate = new Date().Format("yyyy-MM-dd")
-         },500);
-     
 
         // ==============================
-
     },
     methods: {
         ...common,
-        finalPriceChange(){
-            this.getTimesList(false)
-        },
-        //获取阶段信息
-        getStageMsg(id) {
+        // 支付
+        toPay() {
             var that = this;
-            that
-                .$http(
-                    "get",
-                    that.$store.state.baseUrl +
-                    "api/Task/Stage/" +
-                    id
-                )
-                .then(function (res) {
-                    if (res.data.code != "00") {
-                        AlertModule.show({
-                            title: res.data.msg
-                        });
-                    } else {
-                        // alert(res.data.data)
-                        if (Boolean(res.data.data)) {
-                            var result = res.data.data
-                            if(!res.data){
-                                that.sendSuccess=false
-                            }
-                            console.log('阶段信息' + res.data.data.status)
-                            //  that.timesList=res.data.data.infos
-                            console.log(res.data.data)
-                            that.isNew = false
-                        } else {
-                            that.isNew = true
-                        }
-
-                    }
-                });
-        },
-        // 获取已经确认得用户信息
-        // 获取已经确认得用户信息
-        getConfirmWriter(id) {
-            var that = this;
-            var postData = {
-                taskId: id,
-                status: "2"
-            };
-            that
-                .$http(
-                    "get",
-                    that.$store.state.baseUrl + "api/Task/Apply/List",
-                    postData
-                )
-                .then(function (res) {
-                    // console.log(res.data.data);
-                    if (res.data.code != "00") {
-                        AlertModule.show({
-                            title: res.data.msg
-                        });
-                    } else {
-                        var result = res.data.data;
-                        for (var i in result) {
-                            if (result[i].uid == that.taskObj.authorId) {
-                                result.splice(i, 1)
-                            }
-                        }
-                        // console.log(result)
-                        // 判断任务类型,如果是1,3.就把发布者也算到家长列表中
-                        if (that.taskObj.taskType == 1 || that.taskObj.taskType == 3) {
-                            var obj = {}
-                            obj.user = {}
-                            obj.user.id=that.taskObj.webUser.id;
-                            obj.user.nickname = that.taskObj.webUser.nickname
-                            if (!that.taskObj.payTime) {
-                                obj.pay = 2
-                            } else {
-                                obj.pay = 3
-                            }
-                            
-                            result.push(obj)
-                        }
-                        // alert(result.length)
-                        // 支付状态(1-不需要支付,2-待支付,3-已支付,4-已拒绝)
-                        for (var j in result) {
-                            if (result[j].pay == '2') {
-                                result[j].payText = "待支付"
-                                that.bussNotPay.push(result[j])
-                            } else if (result[j].pay == '4') {
-                                result[j].payText = '已拒绝'
-                                that.bussRefuse.push(result[j])
-                            } else if (result[j].pay == '3') {
-                                result[j].payText = '已支付'
-                                that.bussHasPay.push(result[j])
-                            }
-                        }
-                        var nicknameArr = [];
-                        that.bussArr = result;
-                        that.nicknameArr = nicknameArr;
-                        console.log("弹窗需要支付的家长");
-                        console.log(that.bussArr);
-                    }
-                });
-        },
-        // 点击留言按钮吧
-        goToTalk() {
-            this.canTalk = true;
-        },
-        // 发送私信
-        sendTalkMsg() {
-            var that = this;
-            var baseUrl = that.$store.state.baseUrl;
-            that
-                .$http("post", baseUrl + "api/TaskTalk", {
-                    uid: that.$store.state.uid,
-                    taskId: that.taskId,
-                    content: that.talkContent
-                })
-                .then(function (res) {
-                    if (res.data.code == "00") {
-                        AlertModule.show({
-                            title: "发送成功",
-                            onHide() {
-                                that.getTalkList();
-                                that.canTalk = false;
-                            }
-                        });
-                    } else {
-                        AlertModule.show({
-                            title: res.data.msg
-                        });
-                    }
-                });
-        },
-        // 获取留言列表
-        getTalkList() {
-            var that = this;
-            var baseUrl = that.$store.state.baseUrl;
-            that
-                .$http("get", baseUrl + "api/TaskTalk/List", {
-                    taskId: that.taskId
-                })
-                .then(function (res) {
-                    console.log("留言列表");
-                    that.talkList = res.data.data;
-                });
-        },
-
-        // 根据用户id获取用户信息
-        // getUser(who, uid) {
-        //     var that = this;
-        //     var baseUrl = that.$store.state.baseUrl;
-        //     var user;
-        //     that.$http("get", baseUrl + "api/WebUser/" + uid).then(function (res) {
-        //         if (who == "postUser") {
-        //             that.postUser = res.data.data;
-        //         } else if (who == 'serviceProvider') {
-        //             that.serviceProvider = res.data.data;
-        //         }
-        //         console.log("获取的用户对象");
-        //         console.log(that.postUser);
-        //     });
-        //     // return user;
-        // },
-
-        // 点击修改费用明细
-        reEditInfo() {
-            this.sendSuccess = false;
-        },
-        // 获取下面的渲染列表
-        getTimesList(flag) {
-            this.timesList = []
-            var step = this.times.join("");
-            var s1 = this.beginDate.replace(/-/g, "/");
-            var s2 = this.endDate.replace(/-/g, "/");
-            var originPrice = this.finalPrice;
-
-            if (s1 != "" && s2 != "") {
-                var totalDay = Number(this.DateDiff(s1, s2));
-                // alert("总天数" + totalDay);
-                var yushu = Number(totalDay) % Number(step);
-                //  alert("余数" + yushu);
-                totalDay -= Number(yushu);
-                //  alert("总天数" + totalDay);
-                var gapDay = parseInt(totalDay / step);
+            if (!that.isMyTask) {
+                that.sendConfirm()
             }
-            // alert("总金额" + this.finalPrice);
-
-            var arr = [{
-                index: 1,
-                date: s1
-            }];
-            for (var i = 1; i <= step; i++) {
-                var obj = {};
-                obj.index = i;
-                obj.date = "";
-                obj.money = 0;
-                arr.push(obj);
-                console.log(arr[i - 1].date + "每一个日期")
-                arr[i].date = this.getNextDate(arr[i - 1].date, gapDay);
-            }
-            arr = arr.slice(1, arr.length);
-            var yushuPrice
-            if (this.finalPrice < arr.length) {
-                yushuPrice = 0;
+            // !that.canPay
+            if (true) {
+                // alert(that.taskId)
+                that.$router.push({
+                    path: '/taskPay',
+                    query: {
+                        amount: that.amount,
+                        taskId: that.taskId
+                    }
+                })
             } else {
-                yushuPrice = this.finalPrice % arr.length;
+                AlertModule.show({
+                    title: "抱歉，支付有限期已过"
+                })
             }
-            // console.log('余下的'+yushuPrice)
-            // this.finalPrice -= yushuPrice;
-            // var finalPrice = this.finalPrice;
-            var finalPrice = this.finalPrice - this.serviceRate * this.finalPrice - this.finalPrice * this.adjustmentRate;
-            console.log(this.finalPrice + "--" + this.serviceRate * this.finalPrice + "--" + this.finalPrice * this.adjustmentRate)
-            // alert(finalPrice)
-            // alert(yushuPrice)
-            finalPrice -= yushuPrice;
-            // alert(finalPrice)
-            this.eachPrice = finalPrice / arr.length;
-            console.log('eachPrice' + finalPrice / arr.length)
-            for (var i in arr) {
-                arr[i].money = this.eachPrice;
-            }
-            // console.log("finalPrice" + finalPrice);
-            // console.log("价格余数" + yushuPrice);
-            if (yushu != 0) {
-                arr[arr.length - 1].date = this.getNextDate(
-                    arr[arr.length - 1].date,
-                    yushu
-                );
-                this.finalPrice = originPrice;
-            }
-            if (yushuPrice != 0) {
-                arr[arr.length - 1].money += yushuPrice;
-            }
-            this.timesList = arr;
-            for (var i in arr) {
-                console.log(arr[i].date)
-            }
-            this.actualEachStage =
-                Math.floor(
-                    this.finalPrice -
-                    this.serviceRate * this.finalPrice -
-                    this.finalPrice * this.adjustmentRate
-                ) / this.timesList.length;
-           
-
-            // 费用单价
-            //{{isNaN(Math.round(Math.floor(finalPrice-(serviceRate*finalPrice+finalPrice*adjustmentRate))/(times.join('')*time.join(''))*100)/100)
-            //  Math.round(Math.floor(finalPrice-(serviceRate*finalPrice+finalPrice*adjustmentRate))/(times.join('')*time.join(''))*100)/100}}
-            console.log('费用单价')
-            console.log(this.finalPrice - this.serviceRate * this.finalPrice - this.finalPrice * this.adjustmentRate)
-            console.log(this.times.join('') * this.time.join(''))
-            var ttt= this.times.join('') * this.time.join('')
-            console.log((this.finalPrice - this.serviceRate * this.finalPrice - this.finalPrice * this.adjustmentRate) /ttt)
-            var up = (this.finalPrice - this.serviceRate * this.finalPrice - this.finalPrice * this.adjustmentRate) / ttt
-            // alert()
-            if(flag){
-                 this.showPositionValue = true;
-            }
-            this.unitPrice = Math.floor(up * 100) / 100
 
         },
-        getNextDate(beginDate, day) {
 
+        // 取消发布
+        deleteTesk() {
+            this.show = !this.show;
+        },
+        onCancel() {
+            this.show = false;
+        },
+        deleteTeskonConfirm() {
             var that = this;
-            beginDate = that.convertDateFromString(beginDate);
-
-            //   console.log("++"+beginDate)
-            //  alert("beginDate"+beginDate)
-            var time1 =
-                new Date(beginDate).getFullYear() +
-                "/" +
-                (new Date(beginDate).getMonth() + 1) +
-                "/" +
-                new Date(beginDate).getDate(); //time1表示当前时间
-            var date2 = new Date(beginDate);
-
-            date2.setDate(new Date(beginDate).getDate() + day);
-            //  alert('date2'+date2)
-            var time2 =
-                new Date(date2).getFullYear() +
-                "/" +
-                (new Date(date2).getMonth() + 1) +
-                "/" +
-                new Date(date2).getDate();
-            //  alert('time2'+time2)
-            // time2=new Date(time2)
-            return time2;
+            that.$http('delete', that.$store.state.baseUrl + 'api/Task/' + that.taskId).then(function (res) {
+                if (res.data.code != '00') {
+                    AlertModule.show({
+                        title: res.data.msg
+                    })
+                } else {
+                    AlertModule.show({
+                        title: "取消成功"
+                    });
+                    that.$router.go(-1)
+                }
+            })
         },
-        // 字符串转date对象
-        convertDateFromString(dateString) {
-
-            console.log('时间戳' + dateString)
-            if (dateString) {
-                var date = new Date(dateString.replace(/-/g, '/')).getTime();
-                return date;
-            }
-        },
-
-        // 求两个日期之间差多少天
-        DateDiff(sDate1, sDate2) {
-            //sDate1和sDate2是2002-12-18格式
-            var aDate, oDate1, oDate2, iDays;
-            aDate = sDate1.split("/");
-            oDate1 = new Date(aDate[1] + "/" + aDate[2] + "/" + aDate[0]); //转换为12-18-2002格式
-            aDate = sDate2.split("/");
-            oDate2 = new Date(aDate[1] + "/" + aDate[2] + "/" + aDate[0]);
-            iDays = parseInt(
-                Math.abs(Date.parse(oDate1) - Date.parse(oDate2)) / 1000 / 60 / 60 / 24
-            ); //把相差的毫秒数转换为天数
-
-            return iDays;
-        },
-
-        // 获取任务详情
-        getMissiondetail(id) {
+        // 获取验家长平均支付金额
+        getAvgMoney(id) {
             var that = this;
-            that
-                .$http(
-                    "get",
-                    that.$store.state.baseUrl +
-                    "api/Task/" +
-                    id +
-                    "?uid=" +
-                    this.$store.state.uid
-                )
-                .then(function (res1) {
-                    if (res1.data.code != "00") {
-                        AlertModule.show({
-                            title: res1.data.msg
-                        });
-                    } else {
-                        that.taskObj = res1.data.data;
-                        that.authorId = res1.data.data.authorId;
-                        if (that.taskObj.authorId) {
-                            that.$http("get", that.$store.state.baseUrl + "api/WebUser/" + that.authorId).then(function (res2) {
-                                if (res2.data.code != "00") {
-                                    AlertModule.show({
-                                        title: res2.data.msg
-                                    });
-                                } else {
-                                    that.serviceProvider = res2.data.data;
-                                    if (that.taskObj.uid) {
-                                        that.$http("get", that.$store.state.baseUrl + "api/WebUser/" + that.taskObj.uid).then(function (res3) {
-                                            if (res3.data.code != "00") {
-                                                AlertModule.show({
-                                                    title: res3.data.msg
-                                                });
-                                            } else {
-                                                that.postUser = res3.data.data;
-                                                // 被选择的家教
-                                                // that.getConfirmWriter(that.taskId);
-                                            }
-                                        })
-                                    }
+            that.$http('get', that.$store.state.baseUrl + 'api/Task/avg-amount?taskId=' + id).then(function (res) {
+                // console.log(res.data.data);
+                if (res.data.code != '00') {
+                    AlertModule.show({
+                        title: res.data.msg
+                    })
+                } else {
+                    that.amount = res.data.data;
 
-                                }
-
-                            });
-                        }
-
-                        var type = res1.data.data.taskType;
-                        that.missionType = res1.data.data.taskType;
-                        // alert(res.data.data.amount)
-
-                    }
-                });
+                    // alert(res.data.data)
+                }
+            })
         },
         // 发送确认
-        sendConfirm() {
+        sendConfirm1() {
             var that = this;
             var infos = [];
             for (var i in that.timesList) {
@@ -793,9 +524,10 @@ export default {
                                 title: "确认成功",
                                 onHide() {
                                     that.sendSuccess = true;
-                                    that.$router.push({
-                                        path: "/mission",
-                                    });
+                                    // that.$router.push({
+                                    //     path: "/myPostMission",
+
+                                    // });
                                 }
                             });
 
@@ -812,43 +544,510 @@ export default {
                 });
             }
         },
+        // 获取已经确认得用户信息
+        // 获取已经确认得用户信息
+        getConfirmWriter(id) {
+            var that = this;
+            var postData = {
+                taskId: id,
+                status: "2"
+            };
+            that
+                .$http(
+                    "get",
+                    that.$store.state.baseUrl + "api/Task/Apply/List",
+                    postData
+                )
+                .then(function (res) {
+                    // console.log(res.data.data);
+                    if (res.data.code != "00") {
+                        AlertModule.show({
+                            title: res.data.msg
+                        });
+                    } else {
+                        var result = res.data.data;
+                        if (that.taskObj.authorId) {
+                            for (var i in result) {
+                                if (result[i].uid == that.taskObj.authorId) {
+                                    result.splice(i, 1)
+                                }
+                            }
+                        }
+
+                        console.log(result);
+                      
+                        // // 判断任务类型,如果是1,3.就把发布者也算到家长列表中
+                        if (that.taskObj.taskType == 1 || that.taskObj.taskType == 3) {
+                            var obj = {}
+                            obj.user = {}
+                            obj.user.id=that.taskObj.webUser.id;
+                            obj.user.nickname = that.taskObj.webUser.nickname
+                            if (!that.taskObj.payTime) {
+                                obj.pay = 2
+                            } else {
+                                obj.pay = 3
+                            }
+                            result.push(obj);
+                            that.bussArr = result;
+
+                        }
+                        that.bussArr = result;
+                        // alert(that.bussArr.length)
+                        // 支付状态(1-不需要支付,2-待支付,3-已支付,4-已拒绝)
+                        for (var j in result) {
+                            if (result[j].pay == '2') {
+                                result[j].payText = "待支付"
+                                that.bussNotPay.push(result[j])
+                            } else if (result[j].pay == '4') {
+                                result[j].payText = '已拒绝'
+                                that.bussRefuse.push(result[j])
+                            } else if (result[j].pay == '3') {
+                                result[j].payText = '已支付'
+                                that.bussHasPay.push(result[j])
+                            }
+                        }
+                        var nicknameArr = [];
+                        
+                        that.nicknameArr = nicknameArr;
+                        console.log("弹窗需要支付的家长");
+                        console.log(that.bussArr);
+                    }
+                });
+        },
+        // 点击留言按钮吧
+        goToTalk() {
+            this.canTalk = true;
+        },
+        // 发送私信
+        sendTalkMsg() {
+            var that = this;
+            var baseUrl = that.$store.state.baseUrl;
+            that
+                .$http("post", baseUrl + "api/TaskTalk", {
+                    uid: that.$store.state.uid,
+                    taskId: that.taskId,
+                    content: that.talkContent
+                })
+                .then(function (res) {
+                    if (res.data.code == "00") {
+                        AlertModule.show({
+                            title: "发送成功",
+                            onHide() {
+                                that.canTalk = false;
+                                that.getTalkList();
+
+                            }
+                        });
+                    } else {
+                        AlertModule.show({
+                            title: res.data.msg
+                        });
+                    }
+                });
+        },
+        // 获取留言列表
+        getTalkList() {
+            var that = this;
+            var baseUrl = that.$store.state.baseUrl;
+            that
+                .$http("get", baseUrl + "api/TaskTalk/List", {
+                    taskId: that.taskId
+                })
+                .then(function (res) {
+                    console.log("留言列表");
+                    console.log(res.data.data)
+                    that.talkList = res.data.data;
+                });
+        },
+
+        // 根据用户id获取用户信息
+        getUser(who, uid) {
+            var that = this;
+            var baseUrl = that.$store.state.baseUrl;
+            var user;
+            that.$http("get", baseUrl + "api/WebUser/" + uid).then(function (res) {
+                if (who == "postUser") {
+                    that.postUser = res.data.data;
+                } else if (who == 'serviceProvider') {
+                    that.serviceProvider = res.data.data;
+                }
+                console.log("获取的用户对象");
+                console.log(that.postUser);
+            });
+            // return user;
+        },
+
+        // 点击修改费用明细
+        reEditInfo() {
+            this.sendSuccess = false;
+        },
+        // 获取下面的渲染列表
+        getTimesList() {
+            this.timesList = []
+            var step = this.times.join("");
+            var s1 = this.beginDate.replace(/-/g, "/");
+            var s2 = this.endDate.replace(/-/g, "/");
+            var originPrice = this.finalPrice;
+
+            if (s1 != "" && s2 != "") {
+                var totalDay = Number(this.DateDiff(s1, s2));
+                // alert("总天数" + totalDay);
+                var yushu = Number(totalDay) % Number(step);
+                //  alert("余数" + yushu);
+                totalDay -= Number(yushu);
+                //  alert("总天数" + totalDay);
+                var gapDay = parseInt(totalDay / step);
+            }
+            // alert("总金额" + this.finalPrice);
+
+            var arr = [{
+                index: 1,
+                date: s1
+            }];
+            for (var i = 1; i <= step; i++) {
+                var obj = {};
+                obj.index = i;
+                obj.date = "";
+                obj.money = 0;
+                arr.push(obj);
+                arr[i].date = this.getNextDate(arr[i - 1].date, gapDay);
+            }
+            arr = arr.slice(1, arr.length);
+            var yushuPrice
+            if (this.finalPrice < arr.length) {
+                yushuPrice = 0;
+            } else {
+                yushuPrice = this.finalPrice % arr.length;
+            }
+            // console.log('余下的'+yushuPrice)
+            // this.finalPrice -= yushuPrice;
+            // var finalPrice = this.finalPrice;
+            var finalPrice = this.finalPrice - this.serviceRate * this.finalPrice - this.finalPrice * this.adjustmentRate;
+            console.log(this.finalPrice + "--" + this.serviceRate * this.finalPrice + "--" + this.finalPrice * this.adjustmentRate)
+            // alert(finalPrice)
+            // alert(yushuPrice)
+            finalPrice -= yushuPrice;
+            // alert(finalPrice)
+            this.eachPrice = finalPrice / arr.length;
+            console.log('eachPrice' + finalPrice / arr.length)
+            for (var i in arr) {
+                arr[i].money = this.eachPrice;
+            }
+            console.log("finalPrice" + finalPrice);
+            console.log("价格余数" + yushuPrice);
+            if (yushu != 0) {
+                arr[arr.length - 1].date = this.getNextDate(
+                    arr[arr.length - 1].date,
+                    yushu
+                );
+                this.finalPrice = originPrice;
+            }
+            if (yushuPrice != 0) {
+                arr[arr.length - 1].money += yushuPrice;
+            }
+            this.timesList = arr;
+
+            this.actualEachStage =
+                Math.floor(
+                    this.finalPrice -
+                    this.serviceRate * this.finalPrice -
+                    this.finalPrice * this.adjustmentRate
+                ) / this.timesList.length;
+            this.showPositionValue = true;
+        },
+        getNextDate(beginDate, day) {
+            var that = this;
+            beginDate = that.convertDateFromString(beginDate);
+
+            var time1 =
+                beginDate.getFullYear() +
+                "/" +
+                (beginDate.getMonth() + 1) +
+                "/" +
+                beginDate.getDate(); //time1表示当前时间
+            var date2 = new Date(beginDate);
+
+            date2.setDate(beginDate.getDate() + day);
+
+            var time2 =
+                date2.getFullYear() +
+                "/" +
+                (date2.getMonth() + 1) +
+                "/" +
+                date2.getDate();
+
+            return time2;
+        },
+        // 字符串转date对象
+        convertDateFromString(dateString) {
+            if (dateString) {
+                var date = new Date(dateString.replace(/-/, "/"));
+
+                return date;
+            }
+        },
+
+        // 求两个日期之间差多少天
+        DateDiff(sDate1, sDate2) {
+            //sDate1和sDate2是2002-12-18格式
+            var aDate, oDate1, oDate2, iDays;
+            aDate = sDate1.split("/");
+            oDate1 = new Date(aDate[1] + "/" + aDate[2] + "/" + aDate[0]); //转换为12-18-2002格式
+            aDate = sDate2.split("/");
+            oDate2 = new Date(aDate[1] + "/" + aDate[2] + "/" + aDate[0]);
+            iDays = parseInt(
+                Math.abs(Date.parse(oDate1) - Date.parse(oDate2)) / 1000 / 60 / 60 / 24
+            ); //把相差的毫秒数转换为天数
+
+            return iDays;
+        },
+        // 获取任务费用明细
+        getStageDetail() {
+            var that = this;
+            that.$http('get', that.$store.state.baseUrl + 'api/Task/Stage/' + that.taskId).then(function (res) {
+                if (res.data.code == '00') {
+                    var result = res.data.data.infos;
+                    // status (integer, optional): 状态(1-待确认,2-已确认待支付,3-已支付,4-已拒绝待修改后重新确认) ,
+                    that.infoStatus = res.data.data.status;
+                    for (var i in result) {
+                        if (result[i].success) {
+                            continue;
+                        } else {
+                            that.nextStageTime = result[i].date;
+                            break;
+                        }
+                    }
+                    // that.stageDetail = res.data.data;
+                    var arr = [];
+                    var arr1 = [];
+
+                    that.finalPrice = res.data.data.price;
+                    arr[0] = res.data.data.stage
+                    arr1[0] = res.data.data.timeStage
+                    that.times = arr;
+                    that.time = arr1;
+                    that.beginDate = res.data.data.beginDate.substr(0, 10);
+                    that.endDate = res.data.data.endDate.substr(0, 10);
+
+                    for (var i in res.data.data.infos) {
+                        res.data.data.infos[i].money = Number(res.data.data.infos[i].amount);
+                        res.data.data.infos[i].date = res.data.data.infos[i].date.substr(0, 10);
+                        res.data.data.infos[i].index = ++i;
+                    }
+                    that.timesList = res.data.data.infos;
+
+                }
+            })
+
+        },
+        addDate(date, days) {
+            Date.prototype.Format = function (fmt) { //author: meizz 
+                var o = {
+                    "M+": this.getMonth() + 1, //月份 
+                    "d+": this.getDate(), //日 
+                    "h+": this.getHours(), //小时 
+                    "m+": this.getMinutes(), //分 
+                    "s+": this.getSeconds(), //秒 
+                    "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+                    "S": this.getMilliseconds() //毫秒 
+                };
+                if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+                for (var k in o)
+                    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+                return fmt;
+            }
+            var date = new Date(date);
+            var milliseconds = date.getTime() + 1000 * 60 * 60 * 24 * days;
+            var time = new Date(milliseconds).Format("yyyy-MM-dd hh:mm:ss");
+            return time;
+        },
+        // 获取任务详情
+        getMissiondetail(id) {
+            var that = this;
+            that
+                .$http(
+                    "get",
+                    that.$store.state.baseUrl +
+                    "api/Task/" +
+                    id +
+                    "?uid=" +
+                    this.$store.state.uid
+                )
+                .then(function (res) {
+                    if (res.data.code != "00") {
+                        AlertModule.show({
+                            title: res.data.msg
+                        });
+                    } else {
+                        that.taskObj = res.data.data;
+                        // alert(that.taskObj.status)
+                        if (that.taskObj.uid == that.$store.state.uid) {
+                            that.isMyTask = true
+                        } else {
+                            that.isMyTask = false;
+                        }
+                        if (that.taskObj.amount == 0) {
+                            that.isNew = true
+                        } else {
+                            that.isNew = false
+                        }
+
+                        var type = res.data.data.taskType;
+                        that.missionType = res.data.data.taskType;
+                        // 判断任务类型,如果是1,3.就把发布者也算到家长列表中
+                        if (that.taskObj.taskType == 1 || that.taskObj.taskType == 3) {
+                            var obj = {}
+                            obj.user = {}
+                            obj.user.nickname = that.taskObj.webUser.nickname
+                            if (!that.taskObj.payTime) {
+                                obj.pay = 2
+                            } else {
+                                obj.pay = 3
+                            }
+                            that.bussArr.push(obj)
+                        }
+
+                        // alert(res.data.data.amount)
+                        that.getUser("postUser", that.taskObj.uid);
+                        that.getUser("serviceProvider", that.taskObj.authorId);
+                        var payBeginTime = new Date(that.taskObj.payBeginTime)
+                        console.log("支付截至日期" + that.addDate(that.taskObj.payBeginTime, 0.01))
+
+                        function dateCompare(startDate, endDate) {
+                            var aStart = startDate.split('-'); //转成成数组，分别为年，月，日，下同
+                            var aEnd = endDate.split('-');
+                            var startDateTemp = aStart[0] + "/" + aStart[1] + "/" + aStart[2];
+                            var endDateTemp = aEnd[0] + "/" + aEnd[1] + "/" + aEnd[2];
+                            if (startDateTemp > endDateTemp)
+                                return true;
+                            else
+                                return false;
+                        }
+                        var month = new Date().getMonth() + 1
+                        var startDate = new Date().getFullYear() + "-" + month + "-" + new Date().getDate()
+                        Date.prototype.Format = function (fmt) { //author: meizz 
+                            var o = {
+                                "M+": this.getMonth() + 1, //月份 
+                                "d+": this.getDate(), //日 
+                                "h+": this.getHours(), //小时 
+                                "m+": this.getMinutes(), //分 
+                                "s+": this.getSeconds(), //秒 
+                                "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+                                "S": this.getMilliseconds() //毫秒 
+                            };
+                            if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+                            for (var k in o)
+                                if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+                            return fmt;
+                        }
+                        startDate = new Date(startDate).Format("yyyy-MM-dd hh:mm:ss")
+                        console.log("今天" + startDate)
+                        console.log(that.addDate(that.taskObj.payBeginTime, 3))
+                        console.log(dateCompare(startDate, that.addDate(that.taskObj.payBeginTime, 3)))
+                        that.canPay = dateCompare(startDate, that.addDate(that.taskObj.payBeginTime, 3))
+                        // alert(that.canPay)
+                    }
+                });
+            // 被选择的家教
+            that.getConfirmWriter(that.taskId);
+
+        },
+        // 发送拒绝
+        sendRefuse() {
+            var that = this;
+            var postData = {
+                taskId: that.taskId,
+                status: "3",
+                uid: that.$store.state.uid
+            };
+            that
+                .$http(
+                    "post",
+                    that.$store.state.baseUrl +
+                    "api/Task/Stage/Confirm",
+                    postData
+                ).then(function (res) {
+                    if (res.data.code != "00") {
+                        AlertModule.show({
+                            title: res.data.msg
+                        });
+                    } else {
+                        AlertModule.show({
+                            title: "拒绝成功"
+                        });
+                        that.$router.push({
+                            path:'/mission'
+                        })
+                    }
+                });
+
+        },
+        // 发送确认
+        sendConfirm() {
+            var that = this;
+            var postData = {
+                taskId: that.taskId,
+                status: "2",
+                uid: that.$store.state.uid
+            };
+            that
+                .$http(
+                    "post",
+                    that.$store.state.baseUrl +
+                    "api/Task/Stage/Confirm",
+                    postData
+                ).then(function (res) {
+                    if (res.data.code != "00") {
+                        AlertModule.show({
+                            title: res.data.msg
+                        });
+                    } else {
+                        AlertModule.show({
+                            title: "确认成功",
+                            onHide() {
+                                // !that.canPay
+                                if (true) {
+                                    that.$router.push({
+                                        path: '/taskPay',
+                                        query: {
+                                            amount: that.amount,
+                                            taskId: that.taskId
+                                        }
+                                    })
+                                } else {
+                                    AlertModule.show({
+                                        title: "抱歉，支付有限期已过"
+                                    })
+                                }
+
+                            }
+                        });
+
+                    }
+                });
+        },
         // 获取阶段次数
         timesChange(val) {
             // console.log(val)
             this.stage = val.join("");
-            this.timesList = []
         },
         // 获取每次时长
         timeChange(val) {
             console.log(val);
             console.log(this.time);
-             this.timesList = []
-        },
-        toformat(startDate, endDate) {
-            var aStart = startDate.split('-'); //转成成数组，分别为年，月，日，下同
-            var aEnd = endDate.split('-');
-            var startDateTemp = aStart[0] + "/" + aStart[1] + "/" + aStart[2];
-            var endDateTemp = aEnd[0] + "/" + aEnd[1] + "/" + aEnd[2];
-            if (startDateTemp <= endDateTemp)
-                return true;
-            else
-                return false;
-
         },
         // 开始时间
         beginDateChange(val) {
             var origintime = val;
             var that = this;
             that.beginDate = val.replace(/-/g, '/');
-            that.endStartDate = origintime;
-             this.timesList = []
+            that.endStartDate = origintime
 
         },
         // 结束日期
         endDateChange(val) {
             this.timesListEndDate = val;
             this.endDate = val.replace(/-/g, '/');
-            this.timesList = []
         }
     }
 };
@@ -989,6 +1188,7 @@ body {
 
 #replyDetail .eachBox3 .content .eachItem {
     margin-bottom: 10px;
+    align-items: end
 }
 
 #replyDetail .eachBox3 .content .eachItem .rightTime {
@@ -1012,7 +1212,7 @@ body {
 }
 
 #replyDetail .btnBox {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     padding: 16px 10px;
     width: 100%;
@@ -1070,10 +1270,16 @@ body {
     border: none;
 }
 
+.long_btn.red {
+    background: #fff;
+    color: #EA4A5C;
+    border: 1px solid #EA4A5C;
+    margin-left: 10px;
+}
+
 #replyDetail .weui-cell {
     padding-left: 0;
     width: 100%;
-    font-size: 14px;
 }
 
 #replyDetail .weui-cell .center {
@@ -1119,5 +1325,12 @@ body {
     text-align: center;
     font-size: 16px;
     margin-top: 45px;
+}
+
+.long_btn.disabled {
+    background: #ccc !important;
+    pointer-events: none;
+    color: #fff !important;
+    border-color: #333 !important;
 }
 </style>

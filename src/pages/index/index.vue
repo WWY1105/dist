@@ -8,9 +8,9 @@
     <div class=" container">
         <group class="eachPart bgG">
             <!--年级选择-->
-            <sliderPopupPicker :gradesArr="sliderBigClassArr" :leftText="leftText1" v-on:changeResult="changeResultGrade"></sliderPopupPicker>
+            <sliderPopupPicker :gradesArr="sliderBigClassArr" :leftText="leftText1" v-on:changeResult="changeResultGrade" :rightText="rightTextnj"></sliderPopupPicker>
             <!--科目选择器-->
-            <sliderPopupPicker :gradesArr="sliderSubjectArr" :leftText="leftText2" v-on:changeResult="changeResultKM"></sliderPopupPicker>
+            <sliderPopupPicker :rightText="rightTextkm" :gradesArr="sliderSubjectArr" :leftText="leftText2" v-on:changeResult="changeResultKM1"></sliderPopupPicker>
 
             <!-- <popup-picker class="" :title="title1" :data="list1" v-model="value1" placeholder="请选择" :display-format="format1"></popup-picker>
         <popup-picker class="" :title="title2" :data="list2" :value="value2" placeholder="请选择" @on-change="changeGrade" @on-hide="hide"></popup-picker> -->
@@ -18,19 +18,19 @@
         <!--第一部分end-->
         <!--第二部分-->
         <group class="eachPart bgG">
-            <!--出版方式-->
+            <!--组班方式-->
             <radioPicker :radiosArr="radiosArr" :title="publish_title" v-on:getRadioValue="getPublicWay"></radioPicker>
-            <!--价格区间-->
-            <sliderPopupPicker :gradesArr="slidePriceArr2" :leftText="leftText3" v-on:changeResult="changeResultPrice"></sliderPopupPicker>
+            <!--每小时费用-->
+            <sliderPopupPicker :gradesArr="slidePriceArr2" :leftText="leftText3" :rightText="rightJg" v-on:changeResult="changeResultPrice1"></sliderPopupPicker>
 
         </group>
         <!--第二部分end-->
         <!--第三部分-->
         <group class="eachPart bgG">
-            <!--协作方式-->
-            <slidePicker :sliderArr="coordination" :leftText="leftText4" v-on:changeResult="changeResultWay"></slidePicker>
-            <!--协作区域-->
-            <x-address :gradesArr="addressData" v-model="myarea" :title="leftText5" :list="addressData" class="areaBox" @on-hide="onAddressChange"></x-address>
+            <!--上门方式-->
+            <slidePicker :sliderArr="coordination" :rightText="rightway" :leftText="leftText4" v-on:changeResult="changeResultWay"></slidePicker>
+            <!--上门区域-->
+            <x-address :gradesArr="addressData" v-model="myarea" :title="leftText5" :list="addressData" class="areaBox" @on-hide="onAddressChange" :placeholder="rightAddress"></x-address>
 
         </group>
 
@@ -87,20 +87,28 @@ export default {
         XAddress
     },
     mounted() {
-        this.myarea=[];
+        this.myarea = [];
         this.getCategory();
         this.getBigGrade();
         this.getPriceArr();
         // 获取lunbotu
         this.getSwipper();
-        console.log('用户'+this.$store.state.uid)
+        console.log('用户' + this.$store.state.uid)
+        // this.addMediator()
     },
     methods: {
         ...common,
+        changeResultPrice1(val) {
+            // 价格
+
+            this.postData.priceRange = val.name.split('元')[0].split('~').join('-');
+            this.rightJg = this.postData.priceRange;
+
+        },
         // 点击轮播图
-        seeBannerUrl(){
-           var url= this.swipperList[this.demo01_index].bannerContent;
-           window.location.href=url
+        seeBannerUrl() {
+            var url = this.swipperList[this.demo01_index].bannerContent;
+            window.location.href = url
         },
         // 轮播图
         getSwipper() {
@@ -110,7 +118,7 @@ export default {
                 if (res.data.code == "00") {
                     var result = res.data.data;
                     for (var i in result) {
-                        result[i].img = that.$store.state.imgUrl+result[i].bannerSrc;
+                        result[i].img = that.$store.state.imgUrl + result[i].bannerSrc;
                     }
                     that.swipperList = result;
                     console.log('轮播图数组')
@@ -118,9 +126,15 @@ export default {
                 }
             });
         },
-        changeResultGrade(val){
-            console.log('首页年纪'+val)
-            this.postData.classNo=val.name;
+        changeResultGrade(val) {
+            console.log('首页年纪' + val)
+            this.postData.classNo = val.name;
+            this.rightTextnj = val.name;
+        },
+        changeResultKM1(val) {
+            this.postData.subject = val.name;
+            this.rightTextkm = val.name;
+
         },
         // 区域
         onAddressChange(val) {
@@ -130,33 +144,30 @@ export default {
         },
         gotoSeeResult() {
             // alert(this.postData.priceType)
-            if(this.postData.priceType==undefined){
-                this.postData.priceType=0;
+            if (this.postData.priceType == undefined) {
+                this.postData.priceType = 0;
             }
-            //"online"="远程协作";"author"="作者上门";"书商拜访"
-            switch(this.postData.coordination){
+            //"online"="远程协作";"author"="家教上门";"家长拜访"
+            switch (this.postData.coordination) {
                 case undefined:
-                this.postData.coordination='';
-                break;
+                    this.postData.coordination = '';
+                    break;
                 case 'author':
-                this.postData.coordination='作者上门';
-                break;
+                    this.postData.coordination = '家教拜访';
+                    break;
                 case 'online':
-                this.postData.coordination='远程协作';
-                break;
+                    this.postData.coordination = '远程协作';
+                    break;
                 case 'busniess':
-                this.postData.coordination='书商拜访';
-                break;
+                    this.postData.coordination = '家长拜访';
+                    break;
             }
-            
-           
 
-           delete this.postData.category;
+            delete this.postData.category;
 
-            
-            for(var i in this.postData){
+            for (var i in this.postData) {
                 // console.log(i+"***********"+this.postData[i])
-                if(!i||!this.postData[i]){
+                if (!i || !this.postData[i]) {
                     delete this.postData[i]
                 }
             }
@@ -165,10 +176,10 @@ export default {
             this.$router.push({
                 path: '/searchResult',
                 query: {
-                    postData:JSON.stringify( this.postData)
+                    postData: JSON.stringify(this.postData)
                 },
-                meta:{
-                      keepAlive: false
+                meta: {
+                    keepAlive: false
                 }
             })
         },
@@ -204,56 +215,60 @@ export default {
     },
     data() {
         return {
-
+            rightTextnj: '全年级',
+            rightTextkm: "全科",
+            rightway: '不限',
+            rightJg: '不限',
             nowPath: '/index',
             demo01_index: 0,
             classNo: '',
             postData: {},
             category: '',
-            subject:'',
+
+            rightAddress: '不限',
+            subject: '',
             area: '',
             myarea: [],
             priceArr: [],
             // 左边标题
             title1: '年级',
             title2: '科目',
-            title3: '价格区间',
-            title4: '协作方式',
-            title5: '协作区域',
-            addressData: ChinaAddressV4Data,
+            title3: '每小时费用',
+            title4: '上门方式',
+            title5: '上门区域',
+            addressData: [{"name":"上海市","value":"310000"},{"name":"市辖区","value":"310100","parent":"310000"},{"name":"黄浦区","value":"310101","parent":"310100"},{"name":"徐汇区","value":"310104","parent":"310100"},{"name":"长宁区","value":"310105","parent":"310100"},{"name":"静安区","value":"310106","parent":"310100"},{"name":"普陀区","value":"310107","parent":"310100"},{"name":"虹口区","value":"310109","parent":"310100"},{"name":"杨浦区","value":"310110","parent":"310100"},{"name":"闵行区","value":"310112","parent":"310100"},{"name":"宝山区","value":"310113","parent":"310100"},{"name":"嘉定区","value":"310114","parent":"310100"},{"name":"浦东新区","value":"310115","parent":"310100"},{"name":"金山区","value":"310116","parent":"310100"},{"name":"松江区","value":"310117","parent":"310100"},{"name":"青浦区","value":"310118","parent":"310100"},{"name":"奉贤区","value":"310120","parent":"310100"},{"name":"崇明区","value":"310151","parent":"310100"}],
             // 底部弹窗选项
             slidePriceArr: [],
             sliderSubjectArr: [],
             sliderBigClassArr: [],
             radioTitle: '选择性别',
-            publish_title: '出版方式',
+            publish_title: '组班方式',
             slidePriceArr2: [],
             coordination: [
-                ['不限', '作者拜访', '书商拜访', '远程协作']
+                ['不限', '家教拜访', '家长拜访', '远程协作']
             ],
             leftText2: '科目',
-            leftText3: '价格区间',
-            leftText4: '协作方式',
-            leftText5: '协作区域',
+            leftText3: '每小时费用',
+            leftText4: '上门方式',
+            leftText5: '上门区域',
             leftText1: '年级',
-            rightText1: '不限',
-            radiosArr: [
-                {
+            1: '不限',
+            radiosArr: [{
                     value: 0,
                     text: '不限',
                     selected: true
-                },{
+                }, {
                     value: 1,
-                    text: '独资',
+                    text: '1对1',
                     selected: false
                 },
                 {
                     value: 2,
-                    text: '合资',
+                    text: '1对多',
                     selected: false
                 },
             ],
-            // 出版方式选中的值
+            // 组班方式选中的值
             checkType: '',
             checkFlag1: false,
             checkFlag2: false,
@@ -355,7 +370,9 @@ export default {
 .container {
     padding: 0 10px;
 }
-
+#mineIndex  .vux-label{
+    width: 100%!important;
+}
 .eachPart {
     border: 1px solid #CECECE;
     margin-bottom: 8px;

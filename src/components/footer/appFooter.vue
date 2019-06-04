@@ -25,7 +25,7 @@ export default {
             isActive: true,
             routers: [
                 {
-                    name: '找作者',
+                    name: '找家教',
                     iconfontName: 'iconfont icon-search-1-copy',
                     link: '/index',
                     active: true

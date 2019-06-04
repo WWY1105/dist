@@ -8,10 +8,10 @@
         </p>
         <div class="content bgW">
             <div class="eachList flexSpace">
-                <span class="mainText">小初高数学贾书商</span><span class="mainText">已支付</span>
+                <span class="mainText">小初高数学贾家长</span><span class="mainText">已支付</span>
             </div>
              <div class="eachList flexSpace">
-                <span class="mainText">小初高数学贾书商</span><span class="mainText">已支付</span>
+                <span class="mainText">小初高数学贾家长</span><span class="mainText">已支付</span>
             </div>
         </div>
     </div>

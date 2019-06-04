@@ -1,41 +1,38 @@
 <template>
 <div id="supplementaryRegistration">
     <div class="myFallow" v-if="myFallowShow">
-        <!-- 作者列表 -->
-        <div class="reacResult wbg" v-for="item,index in writerList" @click="chooseMyFelloUser(index)">
+        <!-- 家教列表 -->
+        <div class="reacResult wbg" v-for="item,index in writerList" @click="chooseMyFelloUser(index)" v-if="item.followingUser">
             <div class="flexBox">
-                <div class="left">
-                    <img :src="$store.state.imgUrl+item.followingUser.imgurl" class="userImg" alt>
+                <div class="left flexSpace">
+                    <img :src="item.followingUser?$store.state.imgUrl+item.followingUser.imgurl:''" class="userImg" alt>
                 </div>
                     <div class="right">
                         <p class="titleBox">
-                            <span class="title">{{item.followingUser.nickname}}</span>
+                            <span class="title">{{item.followingUser?item.followingUser.nickname:""}}</span>
                             <span class="radios"><i class="iconfont icon-dagouyouquan" v-if="item.isChoosen"></i><i class="circle" v-if="!item.isChoosen"></i></span>
                         </p>
                         <p class="options">
                             <span class="option">实名
-                                <i class="iconfont icon-wenhao" v-if="item.followingUser.realAuth!=2?true:false"></i>
-                                <i class="iconfont icon-gouxuan" v-if="item.followingUser.realAuth==2?true:false"></i>
+                                <i class="iconfont icon-wenhao" v-if="item.followingUser?item.followingUser.realAuth!=2?true:false:''"></i>
+                                <i class="iconfont icon-gouxuan" v-if="item.followingUser?item.followingUser.realAuth==2?true:false:''"></i>
                             </span>
                             <span class="option">学历
-                                <i class="iconfont icon-wenhao" v-if="item.followingUser.eduAuth!=2?true:false"></i>
-                                <i class="iconfont icon-gouxuan" v-if="item.followingUser.eduAuth==2?true:false"></i>
+                                <i class="iconfont icon-wenhao" v-if="item.followingUser?item.followingUser.eduAuth!=2?true:false:''"></i>
+                                <i class="iconfont icon-gouxuan" v-if="item.followingUser?item.followingUser.eduAuth==2?true:false:''"></i>
                             </span>
-                            <span class="option">资历：{{item.followingUser.authorAuthInfo.workAge}}年</span>
+                            <span class="option">资历：{{item.followingUser?item.followingUser.authorAuthInfo.workAge:''}}年</span>
                         </p>
                         <div class="details">
-                            <div class="hang">
-                                <p class="text">写作小时:<span class="mainText">3123</span>
+                            <div class="hang flexSpace">
+                                <p class="text">家教小时:<span class="mainText">3123</span>
                                 </p>
-                                <p class="text">写作值:<span class="mainText">3123</span>
+                                <p class="text">家教值:<span class="mainText">3123</span>
                                 </p>
-                                <p class="text"> 相关用户: <span class="mainText">{{item.followingUser.networkCount}}</span>
+                                <p class="text"> 相关家长: <span class="mainText">{{item.followingUser?item.followingUser.networkCount:''}}</span>
                                 </p>
                             </div>
-                            <div class="hang">
-                                <p class="box">
-                                    <span class="smallBox">{{item.followingUser.authorAuthInfo.workAge}}年作者</span>
-                                </p>
+                            <div class="hang flexSpace">
                                 <p v-if="item.length==0?false:true" class="box" v-for="item,index in item.userTags">
                                     <span class="smallBox">{{item.tag}}</span>
                                 </p>
@@ -70,13 +67,13 @@
                                 <div class="titleBox flexSpace">
                                     <div class="left flexStart">
                                         <img
-                      :src="$store.state.imgUrl+item.webUser.imgurl"
+                      :src="item.webUser.imgurl?$store.state.imgUrl+item.webUser.imgurl:''"
                       @click="seeUserDetail(item.uid)"
                       class="userImg"
                       alt
                     >
                                         <div>
-                                            <!-- {{item.webUser.type=='author'?"作者":"书商"}} -->
+                                            <!-- {{item.webUser.type=='author'?"家教":"家长"}} -->
                                             <p class="name">{{item.nickname==null?'':item.nickname}}</p>
                                             <p class="options flexSpace">
                                                 <span class="option flexStart">
@@ -93,9 +90,10 @@
                                         </div>
                                     </div>
                                     <div class="right flexEnd">
-                                        <p class="button searchSS" v-if="item.taskType=='2'?true:false">找书商</p>
-                                        <p class="button searchZZ" v-if="item.taskType=='1'?true:false">找作者</p>
-                                        <p class="button searchSZ" v-if="item.taskType=='3'?true:false">找作者和书商</p>
+                                        <p class="button searchSS" v-if="item.taskType=='2'?true:false">找家长</p>
+                                        <p class="button searchZZ" v-if="item.taskType=='1'?true:false">找家教</p>
+                                        <p class="button searchSZ" v-if="item.taskType=='3'?true:false">团家长找家教</p>
+                                        <p :class="item.aduitStatus==3?'aduitStatus redText':'aduitStatus mainText'">{{item.aduitStatus==1?'待审核':item.aduitStatus==2?'通过':'拒绝'}}</p>
                                         <p class="price">￥ {{item.amount}}</p>
                                     </div>
                                 </div>
@@ -103,7 +101,7 @@
                                     <p class="hang flexSpace">
                                         <span class="eachItem">年级：{{item.classNo}}</span>
                                         <span class="eachItem">科目：{{item.category}}</span>
-                                        <span class="eachItem">出版：{{item.taskType=='1'?'独资出版':"合资出版"}}</span>
+                                        <span class="eachItem">组班方式：{{item.taskType=='1'?'1对1':"1对多"}}</span>
                                     </p>
                                     <p class="hang flexStart">
                                         <span class="eachItem">协作：{{item.coordination}}</span>
@@ -143,15 +141,15 @@ v-model="chooseResult"
                 <div class="eachArea">
                     <!--年级选择-->
                     <!-- <input type="text" :placeholder="$refs.picker1&&$refs.picker1.getNameValues()"> -->
-                    <sliderPopupPicker :gradesArr="sliderClassArr" :leftText="leftText1" v-on:changeResult="changeResultGrade"></sliderPopupPicker>
+                    <sliderPopupPicker :rightText="rightTextnj" :gradesArr="sliderClassArr" :leftText="leftText1" v-on:changeResult="changeResultGrade"></sliderPopupPicker>
                     <!--科目选择器-->
-                    <sliderPopupPicker :gradesArr="sliderSubjectArr" :leftText="leftText2" v-on:changeResult="changeResultKM"></sliderPopupPicker>
-                    <!--出版方式-->
+                    <sliderPopupPicker :gradesArr="sliderSubjectArr" :rightText="rightTextkm" :leftText="leftText2" v-on:changeResult="changeResultKM"></sliderPopupPicker>
+                    <!--组班方式-->
                     <radioPicker :radiosArr="radiosArr" :title="publish_title" v-on:getRadioValue="getPublicWay"></radioPicker>
-                    <!-- 协作方式 -->
+                    <!-- 上门方式 -->
                     <slidePicker :sliderArr="coordination" :leftText="leftText4" v-on:changeResult="changeResultWay"></slidePicker>
-                    <!--协作区域-->
-                    <x-address :gradesArr="addressData" :title="leftText5" v-model="myarea" :list="addressData" class="areaBox" @on-hide="onAddressChange"></x-address>
+                    <!--上门区域-->
+                    <x-address :gradesArr="addressData" :disabled="isAreaChoose" :title="leftText5" v-model="myarea" :list="addressData" class="areaBox" @on-hide="onAddressChange"></x-address>
                 </div>
                 <!-- 阶段列表 start-->
                 <div class="eachArea">
@@ -255,17 +253,17 @@ v-model="chooseResult"
                 <div class="content">
                     <p> 您可以补充登记任务</p>
                     <p class="line"></p>
-                    <p> 目的：建立您写作活动的信思,提高被搜索或被信任的程度</p>
+                    <p> 目的：建立您家教活动的信思,提高被搜索或被信任的程度</p>
                     <p class="line"></p>
                     <p>条件：</p>
-                    <p> 1.必须是2018年7月1日后到补充登记日前己完成的写作活动</p>
+                    <p> 1.必须是2018年7月1日后到补充登记日前己完成的家教活动</p>
                     <p> 2必须上传证明资料（资料不会公开）</p>
                     <p>3. 如是1对1，对方必须也是平台注册者，可以咨询
-                        <p>4. 如是1对多，至少有1位参与者必须是平台注册者，而且愿意证明您的写作任务详悄</p>
-                        <p>5. 如写作任务是2018年7月1日到2020年7月1日，您可
+                        <p>4. 如是1对多，至少有1位参与者必须是平台注册者，而且愿意证明您的家教任务详悄</p>
+                        <p>5. 如家教任务是2018年7月1日到2020年7月1日，您可
                             以补充登记2018年7月1日后到补充登记日前完成的写
                             作活动；以后的活动可以在平合上走标准流程，这样
-                            的好处是您可以有过程记录，作者书商互动，和其他
+                            的好处是您可以有过程记录，家教家长互动，和其他
                             注册者之间的互动.</p>
                         <p class="line"></p>
                         <p>费用：免费</p>
@@ -338,16 +336,19 @@ export default {
             // data--start
             classNo: '',
             category: '',
-            taskType: '', //出版方式
+            taskType: '', //组班方式
+            isAreaChoose:false,
             priceType: '',
             area: '',
             introduction: '',
             content: '',
             priceMin: '',
             priceMax: '',
+               rightTextnj: '',
+            rightTextkm: "",
             // data--end
             myarea: [],
-            addressData: ChinaAddressV4Data,
+            addressData: [{"name":"上海市","value":"310000"},{"name":"市辖区","value":"310100","parent":"310000"},{"name":"黄浦区","value":"310101","parent":"310100"},{"name":"徐汇区","value":"310104","parent":"310100"},{"name":"长宁区","value":"310105","parent":"310100"},{"name":"静安区","value":"310106","parent":"310100"},{"name":"普陀区","value":"310107","parent":"310100"},{"name":"虹口区","value":"310109","parent":"310100"},{"name":"杨浦区","value":"310110","parent":"310100"},{"name":"闵行区","value":"310112","parent":"310100"},{"name":"宝山区","value":"310113","parent":"310100"},{"name":"嘉定区","value":"310114","parent":"310100"},{"name":"浦东新区","value":"310115","parent":"310100"},{"name":"金山区","value":"310116","parent":"310100"},{"name":"松江区","value":"310117","parent":"310100"},{"name":"青浦区","value":"310118","parent":"310100"},{"name":"奉贤区","value":"310120","parent":"310100"},{"name":"崇明区","value":"310151","parent":"310100"}],
             sliderSubjectArr: [],
             sliderClassArr: [],
             stage: 0,
@@ -379,12 +380,12 @@ export default {
             timesArr: [],
             slidePriceArr2: [],
             coordination: [
-                ['不限', '作者拜访', '书商拜访', '远程协作']
+                ['不限', '家教拜访', '家长拜访', '远程协作']
             ],
 
             leftText2: '科目',
-            leftText4: '协作方式',
-            leftText5: '协作区域',
+            leftText4: '上门方式',
+            leftText5: '上门区域',
             leftText7: '服务提供方',
             leftText8: '服务接收方',
             rightText7: '',
@@ -400,19 +401,19 @@ export default {
             serverList: [
                 ['我', '选择用户']
             ],
-            autherId: '',
+            authorId: '',
             // rightText2: '不限',
             // 传入radio的值
             radioTitle: '选择性别',
-            publish_title: '出版方式',
+            publish_title: '组班方式',
             radiosArr: [{
                     value: 1,
-                    text: '独资',
+                    text: '1对1',
                     selected: true
                 },
                 {
                     value: 2,
-                    text: '合资',
+                    text: '1对多',
                     selected: false
                 },
             ],
@@ -454,7 +455,9 @@ export default {
             //任务列表
             postList: [],
             // 服务接收者列表
-            selectList: []
+            selectList: [],
+            followingUid:'',
+            isFirst:true
         }
     },
     components: {
@@ -482,7 +485,7 @@ export default {
         this.getCategory();
         this.getGrade();
         // this.getPriceArr()
-        // 调节费
+        // 调解费
         this.getBaseRate();
 
         this.getUser(this.$store.state.uid);
@@ -503,7 +506,7 @@ export default {
         // 列表
         this.postList = [];
         this.postData.currentPage = this.nowPage;
-        this.postData.pageSize = 5;
+        this.postData.pageSize =10;
         this.loadMore();
     },
     methods: {
@@ -530,24 +533,33 @@ export default {
             that.postData1.currentPage = that.nowPage;
             that.nowPage++;
 
-            that.postData.pageSize = 5;
+            that.postData.pageSize =10
         },
         refresh() {
             var that = this;
-            // if (that.nowPage != 0) {
-            //     that.nowPage--;
-            //     that.getMIssionlist(data => {
-            //         that.postList = data;
-            //         that.$refs.scrollerBottom.enablePullup();
-            //         that.$refs.scrollerBottom.donePulldown();
-            //     });
-            // }
+            that.getMIssionlist(data => {
+                // that.postList = data;
+
+                if (that.postData.currentPage == 1) {
+                    console.log('11111111111111111111111111111111111')
+                    //禁止上啦，已经没有数据
+                    that.$refs.scrollerBottom.donePulldown();
+                }
+                that.postList = data;
+                that.$refs.scrollerBottom.donePulldown();
+            });
+            if (that.postData.currentPage > 0) {
+                that.postData.currentPage--;
+            }
+
+            that.postData.pageSize =10;
         },
         // 获取任务列表
         getMIssionlist(fn) {
             var that = this;
             console.log('传入的参数')
             console.log(that.postData)
+            that.postData1.aduitStatuses='1,2,3'
             that
                 .$http(
                     "get",
@@ -593,7 +605,7 @@ export default {
         //   选择正面
         chooseImageFront(id) {
             var that = this;
-            var baseUrl = "https://nian.im/works/"
+            var baseUrl = that.$store.state.baseUrl
             var file = document.getElementById("upload_file" + id).files[0];
             var formdata1 = new FormData(); // 创建form对象
             formdata1.append('img', file); // 通过append向form对象添加数据,可以通过append继续添加数据
@@ -614,15 +626,15 @@ export default {
 
                         case 1:
                             that.frontUrl1 = res.data.data;
-                            that.showUrl1 = 'http://nian.im/storage/' + res.data.data
+                            that.showUrl1 = that.$store.state.imgUrl + res.data.data
                             break;
                         case 2:
                             that.frontUrl2 = res.data.data;
-                            that.showUrl2 = 'http://nian.im/storage/' + res.data.data
+                            that.showUrl2 = that.$store.state.imgUrl + res.data.data
                             break;
                         case 3:
                             that.frontUrl3 = res.data.data;
-                            that.showUrl3 = 'http://nian.im/storage/' + res.data.data;
+                            that.showUrl3 = that.$store.state.imgUrl + res.data.data;
 
                             break;
                     }
@@ -666,27 +678,26 @@ export default {
                 that.userData = res.data.data;
             })
         },
-        //出版方式：独资合资
+        //组班方式：1对11对多
         getPublicWay(val) {
 
             console.log(val)
             this.postData.priceType = val
-            // if (this.userData.type == 'author' && this.postData.taskType == '1') {
-            //     AlertModule.show({
-            //         title: "抱歉，作者找作者只能选择独资方式"
-            //     })
-            //     for (var i in this.radiosArr) {
-            //         this.radiosArr[i].selected = false
-            //     }
-            //     this.radiosArr[0].selected = true
-            // } else {
-            //     this.postData.priceType = val
-            // }
+           
         },
-        // 协作方式
+        // 上门方式
         changeResultWay(val) {
             console.log(val)
             this.postData.coordination = val[0];
+             if (val[0] == '远程协作') {
+
+                this.isAreaChoose = true;
+                this.postData.coordination = '远程协作'
+                  this.postData.area = '远程协作'
+            } else {
+                this.isAreaChoose = false;
+                this.postData.coordination = val[0];
+            }
         },
         chooseMyFelloUser(index) {
             var that = this;
@@ -697,6 +708,7 @@ export default {
                     that.writerList[i].isChoosen = false
                 }
                 that.writerList[index].isChoosen = true;
+                 that.authorId=that.writerList[index].uid;
             } else {
                 that.writerList[index].isChoosen = !that.writerList[index].isChoosen
             }
@@ -714,16 +726,18 @@ export default {
 
             } else {
                 if (val[0] == '选择用户') {
+                    that.isFirst=true;
                     for (var i in that.writerList) {
                         that.writerList[i].isChoosen = false
                     }
                     that.myFallowShow = true;
                     that.isMulSelection = true;
+                    //  that.rightText7 = that.chooseWriterList[0].followingUser.nickname
                 } else {
-                    that.autherId = that.$store.state.uid;
-
+                    that.authorId = that.$store.state.uid;
+                     that.rightText7 = val[0];
                 }
-                that.rightText7 = val[0];
+               
             }
         },
         // 任务接收者（多选）
@@ -741,16 +755,19 @@ export default {
 
             } else {
                 if (val[0] == '选择用户') {
+                    that.isFirst=false;
                     for (var i in that.writerList) {
                         that.writerList[i].isChoosen = false
                     }
                     that.myFallowShow = true;
-                    that.isMulSelection = false;
+                    that.isMulSelection = true;
+                     
                 } else {
                     // 当：服务接收者是“我”
                     that.selectList.push(that.$store.state.uid)
+                    that.rightText8 = val[0];
                 }
-                that.rightText8 = val[0];
+                
             }
 
         },
@@ -758,6 +775,7 @@ export default {
         changeResultGrade(value) {
             var that = this;
             that.postData.classNo = value.name;
+              that.rightTextnj = value.name;
 
         },
         // 获取阶段次数
@@ -782,8 +800,9 @@ export default {
         changeResultKM(value) {
             this.postData.category = value.name;
             console.log(this.postData.category)
+             this.rightTextkm = value.name;
         },
-        // 选择作者,弹出窗口的确定按钮
+        // 选择家教,弹出窗口的确定按钮
         confirmWriter() {
             var that = this;
             for (var i in that.writerList) {
@@ -791,7 +810,15 @@ export default {
                     that.chooseWriterList.push(that.writerList[i])
                 }
             }
-
+            console.log('选中')
+            console.log(that.chooseWriterList)
+            console.log(that.rightText7)
+            console.log(that.chooseWriterList[0].followingUser.nickname)
+            if(that.isFirst){
+                that.rightText7=that.chooseWriterList[0].followingUser.nickname;
+           }else{
+                that.rightText8=that.chooseWriterList[0].followingUser.nickname;
+            }
             that.myFallowShow = false;
         },
 
@@ -883,7 +910,8 @@ export default {
                     beginDate: that.beginDate + " 00:00:00",
                     endDate: that.endDate + " 00:00:00",
                     status: "2",
-                    infos: infos
+                    infos: infos,
+                     workHours:that.time[0]
                 };
                 console.log('oooooooooooooooooooooooooooooooooooooooo')
                 console.log(postData);
@@ -947,8 +975,9 @@ export default {
                 that.postData.category = '';
             }
             if (!that.postData.priceType) {
-                that.postData.priceType = '';
+                that.postData.priceType = '1';
             }
+            // this.postData.priceType
             if (!that.postData.priceRange) {
                 that.postData.priceRange = '';
             }
@@ -973,6 +1002,7 @@ export default {
             that.postData.content = that.content;
             that.postData.uid = that.$store.state.uid;
             that.postData.supplement = true;
+
             for (var i in that.postData) {
                 that.postData[i] = that.postData[i].toString()
             }
@@ -985,19 +1015,24 @@ export default {
             if (that.frontUrl3) {
                 that.postData.ziliao = that.postData.ziliao + that.frontUrl3
             }
-            that.postData.autherId = that.autherId;
+            that.postData.authorId = that.authorId;
             console.log(that.postData)
-            // 判断是否填写相关用户
-            if (that.autherId == '' || that.chooseWriterList.length == 0) {
+            // alert(that.authorId)
+            // alert(that.chooseWriterList.length)
+            // 判断是否填写相关家长
+            if (that.authorId == '' || that.chooseWriterList.length == 0) {
                 AlertModule.show({
                     title: '请选择服务提供者/服务接收者'
                 })
                 return false;
             } else {
                 // 第一步：发布任务
+               
                 var dataArr = [that.postData.classNo, that.postData.category, that.postData.priceType, that.postData.area, that.postData.introduction];
-                var nameArr = ['年级', "科目", '出版方式', '写作区域', '简述']
-                if (that.isEmpty(dataArr, nameArr).length != 0) {
+                var nameArr = ['年级', "科目", '组班方式', '上门区域', '简述']
+               
+               
+               if (that.isEmpty(dataArr, nameArr).length != 0) {
                     AlertModule.show({
                         title: "请填写：" + that.isEmpty(dataArr, nameArr).join(',')
                     })
@@ -1014,7 +1049,7 @@ export default {
                                 })
                             } else {
                                 console.log('---------------')
-                                console.log(that.autherId)
+                                console.log(that.authorId)
                                 console.log(that.selectList)
                                 // 第二步：  用户报名
                                 for (var i in that.chooseWriterList) {
@@ -1023,6 +1058,7 @@ export default {
                                         .$http("post", that.$store.state.baseUrl + "api/Task/Apply", {
                                             taskId: that.taskId,
                                             uid: that.chooseWriterList[i].followingUid
+                                            
                                         })
                                         .then(function (res) {
                                             if (res.data.code != "00") {
@@ -1030,7 +1066,7 @@ export default {
                                                     title: res.data.msg
                                                 });
                                             } else {
-                                                // 第三步：报名成功，选择此作者
+                                                // 第三步：报名成功，选择此家教
                                                 var obj = {
                                                     uid: that.chooseWriterList[i].followingUid,
                                                     id: that.taskId,
@@ -1038,7 +1074,7 @@ export default {
                                                 }
                                                 that.$http('post', that.$store.state.baseUrl + 'api/Task/Apply/Select/uid', obj).then(function (res) {
                                                     if (res.data.code == '00') {
-                                                        console.log('确定作者成功')
+                                                       // alert('确定家教成功')
                                                          that.sendConfirm()
                                                     }
                                                 })
@@ -1051,8 +1087,12 @@ export default {
                             that.postSuccess = true;
                            
                             AlertModule.show({
-                                title: "补充成功"
+                                title: "补充成功",
+                              
                             });
+                            that.$router.push({
+                                    path:'/mineIndex'
+                                })
                         } else {
                             AlertModule.show({
                                 title: res.data.msg
@@ -1066,10 +1106,11 @@ export default {
         // 发送确认
         sendConfirm1() {
             var that = this;
-            var postData = {
+             for (var i in that.chooseWriterList) {
+                 var postData = {
                 taskId: that.taskId,
                 status: "2",
-                
+                uid:that.chooseWriterList[i].followingUid,
             };
             that
                 .$http(
@@ -1083,21 +1124,12 @@ export default {
                             title: res.data.msg
                         });
                     } else {
-                        // AlertModule.show({
-                        //   title: "确认成功",
-                        //   onHide(){
-                        //     that.$router.push({
-                        //       name:'myEnrollMission'
-                        //     })
-                        //   }
-
-                        // });
-                            //    that.$router.push({
-                            //   name:'supplementaryRegistration'
-                            // })
+                       
 
                     }
                 });
+             }
+            
         },
             // 提交审核
             supplementaryRegistration() {
@@ -1176,6 +1208,13 @@ export default {
     background: #fff;
     height: 100%;
 }
+p.aduitStatus{
+        height: auto;
+    margin: 0;
+    padding: 0;
+    line-height: 10px;
+    padding-top: 15px;
+}
 
 #supplementaryRegistration .topTab .tabItem.active {
     color: #3375C5;
@@ -1225,7 +1264,7 @@ export default {
 
 }
 
-#resultPeoples.reacResult .titleBox p.name {
+#supplementaryRegistration #resultPeoples.reacResult .titleBox p.name {
     height: 20px;
 }
 
@@ -1414,16 +1453,9 @@ input.finalPrice.mainText {
     margin-top: 10px;
 }
 
-.reacResult>.flexBox,
-.hang {
-    display: flex;
-    justify-content: space-between;
-    text-align: center;
-    margin-top: 7px;
-}
 
 .hang p {
-    width: 33.33%;
+    /* width: 33.33%; */
 }
 
 .hang p.text {
@@ -1434,6 +1466,7 @@ input.finalPrice.mainText {
     background: #efefef;
     padding: 6px 7px;
     padding-top: 1px;
+        flex-direction: column;
 }
 
 .reacResult .details .each .text {
@@ -1493,12 +1526,20 @@ input.finalPrice.mainText {
 .reacResult .options .option i {
     color: #3375c5;
 }
+.myFallow{
+    padding: 0 10px;
+}
 
 .reacResult .titleBox .price {
     color: #ff3939;
     font-size: 12px;
 }
 
+.flexBox{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
 .reacResult>.flexBox .left {
     width: 15%;
 }
@@ -1517,115 +1558,30 @@ input.finalPrice.mainText {
 #searchResult {
     background: #f5f5f5;
 }
-
-.reacResult {
-    margin-top: 10px;
-    padding: 10px;
-}
-
-.reacResult .options .option i.icon-wenhao {
-    color: #ccc;
-}
-
-#resultPeoples {
-    background: #f5f5f5;
-}
-
-#resultPeoples.reacResult .details {
-    display: block;
-    color: #707070;
-}
-
-#resultPeoples.reacResult .hang {
-    width: 100%;
-    text-align: left;
-    margin-bottom: 7px;
-}
-
-#resultPeoples.reacResult span.eachItem {
-    width: 33.333%;
-    display: inline-block;
-}
-
-#resultPeoples.reacResult span.eachItem.add {
-    width: 66%;
-}
-
-#resultPeoples.reacResult .right .button {
-    font-size: 14px;
-    padding: 1px 7px 1px 12px;
-    border-radius: 5px;
-    margin-bottom: 8px;
-}
-
-#resultPeoples.reacResult .right .button.searchSS {
-    color: #2ea200;
-    border: 1px solid #2ea200;
-}
-
-#resultPeoples.reacResult .right .button.searchZZ {
-    color: #3375c5;
-    border: 1px solid #3375c5;
-}
-
-#resultPeoples.reacResult .right .button.searchSZ {
-    color: #feab29;
-    border: 1px solid #feab29;
-}
-
-.eachPeople .otherMsg {
-    padding: 18px 0 16px 0;
-    color: #999999;
-    font-size: 12px;
-}
-
-.eachPeople .submitBtn {
-    width: 60px;
-    height: 21px;
-    background: #3375c5;
-    color: #fff;
-    border-radius: 5px;
-    font-weight: bold;
-    border: none;
-}
-
-#resultPeoples.reacResult .details {
-    display: block;
-    color: #707070;
-}
-
-.eachPeople {
-    padding: 11px;
-    /*padding-bottom: 0;*/
-    /*margin-top: 10px;*/
+#resultPeoples.reacResult .details{
     margin-bottom: 10px;
-     border-bottom: 4px solid #eee;
 }
-
-/* .eachPeople.ss {
-    border-bottom: 4px solid #2ea200;
+#resultPeoples.reacResult .details>p{
+    display: flex;
+    justify-content: space-between;
+        margin-bottom: 7px;
 }
-
-.eachPeople.zz {
-    border-bottom: 4px solid #3375c5;
+#resultPeoples .eachPeople {
+        margin-bottom: 10px;
+    border-bottom: 3px solid #ddd;
+    padding-bottom: 10px;
 }
-
-.eachPeople.sz {
-    border-bottom: 4px solid #feab29;
-} */
-
-#resultPeoples.reacResult .hang {
-    width: 100%;
-    text-align: left;
-    margin-bottom: 7px;
+#resultPeoples{
+    padding: 15px
 }
-
-#resultPeoples.reacResult span.eachItem {
-    width: 33.333%;
-    display: inline-block;
+.myFallow .titleBox{
+    line-height: 0!important;
+    height: 20px!important;
 }
+.myFallow .reacResult{
+border-bottom: 2px solid #eee;
+padding-top:10px;
+padding-bottom: 10px;
 
-#resultPeoples.reacResult span.eachItem.add {
-    width: 66%;
 }
 </style>

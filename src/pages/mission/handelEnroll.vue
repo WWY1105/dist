@@ -5,14 +5,14 @@
             <div class="left flexSpace">
                 <p>
                     {{choosePopel}}报名名单
-                    <span v-if="choosePopel=='作者'">（单选）</span>
+                    <span v-if="choosePopel=='家教'">（单选）</span>
                 </p>
                 <p v-model="pxIsShow" @click="pxIsShow=!pxIsShow">
                     排序
                     <i class="iconfont icon-paixu"></i>
                 </p>
             </div>
-            <div class="right" v-model="sxIsShow" @click="sxIsShow=!sxIsShow">
+            <div class="right" v-model="sxIsShow" @click="sxIsShow=!sxIsShow;pxIsShow=false">
                 筛选
                 <i class="iconfont icon-shaixuan"></i>
             </div>
@@ -24,10 +24,10 @@
         <!--顶部过滤-->
         <div id="myPop">
             <popup class="sxPop" v-model="sxIsShow" :should-rerender-on-show="false">
-                <p class="bigtitle">
-                    <span class="lightText">{{allWriter}}</span>个作者中有
+                <!-- <p class="bigtitle">
+                    <span class="lightText">{{allWriter}}</span>个家教中有
                     <span class="lightText">{{allPeople}}</span>个可供查看
-                </p>
+                </p> -->
                 <!--年级选择-->
                 <cell title="年级" is-link :value="rightText1" @click.native="gotoMultiPicker('class')"></cell>
                 <!--科目选择器-->
@@ -39,14 +39,14 @@
                     <x-switch title="需要学历认证" v-model="stringValue2"></x-switch>
                 </group>
                 <group>
-                    <x-switch title="需要作者资质" v-model="stringValue3"></x-switch>
+                    <x-switch title="需要家教资质" v-model="stringValue3"></x-switch>
                 </group>
                 <!--单选组件-->
                 <radioPicker :radiosArr="radios_sex_Arr" :title="radioTitle" @getRadioValue="getRadioValue"></radioPicker>
                 <!--rang-->
                 <group>
                     <p class="smalltitle">
-                        写作年限范围
+                        家教年限范围
                         <span>0年 ----- 80年</span>
                     </p>
                     <div class="workAgeBox flexCenter">
@@ -64,7 +64,7 @@
         </div>
         <!--顶部过滤 end-->
         <div class="writerBox" v-if="writerShow">
-            <!-- 作者列表 -->
+            <!-- 家教列表 -->
             <div class="reacResult wbg" v-for="item,index in enrollerWriterListA" @click="chooseWriter(index)">
                 <div class="flexBox">
                     <div class="left">
@@ -94,22 +94,19 @@
                             <div class="details">
                                 <div class="hang">
                                     <p class="text">
-                                        写作小时:
-                                        <span class="mainText">3123</span>
+                                        家教小时:
+                                        <span class="mainText">{{item.user.workHours==null?0:item.user.workHours}}</span>
                                     </p>
                                     <p class="text">
-                                        写作值:
-                                        <span class="mainText">3123</span>
+                                        家教值:
+                                        <span class="mainText">{{item.user.cost==null?0:item.user.cost}}</span>
                                     </p>
                                     <p class="text">
-                                        相关用户:
-                                        <span class="mainText">{{item.user.networkCount}}</span>
+                                        相关家长:
+                                        <span class="mainText">{{item.user.userCount}}</span>
                                     </p>
                                 </div>
                                 <div class="hang">
-                                    <p class="box">
-                                        <span class="smallBox">{{item.user.authorAuthInfo.workAge}}年作者</span>
-                                    </p>
                                     <p v-if="item.length==0?false:true" class="box" v-for="item,index in item.userTags">
                                         <span class="smallBox">{{item.tag}}</span>
                                     </p>
@@ -124,9 +121,9 @@
                     </div>
                 </div>
             </div>
-            <!-- 书商的页面 -->
+            <!-- 家长的页面 -->
             <div class="BussBox" v-if="bussShow">
-                <!-- 作者列表 -->
+                <!-- 家教列表 -->
                 <div class="reacResult wbg" v-for="item,index in enrollerWriterListB" @click="chooseBuss(index)">
                     <div class="flexBox">
                         <div class="left">
@@ -156,22 +153,19 @@
                                 <div class="details">
                                     <div class="hang">
                                         <p class="text">
-                                            写作小时:
-                                            <span class="mainText">3123</span>
+                                            家教小时:
+                                            <span class="mainText">{{item.user.workHours==null?0:item.user.workHours}}</span>
                                         </p>
                                         <p class="text">
-                                            写作值:
-                                            <span class="mainText">3123</span>
+                                            家教值: 
+                                            <span class="mainText">{{item.user.cost==null?0:item.user.cost}}</span>
                                         </p>
                                         <p class="text">
-                                            相关用户:
-                                            <span class="mainText">{{item.user.networkCount}}</span>
+                                            相关家长:
+                                            <span class="mainText">{{item.user.userCount}}</span>
                                         </p>
                                     </div>
                                     <div class="hang">
-                                        <p class="box">
-                                            <span class="smallBox">{{item.user.authorAuthInfo.workAge}}年作者</span>
-                                        </p>
                                         <p v-if="item.length==0?false:true" class="box" v-for="item,index in item.userTags">
                                              <span class="smallBox">{{item.tag}}</span>
                                         </p>
@@ -274,24 +268,24 @@ export default {
             minWorkAge: "",
             maxWorkAge: "",
             sortOptions: [{
-                    title: "优先显示我已经加了关注的用户",
-                    value: 'follow'
+                    value:"优先显示我已经加了关注的用户",
+                    key: 'follow'
                 },
                 {
-                    title: "优先显示相关用户数最多的用户",
-                    value: 'userCount'
+                    value:"优先显示相关家长数最多的用户",
+                    key: 'userCount'
                 },
                 {
-                    title: "优先显示写作小时数最多的用户",
-                    value: 'workHours'
+                    value:"优先显示家教小时数最多的用户",
+                    key: 'workHours'
                 },
                 {
-                    title: "优先显示每人小时费最少的用户",
-                    value: 'price'
+                    value:"优先显示每人小时费最少的用户",
+                    key: 'price'
                 },
                 {
-                    title: "优先显示累计写作值最多的用户",
-                    value: 'work'
+                    value:"优先显示累计家教值最多的用户",
+                    key: 'work'
                 }
 
             ],
@@ -302,12 +296,12 @@ export default {
             writerShow: true,
             bussShow: false,
             mainShow: true,
-            //任务类型：1-找作者,2-找书商,3-找作者和书商
+            //任务类型：1-找家教,2-找家长,3-团家长找家教
             taskType: this.$route.query.taskType,
-            // 出资方式(1-独资,2-合资)
+            // 出资方式(1-1对1,2-1对多)
             priceType: this.$route.query.priceType,
-            choosePopel: "作者",
-            // 书商人数、
+            choosePopel: "家教",
+            // 家长人数、
             busniessCount: this.$route.query.busniessCount,
             postData: {},
             order: "",
@@ -338,9 +332,9 @@ export default {
         this.getEnrollWriter(this.id);
         // 年纪
         this.getBigGrade();
-        // 说明是找书商
+        // 说明是找家长
         if (this.taskType == "2") {
-            this.choosePopel = "书商";
+            this.choosePopel = "家长";
             this.writerShow = false;
             this.bussShow = true;
         }
@@ -374,9 +368,6 @@ export default {
                 )
                 .then(function (res) {
                     if (res.data.code != "00") {
-                        // AlertModule.show({
-                        //     title: res.data.msg
-                        // });
                     } else {}
                 });
             return result;
@@ -424,12 +415,12 @@ export default {
         // 点击底部确认
         confirmWriter() {
             var that = this;
-            if (that.taskType == "1") { // 找作者(只有独资方式，所以只有一个作者)
+            if (that.taskType == "1") { // 找家教(只有1对1方式，所以只有一个家教)
                 if (that.chooseWriterId == "") {
                     AlertModule.show({
-                        title: "您还未选择作者"
+                        title: "您还未选择家教"
                     });
-                } else { // 选择了作者了
+                } else { // 选择了家教了
                     var chooseWriter = []
                     for (var k in that.enrollerWriterListA) {
 
@@ -448,19 +439,20 @@ export default {
                         }
                     })
                 }
-            } else if (that.taskType == "2") { // 找书商
-                if (that.priceType == "1") { // 找书商独资
+            } else if (that.taskType == "2") { // 找家长
+                if (that.priceType == "1") { // 找家长1对1
                     if (that.chooseBusNum > 1 || that.chooseBusNum == 0) {
                         AlertModule.show({
-                            title: "独资任务，请选择一个书商"
+                            title: "1对1任务，请选择一个家长"
                         });
                     } else {
                         var chooseWriter = []
                         for (var k in that.enrollerWriterListB) {
                             if (that.enrollerWriterListB[k].isChoosen = true) {
                                 chooseWriter.push(that.enrollerWriterListB[k].uid);
+                                that.submitId(that.enrollerWriterListB[k].id)
                             }
-                            that.submitId(that.enrollerWriterListB[k].id)
+                            
                         }
                         that.$router.push({
                             path: "/replyDetails",
@@ -473,21 +465,22 @@ export default {
                         })
                     }
                 } else {
-                    if (that.chooseBusNum == 0) { // 找书商合资
+                    if (that.chooseBusNum == 0) { // 找家长1对多
                         AlertModule.show({
-                            title: "请选择书商"
+                            title: "请选择家长"
                         });
                     } else if (that.chooseBusNum != that.busniessCount) {
                         AlertModule.show({
-                            title: "请选择" + that.busniessCount + "个书商"
+                            title: "请选择" + that.busniessCount + "个家长"
                         });
                     } else if (that.chooseBusNum == that.busniessCount) {
                         var chooseWriter = []
                         for (var k in that.enrollerWriterListB) {
                             if (that.enrollerWriterListB[k].isChoosen == true) {
                                 chooseWriter.push(that.enrollerWriterListB[k].uid);
+                                 that.submitId(that.enrollerWriterListB[k].id)
                             }
-                            that.submitId(that.enrollerWriterListB[k].id)
+                            
                         }
                         that.$router.push({
                             path: "/replyDetails",
@@ -501,44 +494,54 @@ export default {
                     }
                 }
             } else if (that.taskType == "3") {
-                // 找书商找作者
-                //  找书商找作者---
+                // 找家长找家教
+                //  找家长找家教---
                 if (that.chooseWriterId == "") {
                     AlertModule.show({
-                        title: "您还未选择作者"
+                        title: "您还未选择家教"
                     });
                 } else {
-                    this.choosePopel = "书商";
+                    this.choosePopel = "家长";
                     this.writerShow = false;
                     this.bussShow = true;
                     // =======
                     if (that.chooseBusNum == 0) {
                         AlertModule.show({
-                            title: "请选择书商"
+                            title: "请选择家长"
                         });
                     } else if (that.chooseBusNum != that.busniessCount) {
                         AlertModule.show({
-                            title: "请选择" + that.busniessCount + "个书商"
+                            title: "请选择" + that.busniessCount + "个家长"
                         });
                     } else if (that.chooseBusNum == that.busniessCount) {
-                        // 循环发送书商作者
+                        // 循环发送家长家教
                         // var chooseWriter=[];
                         // var chooseBuss=[];
                         var allId = []; //报名的id
                         var allUid = []
                         for (var k in that.enrollerWriterListA) {
-                            if ((that.enrollerWriterListA[k].isChoosen = true)) {
+                            if ((that.enrollerWriterListA[k].isChoosen == true)) {
                                 allId.push(that.enrollerWriterListA[k].id);
                                 allUid.push(that.enrollerWriterListA[k].uid)
                             }
                         }
+                        // alert(allId.length)
+                        // console.log('家长------------------'+allId.length)
+                        // console.log(  alert(allId.length))
                         for (var k in that.enrollerWriterListB) {
-                            if ((that.enrollerWriterListB[k].isChoosen = true)) {
+                            console.log(that.enrollerWriterListB[k].isChoosen)
+                            if ((that.enrollerWriterListB[k].isChoosen == true)) {
                                 allId.push(that.enrollerWriterListB[k].id);
                                 allUid.push(that.enrollerWriterListB[k].uid)
                             }
                         }
+                        //   alert(allId.length)
                         // allId = chooseWriter.concat(chooseBuss);
+
+
+
+
+                        console.log('选择的人'+allId)
                         for (var i in allId) {
                             that.submitId(allId[i]);
                         }
@@ -557,7 +560,7 @@ export default {
             }
 
         },
-        // 单选一个作者(作者永远是单选)
+        // 单选一个家教(家教永远是单选)
         chooseWriter(i) {
             var that = this;
             that.chooseNum = 1;
@@ -567,11 +570,10 @@ export default {
             that.enrollerWriterListA[i].isChoosen = true;
             that.chooseWriterId = that.enrollerWriterListA[i].id;
         },
-        // 选择书商
+        // 选择家长
         chooseBuss(i) {
             var that = this;
-            that.enrollerWriterListB[i].isChoosen = !that.enrollerWriterListB[i]
-                .isChoosen;
+            that.enrollerWriterListB[i].isChoosen = !that.enrollerWriterListB[i].isChoosen;
             var arr = [];
             for (var k in that.enrollerWriterListB) {
                 if (that.enrollerWriterListB[k].isChoosen == true) {
@@ -579,7 +581,7 @@ export default {
                 }
             }
             that.chooseBusNum = arr.length;
-            // console.log(that.enrollerWriterListB);
+            //  alert(arr.length);
         },
         // 每个item的点击书简
         addActive(index) {
@@ -656,7 +658,7 @@ export default {
                             }
                         }
                         that.enrollerWriterListA = authorArr;
-                        console.log("书商的列表");
+                        console.log("家长的列表");
                         console.log(bussArr);
                         that.enrollerWriterListB = bussArr;
                     }
@@ -664,7 +666,7 @@ export default {
 
         },
         // ==========================================
-        // 获取报名的作者列表
+        // 获取报名的家教列表
         getEnrollWriter(id, order) {
             var that = this;
             // var postData = {
@@ -682,7 +684,6 @@ export default {
                     that.postData
                 )
                 .then(function (res) {
-                    // console.log(res.data.data);
                     if (res.data.code != "00") {
                         AlertModule.show({
                             title: res.data.msg
@@ -694,8 +695,8 @@ export default {
                         var bussArr = [];
                         for (var i in result) {
                             // alert(result[i].user.authorInfo.userTags.length)
-                            if(result[i].user.authorInfo.userTags.length>2){
-                                result[i].user.authorInfo.userTags=result[i].user.authorInfo.userTags.slice(0,2)
+                            if(result[i].user.authorInfo.userTags.length>3){
+                                result[i].user.authorInfo.userTags=result[i].user.authorInfo.userTags.slice(0,3)
                             }
                             result[i].isChoosen = false;
                             if (result[i].userType == "author") {
@@ -705,7 +706,7 @@ export default {
                             }
                         }
                         that.enrollerWriterListA = authorArr;
-                        console.log("书商的列表");
+                        console.log("家长的列表");
                         console.log(bussArr);
                         that.enrollerWriterListB = bussArr;
                     }

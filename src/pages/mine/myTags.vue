@@ -1,21 +1,21 @@
 <template>
 <div id="myTags">
     <div class="topBox bgW" v-if="userData.type=='author'?true:false">
-        <p class="title">书商评价标签（2018-7-1起）</p>
+        <p class="title">家长评价标签（2018-7-1起）</p>
         <div class="content flexSpace">
             <div class="eachItem" v-for="item,index in tags">{{item.tagName}} <span class="num">30</span></div>
-            <!-- <div class="eachItem">写作认证 <span class="num">30</span></div>
-            <div class="eachItem">写作认证 <span class="num">30</span></div>
-            <div class="eachItem">写作认证 <span class="num">30</span></div> -->
+            <!-- <div class="eachItem">家教资历 <span class="num">30</span></div>
+            <div class="eachItem">家教资历 <span class="num">30</span></div>
+            <div class="eachItem">家教资历 <span class="num">30</span></div> -->
         </div>
     </div>
     <div class="bottomBox bgW">
         <p class="title">自我标签（选择后保存）</p>
         <div class="content flexSpace">
-            <div :class="item.active?'eachItem active':'eachItem '" v-for="item,index in tags" @click="chooseTags(index)">{{item.tagName}}</div>
-            <!-- <div class="eachItem">写作认证 <span class="num">30</span></div>
-            <div class="eachItem">写作认证 <span class="num">30</span></div>
-            <div class="eachItem">写作认证 <span class="num">30</span></div> -->
+            <div :class="item.active?'eachItem active':'eachItem '" v-for="item,index in goodtags" @click="chooseTags(index)">{{item.tagName}}</div>
+            <!-- <div class="eachItem">家教资历 <span class="num">30</span></div>
+            <div class="eachItem">家教资历 <span class="num">30</span></div>
+            <div class="eachItem">家教资历 <span class="num">30</span></div> -->
         </div>
     </div>
     <div class="btnBox">
@@ -36,7 +36,10 @@ export default {
             userData: {},
             tags: [],
             uid: this.$store.state.uid,
-            userTags: []
+            userTags: [],
+            goodtags:[],
+            midtags:[],
+            badtags:[]
         }
     },
     components: {
@@ -46,10 +49,11 @@ export default {
         // 获取当前用户信息
         this.getWebUser(this.uid);
         // 获取标签列表
-        this.getTasgs()
+        this.getTasgs(this.uid)
         // 和我自己的标签对比 
         // this.isChoosed()
-
+        console.log('可选择的标签')
+        console.log(this.goodtags)
     },
     methods: {
         ...common,
@@ -62,11 +66,11 @@ export default {
             }).then(function (res) {
                 that.userTags = res.data.data.authorInfo.userTags;
 
-                for (var i in that.tags) {
+                for (var i in that.goodtags) {
                     for (var j in that.userTags) {
-                        if (that.tags[i].tagName == that.userTags[j].tag) {
-                            console.log(that.tags[i].tagName+"============" + that.userTags[j].tag)
-                             that.tags[i].active = true;
+                        if (that.goodtags[i].tagName == that.userTags[j].tag) {
+                            // console.log(that.tags[i].tagName+"============" + that.userTags[j].tag)
+                             that.goodtags[i].active = true;
                         }
                     }
                 }
@@ -76,20 +80,10 @@ export default {
                 console.log(that.tags);
             })
         },
-        // isChoosed() {
-        //     var that = this;
-        //     for (var i in that.tags) {
-        //         for (var j in that.userTags) {
-        //             if (that.tags[i].tagName == that.userTags[j].tagName) {
-        //                 that.tags[i].active = true;
-        //             }
-        //         }
-        //     }
-
-        // },
+      
         // 选择标签
         chooseTags(i) {
-            this.tags[i].active = !this.tags[i].active;
+            this.goodtags[i].active = !this.goodtags[i].active;
         },
         // 保存我的标签
         saveMyTags() {
@@ -164,11 +158,15 @@ export default {
 }
 
 #myTags .content .eachItem {
-    padding: 7px 12px;
+    /* padding: 7px 12px; */
+    width:30%;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
     border: 1px solid #848484;
     margin-bottom: 14px;
     color: #868686;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 #myTags .content .eachItem.active {

@@ -7,7 +7,7 @@ const common = {
       loginUid: that.$store.state.uid
     }).then(function (res) {
       that.userData = res.data.data;
-
+      that.userImg=res.data.data.imgurl;
       that.classNo = res.data.data.authorInfo.classNo;
       that.subject = res.data.data.authorInfo.subject;
       that.selfCon = res.data.data.authorInfo.selfCon;
@@ -22,7 +22,7 @@ const common = {
 
       that.userType = res.data.data.type;
       // 拼接名字
-      // that.authodShortName = that.shortName(res.data.data.authorInfo.classParent) + that.shortName(res.data.data.authorInfo.subject) + res.data.data.nickname + (res.data.data.realName.firstName) + (res.data.data.type == 'author' ? "作者" : "书商")
+      // that.authodShortName = that.shortName(res.data.data.authorInfo.classParent) + that.shortName(res.data.data.authorInfo.subject) + res.data.data.nickname + (res.data.data.realName.firstName) + (res.data.data.type == 'author' ? "家教" : "家长")
 
       that.workAge = res.data.data.authorAuthInfo.workAge;
       that.networkCount = res.data.data.networkCount
@@ -68,8 +68,19 @@ const common = {
         res.data.data[i].active = false;
       }
       that.tags = res.data.data;
-      console.log("可选择标签列表")
-      console.log(that.tags)
+      for(var i in that.tags){
+        if(that.tags[i].type=='1'){
+            that.goodtags.push(that.tags[i])
+        }else if(that.tags[i].type=='2'){
+             that.midtags.push(that.tags[i])
+        }else{
+            that.badtags.push(that.tags[i])
+        }
+         
+    }
+  //   alert(that.goodtags.length)
+  //   console.log(that.midtags.length)
+  //  console.log(that.badtags.length)
     })
   },
   // 获取科目
@@ -138,7 +149,7 @@ const common = {
       console.log(that.sliderClassArr)
     })
   },
-  // 获取价格区间
+  // 获取每小时费用
   getPriceArr() {
     var that = this;
     var baseUrl = this.$store.state.baseUrl;
@@ -193,7 +204,7 @@ const common = {
       // console.log(str)
       var arr = str.split(',');
       for (let i in arr) {
-        arr[i] = arr[i].substr(0, 1)
+        arr[i] = arr[i].substr(0,2)
       }
       arr = arr.join('')
     }
@@ -241,15 +252,15 @@ const common = {
 
   },
   changeResultWay(val) {
-    // 协作方式
-    // '作者拜访','书商拜访','远程协作'
+    // 上门方式
+    // '家教拜访','家长拜访','远程协作'
     console.log('啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊')
     console.log(val)
         switch (val.join(',')) {
-      case '作者拜访':
+      case '家教拜访':
         this.postData.coordination = 'author';
         break;
-      case '书商拜访':
+      case '家长拜访':
         this.postData.coordination = 'busniess';
         break;
       case '远程协作':
@@ -266,12 +277,12 @@ const common = {
     this.postData.priceType = val;
   },
   onAddressChange(ids, names) {
-    // 协作区域
+    // 上门区域
     //  console.log(ids, names)
     this.postData.area = names.join(',');
 
   },
-  // 招标书商人数
+  // 招标家长人数
   booksellerGrade(val) {
     val = val[0];
     this.postData.busniessCount = val;
@@ -332,7 +343,7 @@ const common = {
         function (res) {
           if (res.err_msg == "get_brand_wcpay_request:ok") {
             // openHref('myOrder.html')
-            window.location.href = "http://nian.im/app/index.html#" + url
+            window.location.href = "http://www.shuimujiajia.net/app/index.html#" + url
           } // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。 
         }
       );

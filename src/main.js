@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-// import lrz from 'lrz' 
+//  import lrz from 'lrz' 
 // import 'es6-promise/auto'
 // import Vuex from 'vuex'
 import store from './store'
@@ -15,6 +15,7 @@ import '@/assets/js/ydui.flexible'
 
 import VueScroller from 'vue-scroller'
 Vue.use(VueScroller)
+// Vue.use(lrz)
 // 引入公共的JS
 import {http,checkTel} from '@/assets/js/http.js'
 // Vue.prototype.common=common

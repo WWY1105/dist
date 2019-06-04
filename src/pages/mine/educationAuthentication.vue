@@ -2,7 +2,7 @@
 <div id="educationAuthentication" class="bgW">
     <div class="flexSpace eachHang">
         <span class="left">毕业院校</span>
-        <input type="text" placeholder="请填写您的毕业院校">
+        <input type="text" placeholder="请填写您的毕业院校" v-model="school">
         </div>
         <!--学历start-->
         <!-- <sliderPopupPicker :gradesArr="eduList" :leftText="leftText1" :rightText='rightText' v-on:changeResult="changeResultEdu"></sliderPopupPicker> -->
@@ -12,9 +12,16 @@
             <popup-picker :title="leftText1" @on-change='changeResultEdu' ref="picker3"  :data="eduList"  :placeholder="rightText"  class="gradePicker"></popup-picker>
             <!--年级选择器end-->
         </group>
+          <div class="flexSpace eachHang">
+        <span class="left">学信网验证码</span>
+        <input type="text" placeholder="请查看下方说明" v-model="schoolCode">
+        </div>
+        <div class="tips">
+            请登录学信网。如已毕业，请生成《学历证书电子注册备案表》，拷贝在线生成码，输入到下边输入框中；如在校，请生成《学籍在线验证报告》，拷贝在线生成码，输入到下边输入框中；如因为毕业很早等原因，在学信网上不能认证，麻烦拍摄学位证，上传到下面的补充材料区域。谢谢！
+        </div>
         <!--学历end-->
         <div class=" eachHang lastHang">
-            <span class="left">身份证照</span>
+            <span class="left">学历证明补充资料（可选）</span>
             <div class="imgBox flexSpace">
                 <div class="eachBox" @click="frontImg">
                     <img :src="frontUrl" alt="" v-if="frontUrl==''?false:true">
@@ -22,7 +29,7 @@
                     <input v-if="isios" type="file" name="img" accept="image/*" id="upload_file1" mutiple="mutiple" class="add" @change="chooseImageFront">
                     <input v-if="!isios" type="file" name="img" accept="image/*" id="upload_file1" capture="camera" mutiple="mutiple" class="add" @change="chooseImageFront">
 
-                    <p class="text">学历证明</p>
+                    <p class="text">材料1</p>
                 </div>
                 <div class="eachBox" @click="backImg">
                     <img :src="backUrl" alt="" v-if="backUrl==''?false:true">
@@ -30,7 +37,7 @@
                     <input v-if="isios" type="file" name="img" accept="image/*" id="upload_file2" mutiple="mutiple" class="add" @change="chooseImageBack">
                     <input v-if="!isios" type="file" name="img" accept="image/*" id="upload_file2" capture="camera" mutiple="mutiple" class="add" @change="chooseImageBack">
 
-                    <p class="text">其它材料（可选）</p>
+                    <p class="text">材料2</p>
                 </div>
             </div>
         </div>
@@ -58,6 +65,7 @@ export default {
             degree: '',
             leftText1: '学历',
             rightText: '不限',
+            certificate:'',
             eduList: [
                 ['小学', '初中', '高中', '中专', '专科', '本科', '研究生']
             ],
@@ -66,6 +74,8 @@ export default {
             backUrl: '',
             orifrontUrl: '',
             oribackUrl: '',
+            school:'',
+            schoolCode:''
         }
     },
     mounted() {
@@ -78,8 +88,32 @@ export default {
         } else {
             this.isios = false;
         }
+        this.getUser()
     },
     methods: {
+         // 获取nickname
+        getUser() {
+            var that = this;
+            var baseUrl = this.$store.state.baseUrl;
+            var uid = that.$store.state.uid;
+            that.$http('get', baseUrl + 'api/WebUser/' + uid).then(function (res) {
+                that.shortName = res.data.data.nickname;
+                // if(res.data.data.eduCertificate.certificate){
+                //     that.certificate=res.data.data.eduCertificate.certificate
+                   
+                // }
+                // if(res.data.data.eduCertificate.school){
+                //     that.school=res.data.data.eduCertificate.school
+                // }
+                // if(res.data.data.eduCertificate.onlinecode){
+                //     that.schoolCode=res.data.data.eduCertificate.onlinecode
+                // }
+                // if(res.data.data.eduCertificate.degree){
+                //     that.rightText=res.data.data.eduCertificate.degree
+                // }
+               
+            })
+        },
         frontImg() {
             var file = document.getElementById("upload_file1");
             file.click()
@@ -91,15 +125,13 @@ export default {
         changeResultEdu(val) {
             console.log('=====')
             console.log(val)
-            // this.degree = val.value
-            // this.rightText = val.value
              this.degree = val[0]
             this.rightText = val[0]
         },
         //   选择正面
         chooseImageFront() {
             var that = this;
-            var baseUrl = "https://nian.im/works/"
+            var baseUrl = that.$store.state.baseUrl
             var file = document.getElementById("upload_file1").files[0];
             var formdata1 = new FormData(); // 创建form对象
             formdata1.append('img', file); // 通过append向form对象添加数据,可以通过append继续添加数据
@@ -118,7 +150,7 @@ export default {
                 } else {
                     // that.imgArr.push(res.data.data)
                     that.orifrontUrl = res.data.data;
-                    var showUrl = 'http://nian.im/storage/' + res.data.data
+                    var showUrl = that.$store.state.imgUrl + res.data.data
                     that.frontUrl = showUrl
                     // console.log(that.imgArr)  
                 }
@@ -128,7 +160,7 @@ export default {
         // 选择反面
         chooseImageBack() {
             var that = this;
-            var baseUrl = "https://nian.im/works/"
+            var baseUrl = that.$store.state.baseUrl
             var file = document.getElementById("upload_file2").files[0];
             var formdata1 = new FormData(); // 创建form对象
             formdata1.append('img', file); // 通过append向form对象添加数据,可以通过append继续添加数据
@@ -146,7 +178,7 @@ export default {
                 } else {
                     // that.imgArr.push(res.data.data)
                     that.oribackUrl = res.data.data
-                    var showUrl = 'http://nian.im/storage/' + res.data.data
+                    var showUrl = that.$store.state.imgUrl + res.data.data
                     that.backUrl = showUrl
                     // console.log(that.imgArr)  
                 }
@@ -157,9 +189,18 @@ export default {
             var that = this;
             var postData = {
                 degree: that.degree,
-                certificate: that.orifrontUrl,
+                school:that.school,
+                onlinecode:that.schoolCode
             }
             var flag = true;
+            console.log(that.schoolCode.trim())
+            if(that.schoolCode.trim().length>25){
+                 AlertModule.show({
+                        title: "抱歉，验证码长度不能超过25个"
+                    })
+                    that.schoolCode=''
+                    return false;
+            }
             for (var i in postData) {
                 if (!Boolean(postData[i])) {
                     AlertModule.show({
@@ -172,8 +213,10 @@ export default {
             }
             if (flag) {
                 postData.uid = that.$store.state.uid;
-                postData.othersCertificate = that.oribackUrl
+                postData.othersCertificate = that.oribackUrl;
+                postData.certificate=that.orifrontUrl;
                 var baseUrl = this.$store.state.baseUrl;
+               
                 console.log(postData)
                 that.$http("post", baseUrl + "api/WebUser/Certificate/Edu", postData).then(function (res) {
                     if (res.data.code != '00') {
@@ -206,7 +249,13 @@ body {
     height: 100%;
     background: #fff !important;
 }
-
+.tips{
+  font-size: 12px;
+  color: rgb( 255, 0, 0 );
+  line-height: 1.5;
+  margin-top: 10px;
+  padding: 0 5px;
+}
 #educationAuthentication {
     padding: 56px 50px 60px 50px;
     height: 100%;

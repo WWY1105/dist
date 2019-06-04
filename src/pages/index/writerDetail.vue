@@ -2,7 +2,7 @@
 <div id="writerDetail">
     <!--顶部简介-->
     <div class="topBox">
-        <writers :hang2IsShow='hang2IsShow' :missionNum="taskList.length" :userTags="userTags" :networkCount="userData.networkCount" :avaTaskCount="userData.avaTaskCount " :cost="userData.cost" :workAge="workAge" :workHours="userData.workHours" :imgurl="userData.imgurl" :shortName="userData.nickname"></writers>
+        <writers :hang2IsShow='hang2IsShow' :tag="userData.tag" :serviceHours="userData.serviceHours" :serviceOrderCount="userData.serviceOrderCount" :serviceUserCount="userData.serviceUserCount" :authorAuth="userData.authorAuth" :type="userData.type" :isMissionDetail="isMissionDetail" :missionNum="userData.taskCount" :userTags="userTags" :realAuth="userData.realAuth" :eduAuth="userData.eduAuth" :userCount="userData.userCount" :avaTaskCount="userData.avaTaskCount " :cost="userData.cost" :workAge="workAge" :workHours="userData.workHours" :imgurl="userImg" :shortName="userData.nickname"></writers>
         <!--三个按钮-->
         <div class="btnBox bgW">
             <x-button v-if="!isLocalUser" @click.native="fellowThisWriter" :class="userData.follow?'hasFellow':''">
@@ -28,16 +28,16 @@
             <div class="eachHang">
                 <p class="leftText">收费标准：</p>
                 <p class="rightText">
-                    独资出版：{{soleCost}}/人时；
-                    合资出版：{{jointCost}}/人时；
+                    1对1：{{soleCost}}/人时；
+                    1对多：{{jointCost}}/人时；
                 </p>
             </div>
             <div class="eachHang">
-                <p class="leftText">协作方式：</p>
+                <p class="leftText">上门方式：</p>
                 <p class="rightText">{{coordination}}</p>
             </div>
             <div class="eachHang">
-                <p class="leftText">协作区域：</p>
+                <p class="leftText">上门区域：</p>
                 <p class="rightText">{{area}}</p>
             </div>
         </div>
@@ -62,11 +62,11 @@
     <div class="eachBox">
         <p class="title flexTitle">
             <span>TA的任务（2018-7-1起的最近10次）</span>
-            <router-link tag="span" class="right" :to="{path:'/myPostMission',query:{uid:uid}}">更多
+            <router-link tag="span" class="right" :to="{path:'/myPostMission',query:{uid:writerId,showAllMsg:true}}">更多
                 <x-icon type="ios-arrow-right" size="13"></x-icon>
             </router-link>
         </p>
-        <div class="content" v-if="taskList.length==0?false:true">
+        <div class="content" v-if="taskList.length==0?false:true" @click="toseeMissionDetail">
             <div class="peple flexSpace">
                 <div class="left flexStart">
                     <img :src="$store.state.imgUrl+taskObj.webUser.imgurl" alt="">
@@ -77,7 +77,7 @@
                                     <i class="iconfont icon-wenhao" v-if="taskObj.webUser.realAuth==2?false:true"></i>
                 <i class="iconfont icon-gouxuan" v-if="taskObj.webUser.realAuth==2?true:false"></i><span>{{taskObj.webUser.realAuth==2?'已':"未"}}认证</span>
                             </span>
-                            <span>学历
+                            <span >学历
                                    <i class="iconfont icon-wenhao" v-if="taskObj.webUser.eduAuth==2?false:true"></i>
                 <i class="iconfont icon-gouxuan" v-if="taskObj.webUser.eduAuth==2?true:false"></i><span>{{taskObj.webUser.eduAuth==2?'已':"未"}}认证</span>
                             </span>
@@ -85,16 +85,16 @@
                     </div>
                 </div>
                 <div class="right">
-                    <!-- <p class="smallBtn">找书商</p> -->
-                    <p class="button searchSS" v-if="taskObj.taskType=='2'?true:false">找书商</p>
-                    <p class="button searchZZ" v-if="taskObj.taskType=='1'?true:false">找作者</p>
-                    <p class="button searchSZ" v-if="taskObj.taskType=='3'?true:false">找作者和书商</p>
+                    <!-- <p class="smallBtn">找家长</p> -->
+                    <p class="button searchSS" v-if="taskObj.taskType=='2'?true:false">找家长</p>
+                    <p class="button searchZZ" v-if="taskObj.taskType=='1'?true:false">找家教</p>
+                    <p class="button searchSZ" v-if="taskObj.taskType=='3'?true:false">团家长找家教</p>
                     <p class="price">￥{{taskObj.priceRange}}/人时</p>
                 </div>
             </div>
             <div class="otherDesc">
                 <p class="flexSpace light">
-                    <span>状态：{{taskObj.status}}</span>
+                    <span>状态：{{taskObj.supplement?"补充登记":taskObj.status}}</span>
                     <span>截至报名：{{taskObj.deadline}}</span>
                 </p>
                 <p class="flexSpace">
@@ -114,8 +114,8 @@
     </div>
 
     <!--评价标签-->
-    <div class="eachBox" v-if="userType=='author'?true:false">
-        <p class="title">书商评价标签（2018-7-1起）</p>
+    <div class="eachBox" v-if="userData.type=='author'">
+        <p class="title">家长评价标签（2018-7-1起）</p>
         <div class="content">
             <p class="evaluateTag" v-for="item,index in otherTags">
                 <span>{{item.tag}}</span>
@@ -125,14 +125,14 @@
     <!--自我简介-->
     <div class="eachBox">
         <p class="title">自我简述</p>
-        <div class="content">
+        <div class="content flexSpace">
             <p class="selfDesc">
                 {{selfCon}}
             </p>
         </div>
     </div>
     <!--自我标签-->
-    <div class="eachBox">
+    <div class="eachBox" v-if="userData.type=='author'">
         <p class="title">自我标签</p>
         <div class="content">
             <p class="evaluateTag" v-for="item,index in selfTag">
@@ -140,27 +140,27 @@
             </p>
         </div>
     </div>
-    <!--写作经历-->
-    <div class="eachBox" v-if="userType=='author'?true:false">
-        <p class="title">写作经历</p>
+    <!--家教经历-->
+    <div class="eachBox" v-if="userData.type=='author'">
+        <p class="title">家教经历</p>
         <div class="content">
             <p>{{experience}}</p>
         </div>
     </div>
-    <!--写作成果-->
-    <div class="eachBox" v-if="userType=='author'?true:false">
-        <p class="title">写作成果</p>
+    <!--家教成果-->
+    <!-- <div class="eachBox" v-if="userData.type=='author'">
+        <p class="title">家教成果</p>
         <div class="content">
             <p>{{achievement}}</p>
         </div>
-    </div>
-    <!--写过的著作的书商名单-->
-    <div class="eachBox" v-if="userType=='author'?true:false">
-        <p class="title">写过的著作的书商名单</p>
+    </div> -->
+    <!--写过的著作的家长名单-->
+    <!-- <div class="eachBox" v-if="userData.type=='author'">
+        <p class="title">写过的著作的家长名单</p>
         <div class="content">
             <p>{{books}}</p>
         </div>
-    </div>
+    </div> -->
     <!--背景信息-->
     <div class="eachBox">
         <p class="title">背景信息</p>
@@ -168,16 +168,20 @@
             <p class="eachBgMsg flexStart">
                 <span>实名认证</span>
                 <i class="iconfont icon-wenhao" v-if="userData.realAuth==2?false:true"></i>
-                <i class="iconfont icon-gouxuan" v-if="userData.realAuth==2?true:false"></i><span>{{userData.realAuth==2?'已':"未"}}认证</span>
+                <i class="iconfont icon-gouxuan" v-if="userData.realAuth==2?true:false"></i>
+                <!-- <span>{{userData.realAuth==2?'已':"未"}}认证</span> -->
             </p>
-            <p class="eachBgMsg flexStart">
+            <p class="eachBgMsg flexStart" v-if="userData.type=='author'">
                 <span>学历认证</span>
                 <i class="iconfont icon-wenhao" v-if="userData.eduAuth==2?false:true"></i>
-                <i class="iconfont icon-gouxuan" v-if="userData.eduAuth==2?true:false"></i><span>{{userData.eduAuth==2?'已':"未"}}认证</span>
+                <i class="iconfont icon-gouxuan" v-if="userData.eduAuth==2?true:false"></i>
+                <!-- <span>{{userData.eduAuth==2?'已':"未"}}认证</span> -->
+                <span v-if="userData.eduAuth==2?true:false">{{userData.eduCertificate.school}},{{userData.eduCertificate.degree}}</span>
             </p>
-            <p class="eachBgMsg flexStart" v-if="userType=='author'?true:false">>
-                <span>作者认证</span><i class="iconfont icon-wenhao" v-if="userData.authorAuth==2?false:true"></i>
-                <i class="iconfont icon-gouxuan" v-if="userData.authorAuth==2?true:false"></i><span>{{userData.authorAuth==2?'已':"未"}}认证</span>
+            <p class="eachBgMsg flexStart" v-if="userData.type=='author'">
+                <span>家教资历</span><i class="iconfont icon-wenhao" v-if="userData.authorAuth==2?false:true"></i>
+                <i class="iconfont icon-gouxuan" v-if="userData.authorAuth==2?true:false"></i>
+                <!-- <span>{{userData.authorAuth==2?'已':"未"}}认证</span> -->
             </p>
         </div>
     </div>
@@ -198,7 +202,7 @@ export default {
             hang2IsShow: true,
             authodShortName: '',
             workAge: '',
-            networkCount: '',
+            userCount: '',
             // authorInfo:{},
             userData: {},
             classNo: '',
@@ -224,6 +228,8 @@ export default {
             selfTag: [],
             otherTags: [],
             circleList: [],
+            isMissionDetail:true,
+            userImg:''
 
         }
     },
@@ -244,7 +250,7 @@ export default {
             this.isLocalUser = true
         }
         // 获取标签列表
-        this.getTasgs(this.uid)
+        this.getTasgs(this.writerId)
 
     },
     methods: {
@@ -256,6 +262,18 @@ export default {
                 path: "/taskOrientation",
                 query: {
                     writerId: that.writerId
+                }
+            })
+        },
+        // 点击查看任务详情
+        toseeMissionDetail(){
+            var that=this;
+            console.log(that.taskObj)
+            that.$router.push({
+                path:'/missionInAfterEvaluteBuss',
+                query:{
+                    id:that.taskObj.id,
+                    showAllMsg:true
                 }
             })
         },
@@ -359,12 +377,15 @@ export default {
         // 获取任务列表
         getMIssionlist(status) {
             var that = this;
-            that.postData = {
+           
+         that.postData = {
                 uid: that.writerId
             }
+            
+           
             // that.postData.status = status;
             console.log(that.postData)
-            that.$http('get', that.$store.state.baseUrl + 'api/Task/List', that.postData).then(function (res) {
+            that.$http('get', that.$store.state.baseUrl + 'api/Task/correlation-task', that.postData).then(function (res) {
                 // that.postList = res.data.data;
                 if (res.data.code == '00') {
                     var result = res.data.data;
@@ -382,54 +403,44 @@ export default {
                             result[i].borderColor = 'sz'
                         }
                     }
-                    console.log('我的任务')
-                    console.log(res.data.data)
+                    // console.log('我的任务')
+                    // console.log(res.data.data)
                     that.taskList = res.data.data
                     // that.postList = res.data.data;
-                    that.taskObj = res.data.data[0];
+                    if( res.data.data.length>0){
+                         that.taskObj = res.data.data[0];
+                    }
+                   
+                   
                     switch (that.taskObj.status) {
                         case 1:
-                            that.taskObj.status = "发布中";
+                            that.taskObj.status = '发布中'
                             break;
                         case 2:
-                            that.taskObj.status = "已选定服务人";
+                            that.taskObj.status = '已选定服务人'
                             break;
                         case 3:
-                            that.taskObj.status = "执行中";
+                            that.taskObj.status = '双方已确认代付款'
                             break;
                         case 4:
-                            that.taskObj.status = "已结束";
+                            that.taskObj.status = '已结束'
                             break;
                         case 6:
-                            that.taskObj.status = "已取消";
+                            that.taskObj.status = '已取消'
                             break;
                         case 7:
-                            that.taskObj.status = '已有人报名';
+                            that.taskObj.status = '已有人报名'
+                            break;
+                        case 8:
+                            that.taskObj.status = '执行中'
+                            break;
+                        case 88:
+                            that.taskObj.status = '取消中'
                             break;
                         case 99:
-                            that.taskObj.status = "已失败";
+                            that.taskObj.status = '已失败'
                             break;
                     }
-                    // switch (that.taskObj.status) {
-                    //     case 1:
-                    //         that.taskObj.status = '发布中'
-                    //         break;
-                    //     case 2:
-                    //         that.taskObj.status = '已选定服务人'
-                    //         break;
-                    //     case 3:
-                    //         that.taskObj.status = '执行中'
-                    //         break;
-                    //     case 4:
-                    //         that.taskObj.status = '已结束'
-                    //         break;
-                    //     case 6:
-                    //         that.taskObj.status = '已取消'
-                    //         break;
-                    //     case 99:
-                    //         that.taskObj.status = '已失败'
-                    //         break;
-                    // }
                 } else {}
             })
         },

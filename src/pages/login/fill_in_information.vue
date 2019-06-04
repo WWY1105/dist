@@ -76,7 +76,7 @@ export default {
                             if (res.data.code == '00') {
                                 console.log(res.data.data)
                                 var result = res.data.data;
-                                var type = result.type == "author" ? '作者' : '书商';
+                                var type = result.type == "author" ? '家教' : '家长';
                                 var clas = result.authorInfo.classParent == '' ? '' : result.authorInfo.classParent.substr(0, 2);
                                 var category = result.authorInfo.subject == '' ? '' : result.authorInfo.subject.substr(0, 2);
                                 var nickname = clas + category + type;

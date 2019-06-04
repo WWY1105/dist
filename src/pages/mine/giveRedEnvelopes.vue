@@ -67,7 +67,7 @@ export default {
             var that = this;
             var baseUrl = this.$store.state.baseUrl;
             var postData = {
-                url: encodeURI("http://nian.im/app/index.html")
+                url: encodeURI("http://www.shuimujiajia.net/app/index.html")
             }
             that
                 .$http("get", baseUrl + "WexinJsConfig", postData)
@@ -95,7 +95,7 @@ export default {
             var baseUrl = this.$store.state.baseUrl;
             that.$http('post', baseUrl + 'api/Task/Red',
             {
-                uid:that.uid,
+                uid:that.$store.state.uid,
                 amount:this.amount,
                 taskId:this.$route.query.taskId
             }).then(function (res) {

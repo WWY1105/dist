@@ -96,7 +96,8 @@ export default {
             orifrontUrl:'',
             oribackUrl: '',
             backUrl: '',
-            shortName: ''
+            shortName: '',
+            userData:{}
         };
 
     },
@@ -116,11 +117,13 @@ export default {
         } else {
             that.isios = false;
         }
+        // this.getWebUser(this.$store.state.uid)
 
     },
 
     methods: {
         ...common,
+        
         // 获取nickname
         getNickname() {
             var that = this;
@@ -128,7 +131,15 @@ export default {
             var uid = that.$store.state.uid;
             that.$http('get', baseUrl + 'api/WebUser/' + uid).then(function (res) {
                 that.shortName = res.data.data.nickname;
-
+                if(res.data.data.realName.firstName){
+                    that.firstName=res.data.data.realName.firstName
+                }
+                if(res.data.data.realName.secondName){
+                    that.secondName=res.data.data.realName.secondName
+                }
+                if(res.data.data.realName.idCard){
+                    that.idCard=res.data.data.realName.idCard
+                }
                 // console.log(that.shortName)
                 // console.log(str1)
                 // console.log(str2)
@@ -145,7 +156,7 @@ export default {
         //   选择正面
         chooseImageFront() {
             var that = this;
-            var baseUrl = "https://nian.im/works/"
+            var baseUrl = that.$store.state.baseUrl
             var file = document.getElementById("upload_file1").files[0];
             var formdata1 = new FormData(); // 创建form对象
             formdata1.append('img', file); // 通过append向form对象添加数据,可以通过append继续添加数据
@@ -162,7 +173,7 @@ export default {
                 } else {
                     that.orifrontUrl=res.data.data;
 
-                    var showUrl = 'http://nian.im/storage/' + res.data.data
+                    var showUrl = that.$store.state.imgUrl + res.data.data
                     that.frontUrl = showUrl
                 }
 
@@ -173,7 +184,7 @@ export default {
         // 选择反面
         chooseImageBack() {
             var that = this;
-            var baseUrl = "https://nian.im/works/"
+            var baseUrl = that.$store.state.baseUrl
             var file = document.getElementById("upload_file2").files[0];
             var formdata1 = new FormData(); // 创建form对象
             formdata1.append('img', file); // 通过append向form对象添加数据,可以通过append继续添加数据
@@ -190,7 +201,7 @@ export default {
                     })
                 } else {
                      that.oribackUrl=res.data.data;
-                    var showUrl = 'http://nian.im/storage/' + res.data.data
+                    var showUrl = that.$store.state.imgUrl + res.data.data
                     that.backUrl = showUrl
                     // console.log(that.imgArr)  
 

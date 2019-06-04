@@ -11,7 +11,14 @@
 
 <script>
 export default {
-    
+    mounted(){
+        var timer;
+         timer=setTimeout(() => {
+             this.$router.push({
+                 path:'/myWallet'
+             })
+         }, 2000);
+    }
 }
 </script>
 

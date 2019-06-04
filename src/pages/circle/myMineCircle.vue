@@ -1,31 +1,30 @@
 <template>
 <div id="myMineCircle">
-   
- <scroller use-pullup :pullup-config="pullupDefaultConfig" @on-pullup-loading="loadMore" use-pulldown :pulldown-config="pulldownDefaultConfig" @on-pulldown-loading="refresh" lock-x ref="scrollerBottom" height="-48">
-    <!-- 每一个朋友圈 -->
-    <div class="eachCircle bgW" v-for="item,index in circleList"  @click="toComment(item.id)">
-        <div class="top flexSpace">
-            <div class="left flexStart">
-                <!-- <img :src="item.imgurl" class="userImg" alt=""> -->
-                <div class="text">
-                    <!-- <p class="name">{{item.nickname==''?'暂无':item.nickname}}</p> -->
-                    <p class="date">{{item.createTime}}</p>
+    <div class="noDataBox" v-if="circleList.length==0"><span> 暂无内容</span></div>
+    <scroller v-if="circleList.length!=0" use-pullup :pullup-config="pullupDefaultConfig" @on-pullup-loading="loadMore" use-pulldown :pulldown-config="pulldownDefaultConfig" @on-pulldown-loading="refresh" lock-x ref="scrollerBottom" height="-48">
+        <!-- 每一个朋友圈 -->
+        <div class="eachCircle bgW" v-for="item,index in circleList" @click="toComment(item.id)">
+            <div class="top flexSpace">
+                <div class="left flexStart">
+                    <!-- <img :src="item.imgurl" class="userImg" alt=""> -->
+                    <div class="text">
+                        <!-- <p class="name">{{item.nickname==''?'暂无':item.nickname}}</p> -->
+                        <p class="date">{{item.createTime}}</p>
+                    </div>
                 </div>
-            </div>
-            <!-- <div class="right">
+                <!-- <div class="right">
                 <div class="fellowBtn active" v-if="!item.follow" @click="toFellow(index)">+关注</div>
                 <div class="fellowBtn" v-if="item.follow" @click="toFellow(index)">已关注</div>
             </div> -->
-        </div>
+            </div>
 
-        <p class="textContent">{{item.content}}</p>
-        <div class="picBox" v-if="item.imgurls.length==0?false:true">
-            <!-- <img :src="'http://nian.im/storage/'+i" alt="" class="uploadImg" v-for="i,j in item.imgurls"> -->
-             <img :src="i.src" alt="" class="previewer-demo-img uploadImg" v-for="i,j in item.imgurls"  @click.stop.self="show(index,j)">
-                    <div v-transfer-dom>
-                        <previewer :list="item.imgurls" ref="previewer" :options="options"></previewer>
-                    </div>
-        </div>
+            <p class="textContent">{{item.content}}</p>
+            <div class="picBox" v-if="item.imgurls.length==0?false:true">
+                <img :src="i.src" alt="" class="previewer-demo-img uploadImg" v-for="i,j in item.imgurls"  @click.stop.self="show(index,j)">
+                <div v-transfer-dom>
+                    <previewer :list="item.imgurls" ref="previewer" :options="options"></previewer>
+                </div>
+            </div>
 
             <div class="btnBox flexSpace">
                 <div :class="item.collection?'eachBtn flexCenter SCactive':'eachBtn flexCenter'" @click.stop="toCollection(item.id)"><i class="iconfont icon-tubiaozhizuomoban"></i> {{item.collectionCount==0?'':item.collectionCount}}收藏</div>
@@ -33,9 +32,8 @@
                 <div class="eachBtn flexCenter " @click="toComment(item.id)"><i class="iconfont icon-tubiaopinglunshu"></i> {{item.commentCount==0?'':item.commentCount}}评论</div>
             </div>
         </div>
- </scroller>
-    </div>
-    
+    </scroller>
+</div>
 </template>
 
 <script>
@@ -75,14 +73,16 @@ export default {
     },
     data() {
         return {
-              nowPage: 1,
-               pullupDefaultConfig: pullupDefaultConfig,
+            nowPage: 1,
+            pullupDefaultConfig: pullupDefaultConfig,
             pulldownDefaultConfig: pulldownDefaultConfig,
             circleList: [],
-            uid:this.$route.query.uid,
+            uid: this.$route.query.uid,
             loginUid: this.$store.state.uid,
-             postData: {},
-             options: {
+            postData: {
+                currentPage: 1
+            },
+               options: {
                 getThumbBoundsFn(index) {
                     // find thumbnail element
                     let thumbnail = document.querySelectorAll('.previewer-demo-img')[index]
@@ -104,52 +104,62 @@ export default {
         }
     },
     mounted() {
-        var that=this;
-          that.circleList=[]
+        var that = this;
+        that.postData.currentPage = that.nowPage;
+        that.postData.pageSize = 10;
+        that.circleList = []
         // this.getCircleLoist()
-          // 上拉刷新！---------------------------------
-        that.$nextTick(() => {
-            that.$refs.scrollerBottom.reset({
-                top: 0
-            });
-        });
+        // 上拉刷新！---------------------------------
+        // that.$nextTick(() => {
+        //     that.$refs.scrollerBottom.reset({
+        //         top: 0
+        //     });
+        // });
         that.loadMore();
     },
     methods: {
         // ========================================
         refresh() {
             var that = this;
-            if (that.nowPage != 0) {
-                that.nowPage--;
-                that.getCircleLoist(data => {
-                    that.circleList = that.circleList.concat(data);
-                    that.$refs.scrollerBottom.enablePullup();
+            that.getCircleLoist(data => {
+                // that.postList = data;
+
+                if (that.postData.currentPage == 1) {
+                    //禁止上啦，已经没有数据
                     that.$refs.scrollerBottom.donePulldown();
-                });
+                }
+                that.circleList = data;
+                that.$refs.scrollerBottom.donePulldown();
+            });
+            if (that.postData.currentPage > 0) {
+                that.postData.currentPage--;
             }
+
+            that.postData.pageSize = 10;
+
         },
         loadMore() {
             var that = this;
             that.getCircleLoist(data => {
-                if(data.length>0){
-                    that.circleList = that.circleList.concat(data)
-                }
-                if (data.length >= 10) {
+                // alert(data.length)
+                if (data.length <= 0) {
+                    //禁止上啦，已经没有数据
                     that.$refs.scrollerBottom.disablePullup();
+                    // return false;
                 }
-                // that.circleList = that.circleList.concat(data);
+                that.circleList = that.circleList.concat(data);
                 that.$refs.scrollerBottom.donePullup();
-                //  alert(that.circleList.length)
-                //  alert(data.length)
             });
-           
+            that.postData.currentPage = that.nowPage;
             that.nowPage++;
-           
+
+            that.postData.pageSize =10;
+
         },
         // ======================================
         // 查看图片
-          show(index,j) {
-            console.log('---'+index)
+        show(index, j) {
+            console.log('---' + index)
             console.log(this.$refs.previewer)
             this.$refs.previewer[index].show(j)
         },
@@ -166,19 +176,19 @@ export default {
                         title: res.data.msg
                     })
                 } else {
-                     that.circleList=[]
-                     that.nowPage=1;
+                    that.circleList = []
+                    that.nowPage = 1;
                     that.loadMore()
                 }
             })
         },
         // 查看圈子详情
-           toComment(id) {
-               alert(id)
+        toComment(id) {
+            alert(id)
             this.$router.push({
-                path:'/circleDetail',
-                query:{
-                    circleId:id
+                path: '/circleDetail',
+                query: {
+                    circleId: id
                 }
             })
         },
@@ -195,8 +205,8 @@ export default {
                         title: res.data.msg
                     })
                 } else {
-                    that.circleList=[]
-                     that.nowPage=1;
+                    that.circleList = []
+                    that.nowPage = 1;
                     that.loadMore()
                     // that.getCircleLoist()
                 }
@@ -205,13 +215,13 @@ export default {
         // 评论
         toComment(id) {
             this.$router.push({
-                path:'/circleDetail',
-                query:{
-                    circleId:id
+                path: '/circleDetail',
+                query: {
+                    circleId: id
                 }
             })
         },
-       
+
         // 获取圈子列表
         getCircleLoist(fn) {
             var that = this;
@@ -222,32 +232,32 @@ export default {
             that.$http('get', baseUrl + 'api/Circle/Page', that.postData).then(function (res) {
                 var result = res.data.data;
 
-               for (var i in result) {
-                        if (result[i].imgurls != '') {
-                            //什么都没有
-                            if (result[i].imgurls.indexOf(',') == -1) {
-                                // 没有逗号，只有一条数据
-                                var Arr = []
-                                var obj = {
-                                    src: that.$store.state.imgUrl + result[i].imgurls
-                                }
-                                Arr.push(obj)
-                                result[i].imgurls = Arr;
-                            } else {
-                                result[i].imgurls = result[i].imgurls.split(',')
-                                var arr2 = []
-                                for (var k in result[i].imgurls) {
-                                    var obj = {};
-                                    obj.src = that.$store.state.imgUrl + result[i].imgurls[k];
-                                    arr2.push(obj)
-                                }
-                                result[i].imgurls = arr2;
+                for (var i in result) {
+                    if (result[i].imgurls != '') {
+                        //什么都没有
+                        if (result[i].imgurls.indexOf(',') == -1) {
+                            // 没有逗号，只有一条数据
+                            var Arr = []
+                            var obj = {
+                                src: that.$store.state.imgUrl + result[i].imgurls
                             }
+                            Arr.push(obj)
+                            result[i].imgurls = Arr;
+                        } else {
+                            result[i].imgurls = result[i].imgurls.split(',')
+                            var arr2 = []
+                            for (var k in result[i].imgurls) {
+                                var obj = {};
+                                obj.src = that.$store.state.imgUrl + result[i].imgurls[k];
+                                arr2.push(obj)
+                            }
+                            result[i].imgurls = arr2;
                         }
                     }
+                }
 
                 // that.circleList = result;
-                 fn(res.data.data)
+                fn(result)
             })
         },
         // 关注
@@ -263,7 +273,7 @@ export default {
                         title: res.data.msg
                     })
                 } else {
-                     that.nowPage=1;
+                    that.nowPage = 1;
                     that.loadMore()
                     // that.getCircleLoist()
                 }
@@ -275,15 +285,25 @@ export default {
 </script>
 
 <style scoped>
-
+#myMineCircle {
+    height: 100%;
+}
 
 #myMineCircle .eachCircle {
     margin-bottom: 10px;
     padding-bottom: 18px;
 }
 
+.noDataBox {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 #myMineCircle .eachCircle .top {
-       padding: 13px 19px 10px 30px;
+    padding: 13px 19px 10px 30px;
     align-items: flex-end;
 }
 
@@ -346,14 +366,17 @@ export default {
 #myMineCircle .eachCircle .btnBox .eachBtn {
     flex-direction: row;
 }
-  #myMineCircle .eachCircle .btnBox .eachBtn.SCactive {
-fill: #3375C5;
-color: #3375C5;
-  }
-  #myMineCircle .eachCircle .btnBox .eachBtn.DZactive {
-fill: #EA4A5C;
-color: #EA4A5C;
-  }
+
+#myMineCircle .eachCircle .btnBox .eachBtn.SCactive {
+    fill: #3375C5;
+    color: #3375C5;
+}
+
+#myMineCircle .eachCircle .btnBox .eachBtn.DZactive {
+    fill: #EA4A5C;
+    color: #EA4A5C;
+}
+
 #myMineCircle .eachCircle .btnBox .eachBtn i {
     margin-right: 3px;
 }

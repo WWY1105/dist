@@ -133,20 +133,44 @@ export default {
         gotoBind() {
             ///api/WebUser
             var that = this;
-            var openid=localStorage.getItem('openid');
-            var imgurl=localStorage.getItem('imgurl')
-           
+            var openid = localStorage.getItem('openid');
+            var imgurl = localStorage.getItem('imgurl')
+
             var data = {
                 openid: openid,
+                // openid:3333,
                 mobile: that.telNum,
                 smsCode: that.msg,
                 imgurl: imgurl,
             };
             // alert(data)
-            that.$http('post', this.baseUrl + 'api/WebUser', data).then(function (res) {
+            that.$http('post', that.$store.state.baseUrl + 'api/WebUser', data).then(function (res) {
                 if (res.data.code == '00') {
                     that.$store.commit('setuid', res.data.data.id)
-                    localStorage.setItem('uid',res.data.data.id)
+                    localStorage.setItem('uid', res.data.data.id);
+                    // alert('执行了1')
+                    // alert(res.data.data.id)//57
+                    //  alert(sessionStorage.getItem('recommadd'))
+                    //   alert(that.GetQueryString('recommadd'))
+                    // 添加新用户作为调解人
+                     if (localStorage.getItem('newUser')) {
+                        that.$http('post', that.$store.state.baseUrl + 'api/Mediator/add', {
+                            uid: res.data.data.id,
+                            mediator: that.GetQueryString('recommadd')
+                        }).then(function (res) {
+                            //  alert(res)
+                            if (res.data.code != '00') {
+                                AlertModule.show({
+                                    title: res.data.msg
+                                })
+                            } else {
+                                 AlertModule.show({
+                                    title: "添加调解人成功"
+                                })
+                            }
+
+                        })
+                    }
                     console.log(that.$store.state.uid)
                     // 电话号和验证码都正确
                     that.$router.push({
@@ -154,7 +178,7 @@ export default {
                     })
                 } else {
                     AlertModule.show({
-                            title: res.data.msg
+                        title: res.data.msg
                     })
                 }
             })

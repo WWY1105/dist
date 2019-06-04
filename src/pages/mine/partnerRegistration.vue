@@ -13,11 +13,12 @@
       <x-textarea :height="147" v-model="content" name="description" placeholder="请输入您的合作阐述"></x-textarea>
     </div>
     <button class="long_btn" @click="submitParent">提交</button>
+      <toast v-model="showToast" type="text" :time="800" is-show-mask text="操作成功" position="middle"></toast>
   </div>
 </template>
 
 <script>
-import { XTextarea ,AlertModule} from "vux";
+import { XTextarea ,AlertModule,Toast} from "vux";
 
 export default {
   data() {
@@ -26,12 +27,14 @@ export default {
       email: "",
       mobile: "",
       nickname: "",
-      uid: this.$store.state.uid
+      uid: this.$store.state.uid,
+       showToast:false
     };
   },
   components: {
     XTextarea,
-    AlertModule
+    AlertModule,
+    Toast
   },
   methods: {
     submitParent() {
@@ -53,12 +56,17 @@ export default {
                         title: res.data.msg
                     })
                 }else{
-                  AlertModule.show({
-                        title: "提交成功",
-                        onHide(){
-                            that.$router.go(-1)
-                        }
-                    })
+                  // AlertModule.show({
+                  //       title: "提交成功",
+                  //       onHide(){
+                  //           that.$router.go(-1)
+                  //       }
+                  //   })
+                  that.showToast=true;
+                                // that.$router.go(-1)
+                         setTimeout(()=>{
+                             that.$router.go(-1)
+                         },1000)
                 }
         });
     }
@@ -69,6 +77,7 @@ export default {
 <style scoped>
 #partnerRegistration {
   padding: 0 16px;
+  height: 100%;
 }
 
 #partnerRegistration input {

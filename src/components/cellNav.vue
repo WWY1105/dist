@@ -1,13 +1,12 @@
 <template>
     <div class="cellVav">
         <cell is-link  :class="noBorder" @click.native="gotoSeePage" >
-            <span slot="title" class="flexSpace">
-                <div class="left flexCenter">
+            <!-- <span  class="flexSpace"> -->
+                <!-- <div class="left flexSpace"> -->
                     <i slot="icon" :class="'iconfont '+icon"></i>
-                    <span style="vertical-align:middle;">{{leftTitle}}</span>
-                </div>
-                <badge :text="num" v-if="num==0?false:true"></badge>
-            </span>
+                    <span  slot="title" style="vertical-align:middle;">{{leftTitle}}</span>
+                <!-- </div> -->
+                <badge slot='value' style="float:right" :text="num" v-if="num==0?false:true"></badge>      
         </cell>
     </div>
 </template>
@@ -16,17 +15,22 @@
 import { Cell, Badge } from 'vux'
 
 export default {
-    props: ['leftTitle', 'num', 'icon','noBorder','link','writerId'],
+    props: ['leftTitle', 'num', 'icon','noBorder','link','writerId','uid'],
     components: {
         Cell,
         Badge
     },
     methods:{
         gotoSeePage(){
+           
+           if(this.leftTitle=='关注公众号'){
+               this.$emit('tofellow','https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU4NTczOTE4NQ==#wechat_redirect')
+           }
             this.$router.push({
                 path:this.link,
                 query:{
-                    'writerId':this.writerId
+                    'writerId':this.writerId,
+                    'uid':this.uid
                 },
                 meta:{
                     keepActive:false
@@ -39,11 +43,13 @@ export default {
 </script>
 
 <style scoped>
-.cellVav .vux-label {
+ .vux-label {
     width: 100%!important;
     align-items: center;
 }
-
+#mineIndex   .vux-label{
+    width: 100%!important;
+}
 .cellVav .weui-cell {
     border-bottom: 1px solid #D9D9D9;
     padding-left: 0;
@@ -69,7 +75,7 @@ export default {
 }
 
 .cellVav .vux-badge-single {
-    position: absolute;
-    right: 10%;
+    /* position: absolute;
+    right: 10%; */
 }
 </style>

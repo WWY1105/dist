@@ -2,13 +2,14 @@
 <div id="contactUs" class="flexCenter bgW">
     <div class="pic ">
         <img src="../../assets/img/Telephone@2x.png" class="topPic" alt="">
-        <p> 书商热线：<a  class="mainText"  type="tel">400 800 2421</a> </p>
-        <p> 作者热线：<a  class="mainText"  type="tel">400 800 2422</a> </p>
-        <p> 投诉热线：<a  class="mainText"  type="tel">400 800 2423</a></p>
+        <p> 家长热线：<a  class="mainText"  href="tel://186 1619 3061">186 1619 3061</a> </p>
+        <p> 家教热线：<a  class="mainText"  href="tel://186 1619 3261">186 1619 3261</a> </p>
+        <p> 投诉热线：<a  class="mainText"  href="tel://186 1619 3061">186 1619 3061</a></p>
+         <!-- <p> 微信客服：<a  class="mainText"  href="tel://186 1619 3261">186 1619 3261</a> </p> -->
     </div>
     <div class="pic">
         <img src="../../assets/img/wx@2x.png" class="bottomPic" alt="">
-        <p>微信客服：132 1421 4123</p>
+        <p>微信客服：186 1619 3261</p>
     </div>
 </div>
 </template>
