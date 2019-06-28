@@ -26,7 +26,7 @@
                 <p class="rightText">{{subject}}</p>
             </div>
             <div class="eachHang">
-                <p class="leftText">收费标准：</p>
+                <p class="leftText">参考费用：</p>
                 <p class="rightText">
                     1对1：{{soleCost}}/人时；
                     1对多：{{jointCost}}/人时；

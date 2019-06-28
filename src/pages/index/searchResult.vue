@@ -195,7 +195,7 @@
     
                             <writers :serviceHours="item.serviceHours" :serviceOrderCount="item.serviceOrderCount" :serviceUserCount="item.serviceUserCount"   :imgurl="item.imgurl" :authorAuth="item.authorAuth"  :type="item.type" :uid="item.id" :priceType="searchPriceType" :sole="item.authorInfo?item.authorInfo.soleCost:''" :joint="item.authorInfo?item.authorInfo.jointCost:''" :isMissionDetail="isMissionDetail" :isCanChoose="isCanChoose" :userTags="item.authorInfo?item.authorInfo.userTags:''"
     
-                                :realAuth="item.realAuth" :eduAuth="item.eduAuth" :tag="item.tag" :userCount="item.userCount" :workAge="item.authorAuthInfo.workAge" :shortName="item.nickname"></writers>
+                                :realAuth="item.realAuth" :eduAuth="item.eduAuth" :tag="item.tag" :userCount="item.userCount" :workAge="item.authorAuthInfo!=null?item.authorAuthInfo.workAge:''"  :shortName="item.nickname"></writers>
     
                         </router-link>
     

@@ -3,15 +3,17 @@
 </template>
 
 <script>
-import {  AlertModule} from 'vux' 
+import {
+    AlertModule
+} from 'vux'
 export default {
     data() {
         return {
             code: ''
         }
     },
-    components:{
-           AlertModule,
+    components: {
+        AlertModule,
     },
     mounted() {
         this.code = this.GetQueryString('code');
@@ -47,10 +49,10 @@ export default {
                         //                     var that = this;
                         //   var baseUrl = this.$store.state.baseUrl;
                         // alert('res.data.data.webUser.uid')
-                         localStorage.setItem('newUser',res.data.data.newUser)
+                        //  localStorage.setItem('newUser',res.data.data.newUser)
                         if (res.data.data.newUser) {
                             // 新用户
-                          
+
                             localStorage.setItem("openid", res.data.data.openid);
                             localStorage.setItem("imgurl", res.data.data.headimgurl);
                             that.$router.push({
@@ -61,33 +63,46 @@ export default {
                                 }
                             })
                         } else {
-                             // 添加调解人recommadd是调解人的id
-                        if (localStorage.getItem('recommadd')) {
-                            // alert("‘执行" + res.data.data.webUser.id + "///" + localStorage.getItem('recommadd'))
-                            that.$http('post', baseUrl + 'api/Mediator/add', {
-                                uid: res.data.data.webUser.id,
-                                mediator: localStorage.getItem('recommadd')
-                            }).then(function (res) {
-                                if (res.data.code != '00') {
-                                    AlertModule.show({
-                                        title: res.data.msg
-                                    })
-                                } else {
-                                }
+                            //  alert("‘执行" + res.data.data.webUser.id + "///" + that.GetQueryString('recommadd'))
+                            // 添加调解人recommadd是调解人的id
+                            if (that.GetQueryString('recommadd')) {
 
-                            })
-                        }
+                                that.$http('post', baseUrl + 'api/Mediator/add', {
+                                    uid: res.data.data.webUser.id,
+                                    mediator: that.GetQueryString('recommadd').split('_')[0]
+                                }).then(function (res) {
+                                    if (res.data.code != '00') {
+                                        AlertModule.show({
+                                            title: res.data.msg
+                                        })
+                                    } else {
+
+                                    }
+
+                                })
+                            }
+
                             // 老用户
                             that.$store.commit('setuid', res.data.data.webUser.id)
                             that.$store.commit('setOpenid', res.data.data.openid)
                             that.$store.commit('setUserImg', res.data.data.headimgurl)
-                            that.$router.push({
-                                path: "/index",
-                                query: {
-                                    imgurl: res.data.data.headimgurl,
-                                    openid: res.data.data.openid
-                                }
-                            })
+                            if (that.GetQueryString('recommadd')) {
+                                that.$router.push({
+                                    path: "/writerDetail",
+                                    query: {
+                                        writerId: that.GetQueryString('recommadd').split('_')[1]
+                                    }
+                                })
+                            } else {
+                                that.$router.push({
+                                    path: "/index",
+                                    query: {
+                                        imgurl: res.data.data.headimgurl,
+                                        openid: res.data.data.openid
+                                    }
+                                })
+                            }
+
                         }
 
                     }

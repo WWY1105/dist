@@ -32,7 +32,7 @@
                     <cell title="科目" is-link :value="rightText2" @click.native="gotoMultiPicker('category')"></cell>
                 </div>
                 <div class="eachArea">
-                    <!--每小时费用-->
+                    <!--每小时参考费用-->
                     <sliderPopupPicker class="bgG" :gradesArr="slidePriceArr2" :leftText="leftText3" :rightText="rightText4" v-on:changeResult="changeResultSoleCost"></sliderPopupPicker>
                     <sliderPopupPicker class="bgG" :gradesArr="slidePriceArr2" :leftText="leftText7" :rightText="rightText5" v-on:changeResult="changeResultJointCost"></sliderPopupPicker>
                 </div>
@@ -183,11 +183,11 @@ export default {
                 [1, 2, 3, 4, 5]
             ],
             leftText2: "科目",
-            leftText3: "1对1费用",
+            leftText3: "1对1参考费用",
             leftText4: "上门方式",
             leftText5: "上门区域",
             leftText6: "招标家长人数",
-            leftText7: "1对多费用",
+            leftText7: "1对多参考费用",
             introduction: "",
             content: "",
             // rightText2: '不限',
@@ -334,13 +334,13 @@ export default {
                     // 科目authorInfo.subject
                     that.rightText2 = res.data.data.authorInfo.subject;
 
-                    // 1对1费用authorInfo.soleCost
+                    // 1对1参考费用authorInfo.soleCost
                     that.rightText4 = res.data.data.authorInfo.soleCost + "元";
                     that.soleCost = res.data.data.authorInfo.soleCost
                         .split("元")[0]
                         .split("~")
                         .join("-");
-                    // 1对多费用authorInfo.jointCost
+                    // 1对多参考费用authorInfo.jointCost
                     that.rightText5 = res.data.data.authorInfo.jointCost + "元";
                     // alert(that.rightText5)
                     that.jointCost = res.data.data.authorInfo.jointCost
@@ -473,7 +473,7 @@ export default {
                 .split("元")[0]
                 .split("~")
                 .join("-");
-            console.log("1对1费用");
+            console.log("1对1参考费用");
             console.log(this.rightText4)
         },
         changeResultJointCost(val) {
@@ -500,8 +500,8 @@ export default {
                 gender: that.gender,
                 classNo: that.classNo.indexOf(',') > 0 ? that.classNojoin(",") : that.classNo,
                 subject: that.subject.indexOf(',') > 0 ? that.subject.join(",") : that.subject,
-                soleCost: that.soleCost, //1对1费用
-                jointCost: that.jointCost, //1对多费用
+                soleCost: that.soleCost, //1对1参考费用
+                jointCost: that.jointCost, //1对多参考费用
                 coordination: that.coordinations,
                 area: that.area,
                 selfCon: that.introductionContent,

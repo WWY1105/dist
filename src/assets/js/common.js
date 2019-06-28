@@ -149,7 +149,7 @@ const common = {
       console.log(that.sliderClassArr)
     })
   },
-  // 获取每小时费用
+  // 获取每小时参考费用
   getPriceArr() {
     var that = this;
     var baseUrl = this.$store.state.baseUrl;

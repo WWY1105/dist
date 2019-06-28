@@ -156,7 +156,7 @@ export default {
                      if (localStorage.getItem('newUser')) {
                         that.$http('post', that.$store.state.baseUrl + 'api/Mediator/add', {
                             uid: res.data.data.id,
-                            mediator: that.GetQueryString('recommadd')
+                            mediator: that.GetQueryString('recommadd').split('_')[0] 
                         }).then(function (res) {
                             //  alert(res)
                             if (res.data.code != '00') {

@@ -33,7 +33,7 @@
     
                 <radioPicker :radiosArr="radiosArr" :title="publish_title" v-on:getRadioValue="getPublicWay"></radioPicker>
     
-                <!--每小时费用-->
+                <!--每小时参考费用-->
     
                 <sliderPopupPicker :rightText="rightText4" :gradesArr="slidePriceArr2" :leftText="leftText3" v-on:changeResult="changeResultPrice"></sliderPopupPicker>
     
@@ -605,7 +605,7 @@
     
                 rightText3: "",
     
-                leftText3: "每小时费用",
+                leftText3: "每小时参考费用",
     
                 leftText4: "上门方式",
     

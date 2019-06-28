@@ -13,7 +13,7 @@
         <sliderPopupPicker :rightText="rightText00" :gradesArr="sliderSubjectArr" :leftText="leftText2" v-on:changeResult="changeResultKM1"></sliderPopupPicker>
         <!--组班方式-->
         <radioPicker :radiosArr="radiosArr" :title="publish_title" v-on:getRadioValue="getPublicWay"></radioPicker>
-        <!--每小时费用-->
+        <!--每小时参考费用-->
         <sliderPopupPicker :rightText="rightText4" :gradesArr="slidePriceArr2" :leftText="leftText3" v-on:changeResult="changeResultPrice1"></sliderPopupPicker>
         <!--上门方式-->
         <slidePicker :sliderArr="coordination2" :leftText="leftText4" v-on:changeResult="changeResultWay"></slidePicker>
@@ -343,7 +343,7 @@ export default {
             rightText1: "",
             rightText4: "",
             rightText3: "",
-            leftText3: "每小时费用",
+            leftText3: "每小时参考费用",
             leftText4: "上门方式",
             leftText5: "上门区域",
             myarea: [],

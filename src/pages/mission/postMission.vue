@@ -17,7 +17,7 @@
         <div class="eachArea">
             <!--组班方式-->
             <radioPicker :radiosArr="radiosArr" :title="publish_title" v-on:getRadioValue="getPublicWay"></radioPicker>
-            <!--每小时费用-->
+            <!--每小时参考费用-->
             <sliderPopupPicker :rightText="rightJg" :gradesArr="slidePriceArr" :leftText="leftText3" v-on:changeResult="changeResultPrice1"></sliderPopupPicker>
 
             <!--找家长找家教（招标家长人数）-->
@@ -138,7 +138,7 @@ export default {
             ],
 
             leftText2: '科目',
-            leftText3: '每小时费用',
+            leftText3: '每小时参考费用',
             leftText4: '上门方式',
             leftText5: '上门区域',
             leftText6: '招标家长人数',
@@ -426,20 +426,20 @@ export default {
                 if (that.postData.coordination == '远程协作') {
                     that.postData.area = '远程协作'
                     var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.deadline, that.postData.coordination, that.postData.introduction];
-                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时费用', '截止日期', '上门方式', '简述']
+                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时参考费用', '截止日期', '上门方式', '简述']
                 } else {
                     var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.deadline, that.postData.coordination, that.postData.area, that.postData.introduction];
-                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时费用', '截止日期', '上门方式', '上门区域', '简述']
+                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时参考费用', '截止日期', '上门方式', '上门区域', '简述']
                 }
 
             } else {
                 if (that.postData.coordination == '远程协作') {
                     that.postData.area = '远程协作'
                     var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.busniessCount, that.postData.deadline, that.postData.coordination, that.postData.introduction];
-                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时费用', '家长数量', '截止日期', '上门方式', '简述']
+                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时参考费用', '家长数量', '截止日期', '上门方式', '简述']
                 } else {
                     var dataArr = [that.postData.classNo, that.postData.category, that.postData.taskType, that.postData.priceType, that.postData.priceRange, that.postData.busniessCount, that.postData.deadline, that.postData.coordination, that.postData.area, that.postData.introduction];
-                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时费用', '家长数量', '截止日期', '上门方式', '上门区域', '简述']
+                    var nameArr = ['年级', "科目", '组班方式', '出资方式', '每小时参考费用', '家长数量', '截止日期', '上门方式', '上门区域', '简述']
                 }
 
             }
