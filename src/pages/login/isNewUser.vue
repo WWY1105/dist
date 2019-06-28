@@ -65,22 +65,22 @@ export default {
                         } else {
                             //  alert("‘执行" + res.data.data.webUser.id + "///" + that.GetQueryString('recommadd'))
                             // 添加调解人recommadd是调解人的id
-                            if (that.GetQueryString('recommadd')) {
+                            // if (that.GetQueryString('recommadd')) {
 
-                                that.$http('post', baseUrl + 'api/Mediator/add', {
-                                    uid: res.data.data.webUser.id,
-                                    mediator: that.GetQueryString('recommadd').split('_')[0]
-                                }).then(function (res) {
-                                    if (res.data.code != '00') {
-                                        AlertModule.show({
-                                            title: res.data.msg
-                                        })
-                                    } else {
+                            //     that.$http('post', baseUrl + 'api/Mediator/add', {
+                            //         uid: res.data.data.webUser.id,
+                            //         mediator: that.GetQueryString('recommadd').split('_')[0]
+                            //     }).then(function (res) {
+                            //         if (res.data.code != '00') {
+                            //             AlertModule.show({
+                            //                 title: res.data.msg
+                            //             })
+                            //         } else {
 
-                                    }
+                            //         }
 
-                                })
-                            }
+                            //     })
+                            // }
 
                             // 老用户
                             that.$store.commit('setuid', res.data.data.webUser.id)
