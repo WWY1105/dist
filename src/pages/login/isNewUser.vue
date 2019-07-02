@@ -38,15 +38,15 @@ export default {
                         })
                     } else {
                         // 先把recommadd存下来
-                        if(that.GetQueryString('recommadd')){
-                            if(that.GetQueryString('recommadd').split('_')[0]){
-                            localStorage.setItem('recomm',that.GetQueryString('recommadd').split('_')[0])
+                        if (that.GetQueryString('recommadd')) {
+                            if (that.GetQueryString('recommadd').split('_')[0]) {
+                                localStorage.setItem('recomm', that.GetQueryString('recommadd').split('_')[0])
+                            }
+                            if (that.GetQueryString('recommadd').split('_')[1] != 'A') {
+                                localStorage.setItem('adduid', that.GetQueryString('recommadd').split('_')[1])
+                            }
                         }
-                        if(that.GetQueryString('recommadd').split('_')[1]!='A'){
-                            localStorage.setItem('adduid',that.GetQueryString('recommadd').split('_')[1])
-                        }
-                        }
-                        
+
                         if (res.data.data.newUser) {
                             // 新用户
                             localStorage.setItem("openid", res.data.data.openid);
@@ -64,23 +64,37 @@ export default {
                             that.$store.commit('setOpenid', res.data.data.openid)
                             that.$store.commit('setUserImg', res.data.data.headimgurl)
                             if (that.GetQueryString('recommadd')) {
-                                if(that.GetQueryString('recommadd').split('_')[1]!='A'){
-                                    that.$router.push({
-                                    path: "/writerDetail",
-                                    query: {
-                                        writerId: that.GetQueryString('recommadd').split('_')[1]
+                                that.$http('post', that.$store.state.baseUrl + 'api/Mediator/add', {
+                                    uid: that.$store.state.uid,
+                                    mediator: that.GetQueryString('recommadd').split('_')[0]
+                                }).then(function (res) {
+                                    //  alert(res)
+                                    if (res.data.code != '00') {
+                                        AlertModule.show({
+                                            title: res.data.msg
+                                        })
+                                    } else {
+                                        if (that.GetQueryString('recommadd').split('_')[1] != 'A') {
+
+                                            that.$router.push({
+                                                path: "/writerDetail",
+                                                query: {
+                                                    writerId: that.GetQueryString('recommadd').split('_')[1]
+                                                }
+                                            })
+                                        } else {
+                                            that.$router.push({
+                                                path: "/index",
+                                                query: {
+                                                    imgurl: res.data.data.headimgurl,
+                                                    openid: res.data.data.openid
+                                                }
+                                            })
+                                        }
                                     }
+
                                 })
-                                }else{
-                                    that.$router.push({
-                                    path: "/index",
-                                    query: {
-                                        imgurl: res.data.data.headimgurl,
-                                        openid: res.data.data.openid
-                                    }
-                                })
-                                }
-                                
+
                             } else {
                                 that.$router.push({
                                     path: "/index",
