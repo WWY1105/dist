@@ -75,9 +75,7 @@ export default {
                                         })
                                     } else {
                                         if (that.GetQueryString('recommadd').split('_')[1] != 'A') {
-                                             AlertModule.show({
-                                            title:"添加调解人成功"
-                                        })
+
                                             that.$router.push({
                                                 path: "/writerDetail",
                                                 query: {

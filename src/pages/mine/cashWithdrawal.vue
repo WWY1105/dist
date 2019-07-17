@@ -53,7 +53,7 @@ export default {
             AlertModule.show({
                 title: '因微信相关规则，需要扣除1%的手续费',
                 onHide: () => {
-                    if (that.money.trim() != '' && that.money > 0) {
+                    if (that.money && that.money > 0) {
                         that.$http('post', baseUrl + 'api/FeeRecord/Withdraw', {
                             uid: that.uid,
                             amount: that.money
@@ -71,7 +71,7 @@ export default {
                                         })
                                     }
                                 })
-                                //    var  result=JSON.parse(res.data.data)
+                               var  result=JSON.parse(res.data.data)
                                 console.log('提现了')
                                 wx.ready(function () {
                                     wx.chooseWXPay({

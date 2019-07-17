@@ -10,7 +10,8 @@ import fill_in_information from '@/pages/login/fill_in_information'
 // 登录模块END
 
 // 首页模块
-import index from '@/pages/index/index'
+// import index from '@/pages/index/index'
+import order from '@/pages/index/order'
 import searchResult from '@/pages/index/searchResult'
 import writerDetail from '@/pages/index/writerDetail'
 import privateMsg from '@/pages/index/privateMsg'
@@ -46,7 +47,6 @@ import payFail  from '@/pages/mission/payFail'
 // 我的
 import mineIndex from '@/pages/mine/mineIndex'
 import supplementaryRegistration from '@/pages/mine/supplementaryRegistration'
-
 import myMainPage from '@/pages/mine/myMainPage'
 import realNameAuthentication  from '@/pages/mine/realNameAuthentication'
 import educationAuthentication  from '@/pages/mine/educationAuthentication'
@@ -146,14 +146,23 @@ export default new Router({
       }
     },
     
+    // {
+    //   path: '/index',
+    //   name: 'index',
+    //   component: index,
+    //   meta:{
+    //     title:'首页'
+    //   }
+    // }
     {
-      path: '/index',
-      name: 'index',
-      component: index,
+      path:'/order',
+      name:'order',
+      component:order,
       meta:{
-        title:'首页'
+        title:'订单'
       }
-    },{
+    }
+    ,{
       path: '/viewingMechanism',
       name: 'viewingMechanism',
       component: viewingMechanism,
@@ -216,8 +225,8 @@ export default new Router({
     },
     
     {
-      path: '/mission',
-      name: 'mission',
+      path: '/index',
+      name: 'index',
       component: mission,
       meta:{
         title:'任务大厅'

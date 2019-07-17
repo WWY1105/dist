@@ -26,17 +26,17 @@ export default {
             routers: [
                 {
                     name: '找家教',
-                    iconfontName: 'iconfont icon-search-1-copy',
-                    link: '/index',
+                    iconfontName: 'iconfont icon-boshimao1',
+                    link: '/mission',
                     active: true
                 }, {
-                    name: '任务',
-                    iconfontName: 'iconfont icon-iconset0137',
-                    link: '/mission',
+                    name: '订单',
+                    iconfontName: 'iconfont icon-dingdan',
+                    link: '/order',
                     active: false
                 }, {
-                    name: '圈子',
-                    iconfontName: 'iconfont icon-zhinanzhen',
+                    name: '消息',
+                    iconfontName: 'iconfont icon-send',
                     link: '/circle',
                     active: false
                 }, {
