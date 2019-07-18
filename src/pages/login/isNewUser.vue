@@ -61,6 +61,8 @@ export default {
                         } else {
                             // 老用户
                             that.$store.commit('setuid', res.data.data.webUser.id)
+                            that.$store.commit('setUserType',res.data.data.webUser.type)
+                            localStorage.setItem('userType', res.data.data.webUser.type);
                             that.$store.commit('setOpenid', res.data.data.openid)
                             that.$store.commit('setUserImg', res.data.data.headimgurl)
                             if (that.GetQueryString('recommadd')) {

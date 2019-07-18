@@ -16,7 +16,7 @@ export default new Vuex.Store({
         userImg:'',
         code:'',
         recommadd:''||localStorage.getItem('recommadd'),
-        
+        userType:""
     },
     mutations: {
         setCode(state, n) {
@@ -36,6 +36,9 @@ export default new Vuex.Store({
         },
         setRecommadd(state,n){
             state.recommadd=n
+        },
+        setUserType(state,n){
+            state.userType=n
         }
 
     }

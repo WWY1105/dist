@@ -1,313 +1,187 @@
 <template>
-  <div id="mission">
+<div id="mission">
     <!-- ================================================================================================-->
 
     <div class="main">
-      <div class="shaixuanBox sxPop" v-if="sxIsShow">
-        <!--筛选弹窗-->
-        <!--年级选择-->
-        <sliderPopupPicker
-          :gradesArr="sliderBigClassArr"
-          :leftText="leftText1"
-          v-on:changeResult="changeResultGrade"
-        ></sliderPopupPicker>
-        <!--科目选择器-->
-        <sliderPopupPicker
-          :gradesArr="sliderSubjectArr"
-          :leftText="leftText2"
-          v-on:changeResult="changeResultKM"
-        ></sliderPopupPicker>
-        <!--组班方式-->
-        <radioPicker
-          :radiosArr="radiosArr"
-          :title="publish_title"
-          v-on:getRadioValue="getPublicWay"
-        ></radioPicker>
-        <!--每小时参考费用-->
-        <sliderPopupPicker
-          :rightText="rightText4"
-          :gradesArr="slidePriceArr2"
-          :leftText="leftText3"
-          v-on:changeResult="changeResultPrice"
-        ></sliderPopupPicker>
-        <!--上门方式-->
-        <slidePicker
-          :sliderArr="coordination2"
-          :leftText="leftText4"
-          v-on:changeResult="changeResultWay"
-        ></slidePicker>
-        <!--上门区域-->
-        <group>
-          <x-address
-            @on-show="addressChange"
-            v-model="myarea"
-            :gradesArr="addressData"
-            :title="leftText5"
-            :list="addressData"
-            class="areaBox"
-            @on-hide="onAddressChange"
-          ></x-address>
-        </group>
-        <group>
-          <x-switch title="需要身份认证" v-model="stringValue1"></x-switch>
-        </group>
-        <group>
-          <x-switch title="需要学历认证" v-model="stringValue2"></x-switch>
-        </group>
-        <group>
-          <x-switch title="需要家教资质" v-model="stringValue3"></x-switch>
-        </group>
-        <!--性别选择-单选组件-->
-        <radioPicker :radiosArr="radios_sex_Arr" :title="radioTitle" @getRadioValue="getRadioValue"></radioPicker>
-        <!--rang-->
-        <group>
-          <p class="smalltitle">
-            家教年限范围
-            <span>0年 ----- 80年</span>
-          </p>
-          <div class="workAgeBox flexCenter">
-            <input type="number" v-model="minWorkAge" />
--
-            <input v-model="maxWorkAge" type="number" />
-          </div>
-        </group>
-
-        <div style="padding:0px 10px;" class="popBtnBox">
-          <button class="long_btn cancelResultBtn" @click.prevent="cancelSS">取消</button>
-
-          <button class="long_btn seeResultBtn" @click="showSSdata">显示筛选结果</button>
-        </div>
-        <!--筛选弹窗 end-->
-      </div>
-
-      <div v-if="mainShow">
-        <!--顶部按钮-->
-
-        <div class="topBox flexSpace">
-          <div class="eachBtn shortOne" @click="pxIsShow=!pxIsShow">
-            排序
-            <i class="iconfont icon-paixu"></i>
-          </div>
-          <span class="line"></span>
-          <div class="eachBtn shortOne" @click.stop="clickSS">
-            筛选
-            <i class="iconfont icon-shaixuan"></i>
-          </div>
-        </div>
-        <!-- 类型筛选 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
-        <div v-transfer-dom class="bgW" id="sortPopup">
-          <popup v-model="typeShow" style="background-color:#fff;" class="sortBox bgW">
-            <div
-              style="background-color:#fff;height:auto;margin:0 auto;border-radius:5px;text-align:center"
-            >
-              <group>
-                <cell
-                  v-for="item,index in typeOptions"
-                  :title="item.title"
-                  :key="index"
-                  @click.native="choostTypeItem(index)"
-                ></cell>
-              </group>
-            </div>
-          </popup>
-        </div>
-
-        <!-- 类型筛选 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
-
-        <div class="scrollerBox" v-if="scrollerShow">
-          <scroller
-            use-pullup
-            :pullup-config="pullupDefaultConfig"
-            @on-pullup-loading="loadMore"
-            use-pulldown
-            :pulldown-config="pulldownDefaultConfig"
-            @on-pulldown-loading="refresh"
-            lock-x
-            ref="scrollerBottom"
-            height="-48"
-          >
-            <div>
-              <!--任务list-->
-
-              <div class="reacResult" id="resultPeoples">
-                <div
-                  :class="'eachPeople bgW '+item.borderColor"
-                  v-for="item,index of postList"
-                  @click.stop="toSeeMissionDetail(index)"
-                >
-                  <div class="titleBox flexSpace">
-                    <div class="left flexStart">
-                      <img
-                        :src="$store.state.imgUrl+item.webUser.imgurl"
-                        @click.stop="seeUserDetail(item.uid)"
-                        class="userImg"
-                        alt
-                      />
-
-                      <div>
-                        <!-- {{item.webUser.type=='author'?"家教":"家长"}} -->
-
-                        <p class="name">{{item.nickname==null?'':item.nickname}}</p>
-
-                        <p class="options flexSpace">
-                          <span class="option flexStart">
-                            实名
-                            <i
-                              class="iconfont icon-gouxuan"
-                              v-if="item.webUser.realAuth=='2'?true:false"
-                            ></i>
-
-                            <i
-                              class="iconfont icon-wenhao"
-                              v-if="item.webUser.realAuth=='2'?false:true"
-                            ></i>
-                          </span>
-
-                          <span class="option">
-                            学历
-                            <i
-                              class="iconfont icon-gouxuan"
-                              v-if="item.webUser.eduAuth=='2'?true:false"
-                            ></i>
-
-                            <i
-                              class="iconfont icon-wenhao"
-                              v-if="item.webUser.eduAuth=='2'?false:true"
-                            ></i>
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div class="right flexEnd">
-                      <p class="button searchSS" v-if="item.taskType=='2'?true:false">找家长</p>
-
-                      <p class="button searchZZ" v-if="item.taskType=='1'?true:false">找家教</p>
-
-                      <p class="button searchSZ" v-if="item.taskType=='3'?true:false">团家长找家教</p>
-
-                      <p class="price">￥ {{item.priceMin}} - ￥{{item.priceMax}}/小时</p>
-                    </div>
-                  </div>
-
-                  <div class="details">
-                    <p class="hang flexSpace">
-                      <span class="eachItem">年级：{{item.classNo}}</span>
-
-                      <span class="eachItem">科目：{{item.category}}</span>
-
-                      <span class="eachItem">组班方式：{{item.priceType=='1'?'1对1':"1对多"}}</span>
-                    </p>
-
-                    <p class="hang flexStart">
-                      <span
-                        class="eachItem"
-                      >协作：{{item.coordination=='online'?'远程协作':item.coordination=='busniess'?'家长拜访':'家教拜访'}}</span>
-
-                      <span class="eachItem add">区域：{{item.area}}</span>
-                    </p>
-
-                    <p class="hang">
-                      <span>简述：{{item.introduction}}</span>
-                    </p>
-                  </div>
-
-                  <div class="otherMsg flexSpace">
-                    <p class="left">
-                      <span>截至报名：{{!item.deadline?"":item.deadline.substr(0,10)}}</span>
-
-                      <span>已报名：{{item.applicationCount}}&nbsp;/&nbsp;{{item.busniessCount}}</span>
-                    </p>
-
-                    <p class="right">
-                      <button class="submitBtn" @click.stop="toEnroll(index)">报名</button>
-                    </p>
-                  </div>
+        <div v-transfer-dom>
+            <popup v-model="sxIsShow">
+                <div class="popup1">
+                    <group>
+                        <!--年级选择-->
+                        <sliderPopupPicker :zindex="90000" :gradesArr="sliderBigClassArr" :leftText="leftText1" v-on:changeResult="changeResultGrade"></sliderPopupPicker>
+                    </group>
+                    <group>
+                      <!--科目选择器-->
+                      <sliderPopupPicker :zindex="90000" :gradesArr="sliderSubjectArr" :leftText="leftText2" v-on:changeResult="changeResultKM"></sliderPopupPicker>
+                    </group>
+                     <group>
+                        <!--每小时参考费用-->
+                        <sliderPopupPicker :zindex="90000" :rightText="rightText4" :gradesArr="slidePriceArr2" :leftText="leftText3" v-on:changeResult="changeResultPrice"></sliderPopupPicker>
+                    </group>
+                     <group>
+                        <!--上门方式-->
+                       <slidePicker :zindex="90000" :sliderArr="coordination2" :leftText="leftText4" v-on:changeResult="changeResultWay"></slidePicker>
+                    </group>
+                     <group>
+                        <!--上门区域-->
+                       <x-address :popup-style="{zIndex: 502}" @on-show="addressChange" v-model="myarea" :gradesArr="addressData" :title="leftText5" :list="addressData" class="areaBox" @on-hide="onAddressChange"></x-address>
+                    </group>
+                     <group>
+                          <button class="long_btn seeResultBtn" @click="showSSdata">显示筛选结果</button>
+                     </group>
                 </div>
-              </div>
-            </div>
-          </scroller>
-
-          <!--循环任务列表-->
-
-          <!--任务list end-->
-
-          <!--全部-->
-
-          <div v-transfer-dom id="myPop">
-            <popup class="aLLIsShow" height :should-rerender-on-show="false"></popup>
-          </div>
-
-          <!--排序-->
-
-          <div v-transfer-dom id="myPop">
-            <!-- 保存并推出getMissionOrderType -->
-
-            <sortPopup
-              :pxIsShow="pxIsShow"
-              :sortOptions="sortOptions"
-              @getPxIsShow="getPxIsShow"
-              @getMissionOrderType="getMissionOrderType"
-            ></sortPopup>
-          </div>
+            </popup>
         </div>
 
-        <div class="component">
-          <div id="multiPicker">
-            <!-- 年级 -->
+        <div v-if="mainShow">
+            <!--顶部按钮-->
 
-            <div class="gradeContent" v-if="classShow">
-              <p class="title bgW">{{leftText1}}（选择后保存）</p>
+            <div class="topBox flexSpace">
+                <div class="eachBtn shortOne" @click="pxIsShow=!pxIsShow">
+                    排序
+                    <i class="iconfont icon-paixu"></i>
+                </div>
+                <span class="line"></span>
+                <div class="eachBtn shortOne" @click.stop="clickSS">
+                    筛选
+                    <i class="iconfont icon-shaixuan"></i>
+                </div>
+            </div>
+            <div class="scrollerBox" v-if="scrollerShow">
+                <scroller use-pullup :pullup-config="pullupDefaultConfig" @on-pullup-loading="loadMore" use-pulldown :pulldown-config="pulldownDefaultConfig" @on-pulldown-loading="refresh" lock-x ref="scrollerBottom" height="-48">
+                    <!--轮播图 -->
+                    <swiper auto class="swiper" @click.native="seeBannerUrl" height="120px" :list="swipperList" v-model="demo01_index" @on-index-change="demo01_onIndexChange"></swiper>
+                    <!--轮播图 end-->
 
-              <div class="content flexSpace bgW">
-                <p
-                  :class="item.active==true?'item active':'item'"
-                  v-for="item,index in gradesArr"
-                  @click="addActive(index)"
-                >{{item.className}}</p>
-              </div>
+                    <!-- 类型筛选 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+                    <div v-transfer-dom class="bgW" id="sortPopup">
+                        <popup v-model="typeShow" style="background-color:#fff;" class="sortBox bgW">
+                            <div style="background-color:#fff;height:auto;margin:0 auto;border-radius:5px;text-align:center">
+                                <group>
+                                    <cell v-for="item,index in typeOptions" :title="item.title" :key="index" @click.native="choostTypeItem(index)"></cell>
+                                </group>
+                            </div>
+                        </popup>
+                    </div>
 
-              <button class="long_btn" @click="getResult">确认</button>
+                    <!-- 类型筛选 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+                    <div>
+                        <!--任务list-->
+
+                        <div class="reacResult" id="resultPeoples">
+                            <div :class="'eachPeople bgW '+item.borderColor" v-for="item,index of postList" @click.stop="toSeeMissionDetail(index)">
+                                <div class="titleBox flexSpace">
+                                    <div class="left flexStart">
+                                        <img :src="$store.state.imgUrl+item.webUser.imgurl" @click.stop="seeUserDetail(item.uid)" class="userImg" alt />
+
+                                        <div>
+                                            <p class="name">{{item.nickname==null?'':item.nickname}}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="right flexEnd">
+                                        <span class="priceDesc">费用预算</span>
+
+                                        <p class="price">￥ {{item.priceMin}} - ￥{{item.priceMax}}/小时</p>
+                                    </div>
+                                </div>
+
+                                <div class="details">
+                                    <p class="hang flexSpace">
+                                        <span class="eachItem">年级：{{item.classNo}}</span>
+                                        <span class="eachItem">科目：{{item.category}}</span>
+                                    </p>
+                                    <p class="hang flexStart">
+                                        <span class="eachItem">上课：{{item.coordination=='online'?'远程协作':item.coordination=='busniess'?'家长拜访':'家教拜访'}}</span>
+
+                                        <span class="eachItem add">区域：{{item.area}}</span>
+                                    </p>
+
+                                    <p class="hang">
+                                        <span>简述：{{item.introduction}}</span>
+                                    </p>
+                                </div>
+
+                                <div class="otherMsg flexSpace">
+                                    <p class="left">
+                                        <span>截至报名：{{!item.deadline?"":item.deadline.substr(0,10)}}</span>
+
+                                        <span>已报名：{{item.applicationCount}}&nbsp;/&nbsp;{{item.busniessCount}}</span>
+                                    </p>
+
+                                    <p class="right">
+                                        <button class="submitBtn" @click.stop="toEnroll(index)">报名</button>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </scroller>
+
+                <!--循环任务列表-->
+
+                <!--任务list end-->
+
+                <!--全部-->
+
+                <div v-transfer-dom id="myPop">
+                    <popup class="aLLIsShow" height :should-rerender-on-show="false"></popup>
+                </div>
+
+                <!--排序-->
+
+                <div v-transfer-dom id="myPop">
+                    <!-- 保存并推出getMissionOrderType -->
+
+                    <sortPopup :pxIsShow="pxIsShow" :sortOptions="sortOptions" @getPxIsShow="getPxIsShow" @getMissionOrderType="getMissionOrderType"></sortPopup>
+                </div>
             </div>
 
-            <!-- 科目 -->
+            <div class="component">
+                <div id="multiPicker">
+                    <!-- 年级 -->
 
-            <div class="categoryContent" v-if="categoryShow">
-              <p class="title bgW">{{leftText2}}（选择后保存）</p>
+                    <div class="gradeContent" v-if="classShow">
+                        <p class="title bgW">{{leftText1}}（选择后保存）</p>
 
-              <div class="content flexSpace bgW">
-                <p
-                  :class="item.active==true?'item active':'item'"
-                  v-for="item,index in subjectArr"
-                  @click="addActive2(index)"
-                >{{item.categroy}}</p>
-              </div>
+                        <div class="content flexSpace bgW">
+                            <p :class="item.active==true?'item active':'item'" v-for="item,index in gradesArr" @click="addActive(index)">{{item.className}}</p>
+                        </div>
 
-              <button class="long_btn" @click="getResult2">确认</button>
+                        <button class="long_btn" @click="getResult">确认</button>
+                    </div>
+
+                    <!-- 科目 -->
+
+                    <div class="categoryContent" v-if="categoryShow">
+                        <p class="title bgW">{{leftText2}}（选择后保存）</p>
+
+                        <div class="content flexSpace bgW">
+                            <p :class="item.active==true?'item active':'item'" v-for="item,index in subjectArr" @click="addActive2(index)">{{item.categroy}}</p>
+                        </div>
+
+                        <button class="long_btn" @click="getResult2">确认</button>
+                    </div>
+
+                    <!-- 上门方式 -->
+
+                    <div class="categoryContent" v-if="coordinationShow">
+                        <p class="title bgW">{{leftText5}}（选择后保存）</p>
+
+                        <div class="content flexSpace bgW">
+                            <p :class="item.active==true?'item active':'item'" v-for="item,index in coordination" @click="addActive3(index)">{{item.name}}</p>
+                        </div>
+
+                        <button class="long_btn" @click="getResult3">确认</button>
+                    </div>
+                </div>
             </div>
 
-            <!-- 上门方式 -->
-
-            <div class="categoryContent" v-if="coordinationShow">
-              <p class="title bgW">{{leftText5}}（选择后保存）</p>
-
-              <div class="content flexSpace bgW">
-                <p
-                  :class="item.active==true?'item active':'item'"
-                  v-for="item,index in coordination"
-                  @click="addActive3(index)"
-                >{{item.name}}</p>
-              </div>
-
-              <button class="long_btn" @click="getResult3">确认</button>
-            </div>
-          </div>
+            <appFooter :nowPath="nowPath"></appFooter>
         </div>
-
-        <appFooter :nowPath="nowPath"></appFooter>
-      </div>
     </div>
-  </div>
+</div>
 </template>
 
 <script>
@@ -326,1347 +200,1340 @@ import appFooter from "@/components/footer/appFooter";
 import sliderPopupPicker from "@/components/sliderPopupPicker";
 
 import {
-  Range,
-  Popup,
-  XSwitch,
-  Cell,
-  XButton,
-  Group,
-  Picker,
-  AlertModule,
-  ChinaAddressV4Data,
-  XAddress,
-  Loading,
-  Scroller,
-  Value2nameFilter as value2name
+    Range,
+    Popup,
+    XSwitch,
+    Swiper,
+    SwiperItem,
+    Cell,
+    XButton,
+    Group,
+    Picker,
+    AlertModule,
+    ChinaAddressV4Data,
+    XAddress,
+    Loading,
+    Scroller,
+    Value2nameFilter as value2name
 } from "vux";
 
 const pulldownDefaultConfig = {
-  content: "下拉刷新",
+    content: "下拉刷新",
 
-  height: 40,
+    height: 40,
 
-  autoRefresh: false,
+    autoRefresh: false,
 
-  downContent: "下拉刷新",
+    downContent: "下拉刷新",
 
-  upContent: "释放后刷新",
+    upContent: "释放后刷新",
 
-  loadingContent: "正在刷新...",
+    loadingContent: "正在刷新...",
 
-  clsPrefix: "xs-plugin-pulldown-"
+    clsPrefix: "xs-plugin-pulldown-"
 };
 
 const pullupDefaultConfig = {
-  content: "上拉加载更多",
+    content: "上拉加载更多",
 
-  pullUpHeight: 60,
+    pullUpHeight: 60,
 
-  height: 40,
+    height: 40,
 
-  autoRefresh: false,
+    autoRefresh: false,
 
-  downContent: "释放后加载",
+    downContent: "释放后加载",
 
-  upContent: "上拉加载更多",
+    upContent: "上拉加载更多",
 
-  loadingContent: "加载中...",
+    loadingContent: "加载中...",
 
-  clsPrefix: "xs-plugin-pullup-"
+    clsPrefix: "xs-plugin-pullup-"
 };
 
 export default {
-  data() {
-    return {
-      totalWriter: 0,
+    data() {
+        return {
+            totalWriter: 0,
 
-      scrollerShow: true,
+            scrollerShow: true,
 
-      // follow-关注,userCount-用户数,workHours-家教小时,price-单价最低,work-家教值
+            // follow-关注,userCount-用户数,workHours-家教小时,price-单价最低,work-家教值
 
-      sortOptions: [
-        {
-          value: "优先显示我关注用户的任务",
-          key: "follow"
-        },
-        {
-          value: "优先显示相关家长数最多的用户的任务",
-          key: "userCount"
-        },
+            sortOptions: [{
+                    value: "按发布时间由近到远（默认）",
+                    key: "follow",
+                    
+                },
+                {
+                    value: "预算价格从高到低",
+                    key: "userCount"
+                },
+                {
+                    value: "预算价格从低到高",
+                    key: "workHours"
+                }
+            ],
 
-        {
-          value: "优先显示家教小时数最多的用户的任务",
 
-          key: "workHours"
-        },
+            order: "",
 
-        {
-          value: "优先显示每人小时费最少的任务",
+            addressData: ChinaAddressV4Data,
 
-          key: "price"
-        },
+            nowPath: "/mission",
 
-        {
-          value: "优先显示累计家教值最多的用户的任务",
+            borderColor: "",
 
-          key: "work"
-        }
-      ],
+            aLLIsShow: false,
 
-      typeOptions: [
-        {
-          title: "找家教",
+            pxIsShow: false,
 
-          value: "1"
-        },
+            sxIsShow: false,
 
-        {
-          title: "找家长",
+            typeShow: false,
 
-          value: "2"
-        },
+            rangValue: 0,
 
-        {
-          title: "找家长找家教",
+            sliderSubjectArr: [],
 
-          value: "3"
-        },
+            sliderBigClassArr: [],
 
-        {
-          title: "全部类型",
+            sliderClassArr: [],
 
-          value: ""
-        }
-      ],
+            slidePriceArr: [],
 
-      order: "",
+            slidePriceArr2: [],
 
-      addressData: ChinaAddressV4Data,
+            // 传入slidePicker的数据
 
-      nowPath: "/mission",
+            subjectArr: [],
 
-      borderColor: "",
+            gradesArr: [],
 
-      aLLIsShow: false,
+            leftText1: "年级",
 
-      pxIsShow: false,
+            leftText2: "科目",
 
-      sxIsShow: false,
+            rightText1: "不限",
 
-      typeShow: false,
+            rightText4: "",
 
-      rangValue: 0,
+            rightText3: "",
 
-      sliderSubjectArr: [],
+            leftText3: "每小时参考费用",
 
-      sliderBigClassArr: [],
+            leftText4: "上门方式",
 
-      sliderClassArr: [],
+            leftText5: "上门区域",
 
-      slidePriceArr: [],
+            myarea: [],
 
-      slidePriceArr2: [],
+            coordination: [
+                ["不限", "家教拜访", "家长拜访", "远程协作"]
+            ],
 
-      // 传入slidePicker的数据
+            coordination2: [
+                ["不限", "家教拜访", "家长拜访", "远程协作"]
+            ],
 
-      subjectArr: [],
+            rightText2: "不限",
 
-      gradesArr: [],
+            // 传入radio的值
 
-      leftText1: "年级",
+            radioTitle: "选择性别",
 
-      leftText2: "科目",
+            publish_title: "组班方式",
 
-      rightText1: "不限",
+            publish_Arr: [{
+                    value: 0,
 
-      rightText4: "",
+                    text: "1对1",
 
-      rightText3: "",
+                    selected: true
+                },
 
-      leftText3: "每小时参考费用",
+                {
+                    value: 1,
 
-      leftText4: "上门方式",
+                    text: "1对多",
 
-      leftText5: "上门区域",
+                    selected: false
+                }
+            ],
 
-      myarea: [],
+            radios_sex_Arr: [{
+                    value: 0,
 
-      coordination: [["不限", "家教拜访", "家长拜访", "远程协作"]],
+                    text: "不限",
 
-      coordination2: [["不限", "家教拜访", "家长拜访", "远程协作"]],
+                    selected: true
+                },
 
-      rightText2: "不限",
+                {
+                    value: 1,
 
-      // 传入radio的值
+                    text: "男",
 
-      radioTitle: "选择性别",
+                    selected: false
+                },
 
-      publish_title: "组班方式",
+                {
+                    value: 2,
 
-      publish_Arr: [
-        {
-          value: 0,
+                    text: "女",
 
-          text: "1对1",
+                    selected: false
+                }
+            ],
 
-          selected: true
-        },
+            minWorkAge: "",
 
-        {
-          value: 1,
+            maxWorkAge: "",
 
-          text: "1对多",
+            // 传入radio的值 end
 
-          selected: false
-        }
-      ],
+            step: 1,
 
-      radios_sex_Arr: [
-        {
-          value: 0,
+            pxIsShow: false,
 
-          text: "不限",
+            stringValue1: false,
 
-          selected: true
-        },
+            stringValue2: false,
 
-        {
-          value: 1,
+            stringValue3: false,
 
-          text: "男",
+            //任务列表
 
-          selected: false
-        },
+            postList: [],
 
-        {
-          value: 2,
+            // 获取参数
 
-          text: "女",
+            postData: {},
 
-          selected: false
-        }
-      ],
+            priceMin: "",
 
-      minWorkAge: "",
+            priceMax: "",
 
-      maxWorkAge: "",
+            publish_title: "组班方式",
 
-      // 传入radio的值 end
+            radiosArr: [{
+                    value: 1,
 
-      step: 1,
+                    text: "1对1",
 
-      pxIsShow: false,
+                    selected: true
+                },
 
-      stringValue1: false,
+                {
+                    value: 2,
 
-      stringValue2: false,
+                    text: "1对多",
 
-      stringValue3: false,
+                    selected: false
+                }
+            ],
+            swipperList: [],
+            demo01_index: 0,
+            SSdata: {},
 
-      //任务列表
+            nowPage: 1,
 
-      postList: [],
+            isBottom: false,
 
-      // 获取参数
+            onFetching: false,
 
-      postData: {},
+            classShow: false,
 
-      priceMin: "",
+            categoryShow: false,
 
-      priceMax: "",
+            coordinationShow: false,
 
-      publish_title: "组班方式",
+            mainShow: true,
 
-      radiosArr: [
-        {
-          value: 1,
+            allWriter: "",
 
-          text: "1对1",
+            list: [],
 
-          selected: true
-        },
+            userData: {},
 
-        {
-          value: 2,
+            missionTypeText: "全部类型",
 
-          text: "1对多",
+            pullupDefaultConfig: pullupDefaultConfig,
 
-          selected: false
-        }
-      ],
-
-      SSdata: {},
-
-      nowPage: 1,
-
-      isBottom: false,
-
-      onFetching: false,
-
-      classShow: false,
-
-      categoryShow: false,
-
-      coordinationShow: false,
-
-      mainShow: true,
-
-      allWriter: "",
-
-      list: [],
-
-      userData: {},
-
-      missionTypeText: "全部类型",
-
-      pullupDefaultConfig: pullupDefaultConfig,
-
-      pulldownDefaultConfig: pulldownDefaultConfig
-    };
-
-    // dataend
-  },
-
-  components: {
-    Range,
-
-    Popup,
-
-    XSwitch,
-
-    Cell,
-
-    XButton,
-
-    Group,
-
-    Picker,
-
-    slidePicker,
-
-    radioPicker,
-
-    sortPopup,
-
-    AlertModule,
-
-    appFooter,
-
-    sliderPopupPicker,
-
-    XAddress,
-
-    Scroller,
-
-    Loading
-  },
-
-  mounted() {
-    var that = this;
-
-    that.myarea = [];
-
-    that.getPriceArr();
-
-    that.getCategory();
-
-    that.getBigGrade();
-
-    // 获取当前登陆用户信息
-
-    this.getWebUser(this.$store.state.uid);
-
-    // 获取家教总数
-
-    that.getTotalWriter();
-
-    // 上拉刷新！---------------------------------
-
-    that.$nextTick(() => {
-      that.$refs.scrollerBottom.reset({
-        top: 0
-      });
-    });
-
-    that.postList = [];
-
-    that.postData.currentPage = that.nowPage;
-
-    that.postData.pageSize = 10;
-
-    that.loadMore();
-
-    // 上拉刷新！---------------------------------
-
-    // console.log("所有价格");
-
-    // console.log(that.slidePriceArr2);
-  },
-
-  methods: {
-    ...common,
-
-    // 点击每个任务右下角报名，直接报名
-
-    toEnroll(index) {
-      var that = this;
-
-      if (that.postList[index].uid == that.$store.state.uid) {
-        AlertModule.show({
-          title: "抱歉您不能报名自己的任务"
-        });
-
-        return false;
-      }
-
-      //任务类型：1-找家教,2-找家长,3-团家长找家教
-
-      var missionType = that.postList[index].taskType;
-
-      // 当前用户的身份
-
-      var userType = that.userData.type;
-
-      // console.log(userType + "====" + missionType);
-
-      if (
-        (userType == "author" && missionType == "2") ||
-        (userType == "business" && missionType == "1")
-      ) {
-        AlertModule.show({
-          title: "报名身份条件不满足"
-        });
-      } else {
-        var postData = {
-          taskId: that.postList[index].id,
-
-          uid: that.$store.state.uid
+            pulldownDefaultConfig: pulldownDefaultConfig
         };
 
-        that
+        // dataend
 
-          .$http("post", that.$store.state.baseUrl + "api/Task/Apply", postData)
-
-          .then(function(res) {
-            if (res.data.code != "00") {
-              AlertModule.show({
-                title: res.data.msg
-              });
-            } else {
-              AlertModule.show({
-                title: "报名成功",
-
-                onHide: function() {
-                  that.nowPage = 1;
-
-                  that.loadMore();
-                }
-              });
-            }
-          });
-      }
     },
 
-    // 任务类型筛选
+    components: {
+        Range,
+        Swiper,
+        SwiperItem,
+        Popup,
 
-    choostTypeItem(index) {
-      // this.order = "";
+        XSwitch,
 
-      // this.nowPage = 1;
+        Cell,
 
-      // this.realAuth = "";
+        XButton,
 
-      // this.eduAuth = "";
+        Group,
 
-      // this.authorAuth = "";
+        Picker,
 
-      // this.postData = {
+        slidePicker,
 
-      //     order: "",
+        radioPicker,
 
-      //     currentPage: this.nowPage,
+        sortPopup,
 
-      //     realAuth: this.realAuth,
+        AlertModule,
 
-      //     eduAuth: this.eduAuth,
+        appFooter,
 
-      //     authorAuth: this.authorAuth,
+        sliderPopupPicker,
 
-      //     minWorkAge: "",
+        XAddress,
 
-      //     maxWorkAge: "",
+        Scroller,
 
-      //     classNo: "",
-
-      //     category: "",
-
-      //     priceRange: "",
-
-      //     area: "",
-
-      //     taskType: this.typeOptions[index].value,
-
-      //     pageSize:5
-
-      // };
-
-      // this.getMIssionlist();
-
-      // this.loadMore();
-
-      var that = this;
-
-      that.postData = {};
-
-      that.postList = [];
-
-      that.postData.taskType = that.typeOptions[index].value;
-
-      that.nowPage = 1;
-
-      that.postData.currentPage = that.nowPage;
-
-      that.postData.pageSize = 10;
-
-      that.loadMore();
-
-      this.typeShow = false;
-
-      this.missionTypeText = this.typeOptions[index].title;
+        Loading
     },
 
-    // 点击筛选
+    mounted() {
+        var that = this;
 
-    clickSS() {
-      var that = this;
+        that.myarea = [];
 
-      that.sxIsShow = true;
+        that.getPriceArr();
 
-      that.pxIsShow = false;
+        that.getCategory();
 
-      that.scrollerShow = false;
+        that.getBigGrade();
+        that.getSwipper();
+        // 获取当前登陆用户信息
 
-      that.mainShow = false;
-    },
+        this.getWebUser(this.$store.state.uid);
 
-    // 性别
+        // 获取家教总数
 
-    getRadioValue(val) {
-      this.postData.gender = val;
-    },
+        that.getTotalWriter();
 
-    // 所有家教总数
+        // 上拉刷新！---------------------------------
 
-    getTotalWriter() {
-      // /WebUser/AuthorTotal
-
-      var that = this;
-
-      var baseUrl = this.$store.state.baseUrl;
-
-      that
-
-        .$http("get", baseUrl + "api/WebUser/AuthorTotal")
-
-        .then(function(res) {
-          if (res.data.code != "00") {
-            AlertModule.show({
-              title: res.data.msg
+        that.$nextTick(() => {
+            that.$refs.scrollerBottom.reset({
+                top: 0
             });
-          } else {
-            that.allWriter = res.data.data;
-
-            // alert(res.data.data)
-          }
         });
+
+        that.postList = [];
+
+        that.postData.currentPage = that.nowPage;
+
+        that.postData.pageSize = 10;
+
+        that.loadMore();
+
+        // 上拉刷新！---------------------------------
+
+        // console.log("所有价格");
+
+        // console.log(that.slidePriceArr2);
     },
 
-    // 分页======================================
-
-    // ==========================================
-
-    // 排序
-
-    getMissionOrderType(val) {
-      var that = this;
-
-      console.log(val);
-
-      that.postList = [];
-
-      that.postData.order = val;
-
-      that.nowPage = 1;
-
-      that.postData.currentPage = that.nowPage;
-
-      that.postData.pageSize = 10;
-
-      that.loadMore();
-
-      that.sortOptions = [
-        {
-          value: "优先显示我已经加了关注的用户",
-          key: "follow"
+    methods: {
+        ...common,
+        demo01_onIndexChange(index) {
+            this.demo01_index = index
         },
-
-        {
-          value: "优先显示相关家长数最多的用户",
-
-          key: "userCount"
+        // 点击轮播图
+        seeBannerUrl() {
+            var url = this.swipperList[this.demo01_index].bannerContent;
+            window.location.href = url
         },
-
-        {
-          value: "优先显示家教小时数最多的用户",
-
-          key: "workHours"
-        },
-
-        {
-          value: "优先显示每人小时费最少的用户",
-
-          key: "price"
-        },
-
-        {
-          value: "优先显示累计家教值最多的用户",
-
-          key: "work"
-        }
-      ];
-    },
-
-    getResult() {
-      // 年级
-
-      var arr = [];
-
-      for (let i in this.gradesArr) {
-        if (this.gradesArr[i].active == true) {
-          arr.push(this.gradesArr[i].className);
-
-          this.classNo.push(this.gradesArr[i].id);
-        }
-      }
-
-      this.mainShow = true;
-
-      this.classShow = false;
-
-      this.rightText1 = arr.join(",");
-    },
-
-    getResult2() {
-      // 科目
-
-      var arr = [];
-
-      for (let i in this.subjectArr) {
-        if (this.subjectArr[i].active == true) {
-          arr.push(this.subjectArr[i].categroy);
-
-          this.subject.push(this.subjectArr[i].id);
-        }
-      }
-
-      this.mainShow = true;
-
-      this.categoryShow = false;
-
-      this.rightText2 = arr.join(",");
-    },
-
-    // 每个item的点击书简
-
-    addActive(index) {
-      this.gradesArr[index].active = !this.gradesArr[index].active;
-    },
-
-    addActive2(index) {
-      this.subjectArr[index].active = !this.subjectArr[index].active;
-    },
-
-    addActive3(index) {
-      this.coordination[index].active = !this.coordination[index].active;
-    },
-
-    gotoMultiPicker(val) {
-      if (val == "class") {
-        //   console.log(1)
-
-        this.classShow = true;
-
-        (this.categoryShow = false),
-          (this.coordinationShow = false),
-          (this.mainShow = false);
-      } else {
-        (this.classShow = false),
-          (this.coordinationShow = false),
-          (this.categoryShow = true);
-
-        this.mainShow = false;
-      }
-    },
-
-    // 查看任务详情
-
-    toSeeMissionDetail(i) {
-      var that = this;
-
-      // 任务的id
-
-      var id = that.postList[i].id;
-
-      // 任务发布人的id
-
-      var postUid = that.postList[i].uid;
-
-      var isMyTask = false;
-
-      if (postUid == that.$store.state.uid) {
-        isMyTask = true;
-      }
-
-      var isAuthor;
-
-      if (that.postList[i].authorId == that.$store.state.uid) {
-        isAuthor = true;
-      }
-
-      // alert(that.postList[i].status)
-
-      // 如果是执行中的任务
-
-      if (that.postList[i].status == "3" && isAuthor) {
-        // 我执行的任务，所以我是家教
-
-        // 家教版正在执行的任务
-
-        this.$router.push({
-          path: "/missionInExecutionAuth",
-
-          query: {
-            id: id
-          }
-        });
-      } else {
-        that.$router.push({
-          path: "/missionDetail",
-
-          query: {
-            id: id,
-
-            isMyTask: isMyTask
-          }
-        });
-      }
-    },
-
-    addressChange() {},
-
-    // 提交筛选条件
-
-    showSSdata() {
-      var that = this;
-
-      that.postData.realAuth = that.stringValue1 ? "2" : "";
-
-      that.postData.eduAuth = that.stringValue2 ? "2" : "";
-
-      that.postData.authorAuth = that.stringValue3 ? "2" : "";
-
-      that.postData.minWorkAge = that.minWorkAge;
-
-      that.postData.maxWorkAge = that.maxWorkAge;
-
-      that.postData.pageSize = 10;
-
-      that.postData.directional = false;
-
-      that.postData.loginUid = that.$store.state.uid;
-
-      // console.log(that.postData);
-
-      if (that.postData.minWorkAge < 0 || that.postData.maxWorkAge > 80) {
-        AlertModule.show({
-          title: "家教年限不在范围中"
-        });
-      } else {
-        that
-
-          .$http(
-            "get",
-
-            that.$store.state.baseUrl + "api/Task/Page",
-
-            that.postData
-          )
-
-          .then(function(res) {
-            if (res.data.code == "00") {
-              // that.totalWriter=res.pi.totalSize;
-
-              var result = res.data.data;
-
-              for (var i in result) {
-                var arr = result[i].priceRange.split("-");
-
-                result[i].priceMin = arr[0];
-
-                result[i].priceMax = arr[1];
-
-                result[i].nickname = result[i].webUser.nickname;
-
-                // console.log(result[i].webUser.nickname);
-
-                if (result[i].taskType == 1) {
-                  result[i].borderColor = "zz";
-                } else if (result[i].taskType == 2) {
-                  result[i].borderColor = "ss";
-                } else {
-                  result[i].borderColor = "sz";
+        // 轮播图
+        getSwipper() {
+            var that = this;
+            var baseUrl = this.$store.state.baseUrl;
+            that.$http("get", baseUrl + "api/Banner/List").then(function (res) {
+                if (res.data.code == "00") {
+                    var result = res.data.data;
+                    for (var i in result) {
+                        result[i].img = that.$store.state.imgUrl + result[i].bannerSrc;
+                    }
+                    that.swipperList = result;
+                    console.log('轮播图数组')
+                    console.log(result)
                 }
-              }
+            });
+        },
+        // 点击每个任务右下角报名，直接报名
 
-              that.postList = result;
+        toEnroll(index) {
+            var that = this;
+
+            if (that.postList[index].uid == that.$store.state.uid) {
+                AlertModule.show({
+                    title: "抱歉您不能报名自己的任务"
+                });
+
+                return false;
             }
 
-            // console.log("任务列表");
+            //任务类型：1-找家教,2-找家长,3-团家长找家教
 
-            // console.log(that.postList);
-          });
+            var missionType = that.postList[index].taskType;
 
-        that.sxIsShow = false;
+            // 当前用户的身份
 
-        that.scrollerShow = true;
+            var userType = that.userData.type;
 
-        that.mainShow = true;
-      }
-    },
+            // console.log(userType + "====" + missionType);
 
-    // 取消筛选
+            if (
+                (userType == "author" && missionType == "2") ||
+                (userType == "business" && missionType == "1")
+            ) {
+                AlertModule.show({
+                    title: "报名身份条件不满足"
+                });
+            } else {
+                var postData = {
+                    taskId: that.postList[index].id,
 
-    cancelSS() {
-      // console.log('11')
+                    uid: that.$store.state.uid
+                };
 
-      this.sxIsShow = false;
+                that
 
-      this.scrollerShow = true;
+                    .$http("post", that.$store.state.baseUrl + "api/Task/Apply", postData)
 
-      this.mainShow = true;
-    },
+                    .then(function (res) {
+                        if (res.data.code != "00") {
+                            AlertModule.show({
+                                title: res.data.msg
+                            });
+                        } else {
+                            AlertModule.show({
+                                title: "报名成功",
 
-    // ========================================
+                                onHide: function () {
+                                    that.nowPage = 1;
 
-    refresh() {
-      var that = this;
+                                    that.loadMore();
+                                }
+                            });
+                        }
+                    });
+            }
+        },
 
-      that.getMIssionlist(data => {
-        // that.postList = data;
+        // 任务类型筛选
 
-        if (that.postData.currentPage == 1) {
-          //禁止上啦，已经没有数据
+        choostTypeItem(index) {
+            // this.order = "";
 
-          that.$refs.scrollerBottom.disablePulldown();
-        }
+            // this.nowPage = 1;
 
-        that.postList = data;
+            // this.realAuth = "";
 
-        that.$refs.scrollerBottom.donePulldown();
-      });
+            // this.eduAuth = "";
 
-      if (that.postData.currentPage > 0) {
-        that.postData.currentPage--;
-      }
+            // this.authorAuth = "";
 
-      that.postData.pageSize = 10;
-    },
+            // this.postData = {
 
-    loadMore() {
-      var that = this;
+            //     order: "",
 
-      console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@加载");
+            //     currentPage: this.nowPage,
 
-      // console.log(params)
+            //     realAuth: this.realAuth,
 
-      // params.currentPage=that.nowPage;
+            //     eduAuth: this.eduAuth,
 
-      // params.pageSize=5;
+            //     authorAuth: this.authorAuth,
 
-      that.getMIssionlist(data => {
-        // that.postList = data;
+            //     minWorkAge: "",
 
-        if (data.length <= 4) {
-          //禁止上啦，已经没有数据
+            //     maxWorkAge: "",
 
-          that.$refs.scrollerBottom.disablePullup();
-        }
+            //     classNo: "",
 
-        that.postList = that.postList.concat(data);
+            //     category: "",
 
-        //  console.log("长度"+that.postList.length)
+            //     priceRange: "",
 
-        //  console.log(that.postList)
+            //     area: "",
 
-        that.$refs.scrollerBottom.donePullup();
-      });
+            //     taskType: this.typeOptions[index].value,
 
-      that.postData.currentPage = that.nowPage;
+            //     pageSize:5
 
-      that.nowPage++;
+            // };
 
-      that.postData.pageSize = 10;
-    },
+            // this.getMIssionlist();
 
-    // ======================================
+            // this.loadMore();
 
-    // 获取任务列表
+            var that = this;
 
-    getMIssionlist(fn) {
-      var that = this;
+            that.postData = {};
 
-      console.log("传入的参数11111111111111111111111111111111111111111");
+            that.postList = [];
 
-      console.log(that.postData);
+            that.postData.taskType = that.typeOptions[index].value;
 
-      that.postData.statuses = "1,2,7";
+            that.nowPage = 1;
 
-      that.postData.dead = "2";
+            that.postData.currentPage = that.nowPage;
 
-      that.postData.directional = false;
+            that.postData.pageSize = 10;
 
-      that.postData.loginUid = that.$store.state.uid;
+            that.loadMore();
 
-      that
+            this.typeShow = false;
 
-        .$http(
-          "get",
+            this.missionTypeText = this.typeOptions[index].title;
+        },
 
-          that.$store.state.baseUrl + "api/Task/Page",
+        // 点击筛选
 
-          that.postData
-        )
+        clickSS() {
+            var that = this;
+            that.sxIsShow = true;
+            that.pxIsShow = false;
+        },
 
-        .then(function(res) {
-          if (res.data.code == "00") {
-            //  alert(res.data.pi.totalSize)
+        // 性别
 
-            that.totalWriter = res.data.pi.totalSize;
+        getRadioValue(val) {
+            this.postData.gender = val;
+        },
 
-            var result = res.data.data;
+        // 所有家教总数
 
-            for (var i in result) {
-              var arr = result[i].priceRange.split("-");
+        getTotalWriter() {
+            // /WebUser/AuthorTotal
 
-              result[i].priceMin = arr[0];
+            var that = this;
 
-              result[i].priceMax = arr[1];
+            var baseUrl = this.$store.state.baseUrl;
 
-              result[i].nickname = result[i].webUser.nickname;
+            that
 
-              // console.log(result[i].webUser.nickname);
+                .$http("get", baseUrl + "api/WebUser/AuthorTotal")
 
-              if (result[i].taskType == 1) {
-                result[i].borderColor = "zz";
-              } else if (result[i].taskType == 2) {
-                result[i].borderColor = "ss";
-              } else {
-                result[i].borderColor = "sz";
-              }
+                .then(function (res) {
+                    if (res.data.code != "00") {
+                        AlertModule.show({
+                            title: res.data.msg
+                        });
+                    } else {
+                        that.allWriter = res.data.data;
+
+                        // alert(res.data.data)
+                    }
+                });
+        },
+
+        // 分页======================================
+
+        // ==========================================
+
+        // 排序
+
+        getMissionOrderType(val) {
+            var that = this;
+
+            console.log(val);
+
+            that.postList = [];
+
+            that.postData.order = val;
+
+            that.nowPage = 1;
+
+            that.postData.currentPage = that.nowPage;
+
+            that.postData.pageSize = 10;
+
+            that.loadMore();
+
+            that.sortOptions = [{
+                    value: "优先显示我已经加了关注的用户",
+                    key: "follow"
+                },
+
+                {
+                    value: "优先显示相关家长数最多的用户",
+
+                    key: "userCount"
+                },
+
+                {
+                    value: "优先显示家教小时数最多的用户",
+
+                    key: "workHours"
+                },
+
+                {
+                    value: "优先显示每人小时费最少的用户",
+
+                    key: "price"
+                },
+
+                {
+                    value: "优先显示累计家教值最多的用户",
+
+                    key: "work"
+                }
+            ];
+        },
+
+        getResult() {
+            // 年级
+
+            var arr = [];
+
+            for (let i in this.gradesArr) {
+                if (this.gradesArr[i].active == true) {
+                    arr.push(this.gradesArr[i].className);
+
+                    this.classNo.push(this.gradesArr[i].id);
+                }
             }
 
-            fn(result);
-          }
-        });
-    },
+            this.mainShow = true;
 
-    changeResultGrade(val) {
-      this.postData.classNo = val.name;
-    },
+            this.classShow = false;
 
-    // 区域
+            this.rightText1 = arr.join(",");
+        },
 
-    onAddressChange(val) {
-      var arr = [];
+        getResult2() {
+            // 科目
 
-      this.postData.area = value2name(this.myarea, ChinaAddressV4Data)
-        .split(" ")
+            var arr = [];
 
-        .join(",");
-    },
+            for (let i in this.subjectArr) {
+                if (this.subjectArr[i].active == true) {
+                    arr.push(this.subjectArr[i].categroy);
 
-    changeResultKM(val) {
-      // 科目
+                    this.subject.push(this.subjectArr[i].id);
+                }
+            }
 
-      this.postData.category = val.name;
-    },
+            this.mainShow = true;
 
-    changeResult(val) {}
-  }
+            this.categoryShow = false;
+
+            this.rightText2 = arr.join(",");
+        },
+
+        // 每个item的点击书简
+
+        addActive(index) {
+            this.gradesArr[index].active = !this.gradesArr[index].active;
+        },
+
+        addActive2(index) {
+            this.subjectArr[index].active = !this.subjectArr[index].active;
+        },
+
+        addActive3(index) {
+            this.coordination[index].active = !this.coordination[index].active;
+        },
+
+        gotoMultiPicker(val) {
+            if (val == "class") {
+                //   console.log(1)
+
+                this.classShow = true;
+
+                (this.categoryShow = false),
+                (this.coordinationShow = false),
+                (this.mainShow = false);
+            } else {
+                (this.classShow = false),
+                (this.coordinationShow = false),
+                (this.categoryShow = true);
+
+                this.mainShow = false;
+            }
+        },
+
+        // 查看任务详情
+
+        toSeeMissionDetail(i) {
+            var that = this;
+
+            // 任务的id
+
+            var id = that.postList[i].id;
+
+            // 任务发布人的id
+
+            var postUid = that.postList[i].uid;
+
+            var isMyTask = false;
+
+            if (postUid == that.$store.state.uid) {
+                isMyTask = true;
+            }
+
+            var isAuthor;
+
+            if (that.postList[i].authorId == that.$store.state.uid) {
+                isAuthor = true;
+            }
+
+            // alert(that.postList[i].status)
+
+            // 如果是执行中的任务
+
+            if (that.postList[i].status == "3" && isAuthor) {
+                // 我执行的任务，所以我是家教
+
+                // 家教版正在执行的任务
+
+                this.$router.push({
+                    path: "/missionInExecutionAuth",
+
+                    query: {
+                        id: id
+                    }
+                });
+            } else {
+                that.$router.push({
+                    path: "/missionDetail",
+
+                    query: {
+                        id: id,
+
+                        isMyTask: isMyTask
+                    }
+                });
+            }
+        },
+
+        addressChange() {},
+
+        // 提交筛选条件
+
+        showSSdata() {
+            var that = this;
+
+            that.postData.realAuth = that.stringValue1 ? "2" : "";
+
+            that.postData.eduAuth = that.stringValue2 ? "2" : "";
+
+            that.postData.authorAuth = that.stringValue3 ? "2" : "";
+
+            that.postData.minWorkAge = that.minWorkAge;
+
+            that.postData.maxWorkAge = that.maxWorkAge;
+
+            that.postData.pageSize = 10;
+
+            that.postData.directional = false;
+
+            that.postData.loginUid = that.$store.state.uid;
+
+            // console.log(that.postData);
+
+            if (that.postData.minWorkAge < 0 || that.postData.maxWorkAge > 80) {
+                AlertModule.show({
+                    title: "家教年限不在范围中"
+                });
+            } else {
+                that
+
+                    .$http(
+                        "get",
+
+                        that.$store.state.baseUrl + "api/Task/Page",
+
+                        that.postData
+                    )
+
+                    .then(function (res) {
+                        if (res.data.code == "00") {
+                            // that.totalWriter=res.pi.totalSize;
+
+                            var result = res.data.data;
+
+                            for (var i in result) {
+                                var arr = result[i].priceRange.split("-");
+
+                                result[i].priceMin = arr[0];
+
+                                result[i].priceMax = arr[1];
+
+                                result[i].nickname = result[i].webUser.nickname;
+
+                                // console.log(result[i].webUser.nickname);
+
+                                if (result[i].taskType == 1) {
+                                    result[i].borderColor = "zz";
+                                } else if (result[i].taskType == 2) {
+                                    result[i].borderColor = "ss";
+                                } else {
+                                    result[i].borderColor = "sz";
+                                }
+                            }
+
+                            that.postList = result;
+                        }
+
+                        // console.log("任务列表");
+
+                        // console.log(that.postList);
+                    });
+
+                that.sxIsShow = false;
+
+                that.scrollerShow = true;
+
+                that.mainShow = true;
+            }
+        },
+
+        // 取消筛选
+
+        cancelSS() {
+            // console.log('11')
+
+            this.sxIsShow = false;
+
+            this.scrollerShow = true;
+
+            this.mainShow = true;
+        },
+
+        // ========================================
+
+        refresh() {
+            var that = this;
+
+            that.getMIssionlist(data => {
+                // that.postList = data;
+
+                if (that.postData.currentPage == 1) {
+                    //禁止上啦，已经没有数据
+
+                    that.$refs.scrollerBottom.disablePulldown();
+                }
+
+                that.postList = data;
+
+                that.$refs.scrollerBottom.donePulldown();
+            });
+
+            if (that.postData.currentPage > 0) {
+                that.postData.currentPage--;
+            }
+
+            that.postData.pageSize = 10;
+        },
+
+        loadMore() {
+            var that = this;
+
+            console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@加载");
+
+            // console.log(params)
+
+            // params.currentPage=that.nowPage;
+
+            // params.pageSize=5;
+
+            that.getMIssionlist(data => {
+                // that.postList = data;
+
+                if (data.length <= 4) {
+                    //禁止上啦，已经没有数据
+
+                    that.$refs.scrollerBottom.disablePullup();
+                }
+
+                that.postList = that.postList.concat(data);
+
+                //  console.log("长度"+that.postList.length)
+
+                //  console.log(that.postList)
+
+                that.$refs.scrollerBottom.donePullup();
+            });
+
+            that.postData.currentPage = that.nowPage;
+
+            that.nowPage++;
+
+            that.postData.pageSize = 10;
+        },
+
+        // ======================================
+
+        // 获取任务列表
+
+        getMIssionlist(fn) {
+            var that = this;
+
+            console.log("传入的参数11111111111111111111111111111111111111111");
+
+            console.log(that.postData);
+
+            that.postData.statuses = "1,2,7";
+
+            that.postData.dead = "2";
+
+            that.postData.directional = false;
+
+            that.postData.loginUid = that.$store.state.uid;
+
+            that
+
+                .$http(
+                    "get",
+
+                    that.$store.state.baseUrl + "api/Task/Page",
+
+                    that.postData
+                )
+
+                .then(function (res) {
+                    if (res.data.code == "00") {
+                        //  alert(res.data.pi.totalSize)
+
+                        that.totalWriter = res.data.pi.totalSize;
+
+                        var result = res.data.data;
+
+                        for (var i in result) {
+                            var arr = result[i].priceRange.split("-");
+
+                            result[i].priceMin = arr[0];
+
+                            result[i].priceMax = arr[1];
+
+                            result[i].nickname = result[i].webUser.nickname;
+
+                            // console.log(result[i].webUser.nickname);
+
+                            if (result[i].taskType == 1) {
+                                result[i].borderColor = "zz";
+                            } else if (result[i].taskType == 2) {
+                                result[i].borderColor = "ss";
+                            } else {
+                                result[i].borderColor = "sz";
+                            }
+                        }
+
+                        fn(result);
+                    }
+                });
+        },
+
+        changeResultGrade(val) {
+            this.postData.classNo = val.name;
+        },
+
+        // 区域
+
+        onAddressChange(val) {
+            var arr = [];
+
+            this.postData.area = value2name(this.myarea, ChinaAddressV4Data)
+                .split(" ")
+
+                .join(",");
+        },
+
+        changeResultKM(val) {
+            // 科目
+
+            this.postData.category = val.name;
+        },
+
+        changeResult(val) {}
+    }
 };
 </script>
 
 <style scoped>
 #mission {
-  background: #f5f5f5;
+    background: #f5f5f5;
 
-  /* padding-bottom: 60px; */
+    /* padding-bottom: 60px; */
 
-  padding-bottom: 0;
+    padding-bottom: 0;
 
-  height: 100%;
+    height: 100%;
 }
 
 .topBox {
-  height: 40px;
+    height: 40px;
 
-  line-height: 40px;
+    line-height: 40px;
 
-  border-bottom: 1px solid #cecece;
+    border-bottom: 1px solid #cecece;
 
-  background: #fff;
+    background: #fff;
 }
 
 .line {
-  width: 1px;
+    width: 1px;
 
-  height: 28px;
+    height: 28px;
 
-  background: #cecece;
+    background: #cecece;
 
-  display: inline-block;
+    display: inline-block;
+}
+
+.priceDesc {
+    color: #707070;
+    font-size: 12px;
 }
 
 .topBox .eachBtn {
-  display: flex;
-  padding-left: 6px;
-  padding-right: 6px;
-  flex-direction: row;
-  height: 40px;
-  text-align: center;
-  width: 100%;
-  justify-content: center;
+    display: flex;
+    padding-left: 6px;
+    padding-right: 6px;
+    flex-direction: row;
+    height: 40px;
+    text-align: center;
+    width: 100%;
+    justify-content: center;
 }
-.topBox .eachBtn i {
-  /* padding-left: 6px; */
 
-  color: #3375c5;
+.topBox .eachBtn i {
+    /* padding-left: 6px; */
+
+    color: #3375c5;
 }
 
 .topBox .eachBtn.shortOne {
-  /* padding-left: 28px;
-    
+    /* padding-left: 28px;
+
       padding-right: 22px; */
 }
 
 .topBox .eachBtn.lastItem {
-  background: #3375c5;
+    background: #3375c5;
 
-  color: #fff;
+    color: #fff;
 
-  font-weight: bold;
+    font-weight: bold;
 
-  height: 40px;
+    height: 40px;
 
-  min-width: 75px;
+    min-width: 75px;
 
-  /* text-align: right; */
+    /* text-align: right; */
 
-  justify-content: center;
+    justify-content: center;
 }
 
 .topBox .eachBtn.lastItem i {
-  color: #fff;
+    color: #fff;
 }
 
 #resultPeoples {
-  background: #f5f5f5;
+    background: #f5f5f5;
 }
 
 .eachPeople {
-  padding: 11px;
+    padding: 11px;
 
-  /*padding-bottom: 0;*/
+    /*padding-bottom: 0;*/
 
-  /*margin-top: 10px;*/
+    /*margin-top: 10px;*/
 
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .eachPeople.ss {
-  border-bottom: 4px solid #2ea200;
+    border-bottom: 4px solid #2ea200;
 }
 
 .eachPeople.zz {
-  border-bottom: 4px solid #3375c5;
+    border-bottom: 4px solid #3375c5;
 }
 
 .eachPeople.sz {
-  border-bottom: 4px solid #feab29;
+    border-bottom: 4px solid #feab29;
 }
 
 .reacResult .right .button {
-  font-size: 14px;
+    font-size: 14px;
 
-  padding: 1px 7px 1px 12px;
+    padding: 1px 7px 1px 12px;
 
-  border-radius: 5px;
+    border-radius: 5px;
 
-  margin-bottom: 8px;
+    margin-bottom: 8px;
 }
 
 .reacResult .right .button.searchSS {
-  color: #2ea200;
+    color: #2ea200;
 
-  border: 1px solid #2ea200;
+    border: 1px solid #2ea200;
 }
 
 .reacResult .right .button.searchZZ {
-  color: #3375c5;
+    color: #3375c5;
 
-  border: 1px solid #3375c5;
+    border: 1px solid #3375c5;
 }
 
 .reacResult .right .button.searchSZ {
-  color: #feab29;
+    color: #feab29;
 
-  border: 1px solid #feab29;
+    border: 1px solid #feab29;
 }
 
 .eachPeople .otherMsg {
-  padding: 18px 0 16px 0;
+    padding: 18px 0 16px 0;
 
-  color: #999999;
+    color: #999999;
 
-  font-size: 12px;
+    font-size: 12px;
 }
 
 .eachPeople .submitBtn {
-  width: 60px;
+    width: 60px;
 
-  height: 21px;
+    height: 21px;
 
-  background: #3375c5;
+    background: #3375c5;
 
-  color: #fff;
+    color: #fff;
 
-  border-radius: 5px;
+    border-radius: 5px;
 
-  font-weight: bold;
+    font-weight: bold;
 
-  border: none;
+    border: none;
 }
 
 #resultPeoples.reacResult .details {
-  display: block;
+    display: block;
 
-  color: #707070;
+    color: #707070;
 }
 
 #resultPeoples.reacResult .hang {
-  width: 100%;
+    width: 100%;
 
-  text-align: left;
+    text-align: left;
 
-  margin-bottom: 7px;
+    margin-bottom: 7px;
 }
 
 #resultPeoples.reacResult span.eachItem {
-  width: 33.333%;
+    width: 50%;
 
-  display: inline-block;
+    display: inline-block;
 }
 
-#resultPeoples.reacResult span.eachItem.add {
+/* #resultPeoples.reacResult span.eachItem.add {
   width: 66%;
-}
+} */
 
 .smalltitle {
-  color: #242424;
+    color: #242424;
 
-  font-size: 14px;
+    font-size: 14px;
 
-  padding: 10px 16px;
+    padding: 10px 16px;
 }
 
 .weui-cell {
-  /* padding: 10px 16px; */
+    /* padding: 10px 16px; */
 
-  height: 44px;
+    height: 44px;
 }
 
 .popBtnBox,
 .vux-popup-dialog {
-  background: #fff;
+    background: #fff;
 
-  z-index: 9999999999999999999999;
+    /* z-index: 9999999999999999999999; */
 }
 
 .popBtnBox .weui-btn {
-  width: 100% !important;
+    width: 100% !important;
 
-  margin-bottom: 13px;
+    margin-bottom: 13px;
 }
 
 #mission .priceBox {
-  padding: 10px 16px;
+    padding: 10px 16px;
 
-  /*background: #f5f5f5;*/
+    /*background: #f5f5f5;*/
 
-  border-bottom: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
 }
 
 #mission .priceBox span.title {
-  font-size: 14px;
+    font-size: 14px;
 
-  color: #242424;
+    color: #242424;
 }
 
 #mission .vux-x-textarea.weui-cell {
-  padding: 0 15px;
+    padding: 0 15px;
 
-  font-size: 14px;
+    font-size: 14px;
 
-  color: #242424;
+    color: #242424;
 }
 
 #mission .priceBox input {
-  width: 80px;
+    width: 80px;
 
-  height: 30px;
+    height: 30px;
 
-  border: 1px solid #eee;
+    border: 1px solid #eee;
 
-  border-radius: 5px;
+    border-radius: 5px;
 
-  background: #fff;
+    background: #fff;
 
-  padding: 5px;
+    padding: 5px;
 }
 
 #mission .vux-cell-box.areaBox {
-  padding: 0px;
+    padding: 0px;
 
-  border-bottom: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
 }
 
 /* 000000000000000000000000000000000000000000 */
 
 #mission .title {
-  padding: 11px;
+    padding: 11px;
 
-  border-bottom: 1px solid #cecece;
+    border-bottom: 1px solid #cecece;
 
-  font-size: 12px;
+    font-size: 12px;
 
-  color: #3375c5;
+    color: #3375c5;
 }
 
 #mission .content {
-  padding: 27px 11px 60px 11px;
+    padding: 27px 11px 60px 11px;
 
-  flex-wrap: wrap;
+    flex-wrap: wrap;
 }
 
 #mission .content .item.active {
-  border: 1px solid #3375c5;
+    border: 1px solid #3375c5;
 
-  color: #fff;
+    color: #fff;
 
-  background: #3375c5;
+    background: #3375c5;
 
-  /*margin-right: 15px;*/
+    /*margin-right: 15px;*/
 
-  font-size: 14px;
+    font-size: 14px;
 }
 
 #mission .content .item {
-  width: 95px;
+    width: 95px;
 
-  height: 35px;
+    height: 35px;
 
-  line-height: 35px;
+    line-height: 35px;
 
-  text-align: center;
+    text-align: center;
 
-  border: 1px solid #848484;
+    border: 1px solid #848484;
 
-  color: #868686;
+    color: #868686;
 
-  /*margin-right: 15px;*/
+    /*margin-right: 15px;*/
 
-  background: #fff;
+    background: #fff;
 
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
-#mission .long_btn {
-  margin-top: 10px;
-
-  margin-bottom: 10px;
+.long_btn.seeResultBtn {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 90%;
 }
 
 #mission.workAgeBox .vux-label {
-  color: #242424;
+    color: #242424;
 
-  font-size: 14px;
+    font-size: 14px;
 }
 
 #mission .workAgeBox {
-  padding: 15px;
+    padding: 15px;
 
-  flex-direction: row;
+    flex-direction: row;
 }
 
 #mission .workAgeBox input {
-  /* max-width: 100px;
-    
+    /* max-width: 100px;
+
        */
 
-  width: 45%;
+    width: 45%;
 
-  height: 30px;
+    height: 30px;
 
-  border: 1px solid #ccc;
+    border: 1px solid #ccc;
 
-  border-radius: 5px;
+    border-radius: 5px;
 
-  padding: 0 5px;
+    padding: 0 5px;
 
-  text-align: center;
+    text-align: center;
 }
 
 #mission .cancelResultBtn {
-  background: #fff !important;
+    background: #fff !important;
 
-  border: 1px solid #999999;
+    border: 1px solid #999999;
 
-  color: #707070 !important;
+    color: #707070 !important;
 
-  margin-right: 10px;
+    margin-right: 10px;
 
-  /* margin-top: 0; */
+    /* margin-top: 0; */
 }
 
 .weui-btn:after {
-  border: none;
+    border: none;
 }
 
-.shaixuanBox .bigtitle {
-  background: #fff;
+/* .shaixuanBox .bigtitle {
+    background: #fff;
 
-  text-align: center;
+    text-align: center;
 
-  padding: 20px 0;
-}
+    padding: 20px 0;
+} */
 
 .reacResult p.name {
-  word-break: keep-all;
+    word-break: keep-all;
 
-  max-width: 140px;
+    max-width: 140px;
 
-  text-overflow: ellipsis;
+    text-overflow: ellipsis;
 
-  overflow: hidden;
+    overflow: hidden;
+}
+
+.vux-slider {
+    margin-bottom: 10px;
 }
 </style>

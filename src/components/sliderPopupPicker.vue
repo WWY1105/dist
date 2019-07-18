@@ -3,7 +3,7 @@
         <group>
              <!--年级选择器start-->
              <!-- <span>{{$refs.picker3&&$refs.picker3.getNameValues()}}</span> -->
-            <popup-picker :title="leftText" @on-change='change' ref="picker3"  :data="gradesArr"  :placeholder="rightText"  class="gradePicker"></popup-picker>
+            <popup-picker :title="leftText" @on-change='change' ref="picker3" :popup-style="{zIndex: zindex}" :data="gradesArr"  :placeholder="rightText"  class="gradePicker"></popup-picker>
             <!--年级选择器end-->
         </group>
         
@@ -20,7 +20,7 @@ export default {
             chooseResult:[]
         }
     },
-    props:['gradesArr','leftText','id','rightText'],
+    props:['gradesArr','leftText','id','rightText','zindex'],
     components:{
         Picker,
          Group,

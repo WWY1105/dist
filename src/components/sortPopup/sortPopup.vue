@@ -15,7 +15,7 @@
             </group>
             <div style="padding:13px 10px;" class="popBtnBox">
                 <x-button @click.native="saveOrder" class="popBtn saveBtn">确认</x-button>
-                <x-button class="popBtn backBtn" @click.native="backSave">取消</x-button>
+                <x-button class="popBtn backBtn" @click.native="backSave">恢复默认排序</x-button>
             </div>
 
         </div>
@@ -54,14 +54,6 @@ export default {
         }
     },
     props: ['pxIsShow', 'sortOptions'],
-    // props: {
-    //     pxIsShow: {
-    //         type: Boolean
-    //     },
-    //     sortOptions:{
-    //         type:Array
-    //     }
-    // },
     directives: {
         TransferDom
     },
@@ -95,12 +87,8 @@ export default {
         },
         // 点击每一个排序
         choostItem(value, label) {
-            console.log('change:', value, label)
-            // this.originSort=this.sortOptions;
+             console.log('change:', value, label)
              this.order = value;
-            // this.sortOptions.unshift(this.sortOptions[i]);
-            // this.sortOptions.splice(++i, 1);
-            // this.order = this.sortOptions[0].value
 
         },
         // 恢复默认

@@ -86,7 +86,7 @@ export default {
                                     nickname: nickname
                                 }
 
-                                var url = that.$store.state.baseUrl + '/api/WebUser/' + result.id;
+                                var url = that.$store.state.baseUrl + 'api/WebUser/' + result.id;
                                 // console.log(url)
                                 that.$http('put', url, postData).then(function (res) {
                                     if (res.data.code == '00') {

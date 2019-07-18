@@ -236,7 +236,7 @@ textarea::placeholder {
   justify-contnt: space-between;
   font-size: 14px;
   font-weight: bold;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 10px;
 }
 

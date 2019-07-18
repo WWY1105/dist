@@ -55,7 +55,8 @@ export default {
             that.$http('put', url, data).then(function(res) {
                 // console.log(res)
                 if (res.data.code == '00') {
-                    
+                    that.$store.commit('setUserType',that.role)
+                    localStorage.setItem('userType', that.role);
                     that.$router.push({
                         // name: 'fill_in_information',
                         path: '/fill_in_information',

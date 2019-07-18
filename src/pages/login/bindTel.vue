@@ -146,12 +146,11 @@ export default {
             // alert(data)
             that.$http('post', that.$store.state.baseUrl + 'api/WebUser', data).then(function (res) {
                 if (res.data.code == '00') {
+                    // 把uid存到store中
                     that.$store.commit('setuid', res.data.data.id)
+                    that.$store.commit('setUserType',res.data.data.type)
                     localStorage.setItem('uid', res.data.data.id);
-                    // alert('执行了1')
-                    // alert(res.data.data.id)//57
-                    //  alert(sessionStorage.getItem('recommadd'))
-                    //   alert(that.GetQueryString('recommadd'))
+                    localStorage.setItem('userType', res.data.data.type);
                     // 添加新用户作为调解人
                      if (localStorage.getItem('newUser')) {
                         that.$http('post', that.$store.state.baseUrl + 'api/Mediator/add', {
